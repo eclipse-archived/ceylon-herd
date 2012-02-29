@@ -4,14 +4,10 @@
     color: white;
 }
 
-.nav .user a.user-link {
+.nav .user .user-link a {
 	display: inline;
     padding: 0;
     color: white;
-}
-
-.nav .user img {
-    vertical-align: middle;
 }
 
 #logo {
@@ -23,10 +19,6 @@
 .comment,
 .comment-status {
 	margin: 1em 0;
-}
-
-.comment-status img {
-	vertical-align: middle;
 }
 
 .comment-status img,
@@ -128,4 +120,13 @@ background-image: -webkit-gradient(
 
 .user-link {
 	font-weight: bold;
+}
+
+.user-link img {
+    vertical-align: middle;
+    margin-right: 0.5em;
+}
+
+.user-link a {
+	color: inherit;
 }

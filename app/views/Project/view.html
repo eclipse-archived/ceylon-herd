@@ -77,7 +77,7 @@
         #{gravatar.img comment.owner.email, size:50, default:'mm' /}
         <div class="data">
             <div class="header">
-                <span class="author"><i class="icon-comment"></i> <b>${comment.owner.userName}</b> <span class="small">commented</span></span>
+                <span class="author"><i class="icon-comment"></i> #{user comment.owner /} <span class="small">commented</span></span>
                 <span class="date"><a href="#comment-${comment.id}">${comment.date.since(true)}</a></span>
             </div>
             <div class="text" id="comment-${comment.id}-view">

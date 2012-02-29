@@ -22,8 +22,7 @@
                         #{if session.username != null}
                             <li class="user">
                                 #{if user.isAdmin}<i class="icon-star icon-white"></i>#{/if}
-                                #{gravatar.img user.email, size:20, default:'mm' /}
-                                #{user user /}
+                                #{user user, img:true /}
                             </li>
                         #{/if}
                         <li><a href="@{Repo.viewFile('')}">Repository</a>
