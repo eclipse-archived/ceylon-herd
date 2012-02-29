@@ -1,0 +1,67 @@
+#{extends 'main.html' /}
+#{set title:user.userName+"'s home" /}
+
+<div class="user-info">
+    #{gravatar.img user.email, size:50, default:'mm' /}
+    <span class="username">${user.userName}</span>
+    <span class="name">(${user.firstName} ${user.lastName})</span>
+</div>
+
+<hr/>
+
+<table class="user-details">
+    <tr>
+        <th>Name</th>
+        <td>${user.firstName} ${user.lastName}</td>
+    </tr>
+    <tr>
+        <th>Projects</th>
+        <td>${ownedProjects.size()}</td>
+    </tr>
+    <tr>
+        <th>Published modules</th>
+        <td>${user.publishedModules}</td>
+    </tr>
+</table>
+
+<hr/>
+
+<div class="row">
+    <div class="span6">
+		<h2>Projects (${ownedProjects.size()})</h2>
+		
+		#{list items:ownedProjects, as:'project'}
+		    <div class="user-project">
+		        %{
+		            module = project.module;
+		        }%
+		        <div class="header">
+		            #{if module}
+		                <a href="@{Repo.versions(module.id)}">${project.moduleName}</a>
+		            #{/if}
+		            #{else}
+		                ${project.moduleName}
+		            #{/else}
+		        </div>
+		        <div class="descr">
+		            #{if module}
+		                ${module.friendlyName}
+		                <div class="published">Last published ${module.lastPublished.since(true)}</div>
+		            #{/if}
+		            #{else}
+		                <i>Not published yet.</i>
+		            #{/else}
+		        </div>
+		    </div>
+		#{/list}
+    </div>
+    <div class="span6">
+        <h2>Last published modules</h2>
+        
+        #{list items:user.lastPublishedModuleVersions, as:'moduleVersion'}
+            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}">${moduleVersion.module.name}/${moduleVersion.version}</a> 
+            was published ${moduleVersion.published.since(true)}
+            <hr/>
+        #{/list}
+    </div>
+</div>

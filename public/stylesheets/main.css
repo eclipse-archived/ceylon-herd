@@ -4,6 +4,12 @@
     color: white;
 }
 
+.nav .user a.user-link {
+	display: inline;
+    padding: 0;
+    color: white;
+}
+
 .nav .user img {
     vertical-align: middle;
 }
@@ -48,6 +54,7 @@
     min-height: 50px;
 }
 
+.user-project .header,
 .comment .header {
 	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
 	
@@ -82,4 +89,43 @@ background-image: -webkit-gradient(
 
 .comment textarea {
 	width: 850px;
+}
+
+.user-info {
+	font-size: 24pt;
+}
+
+.user-info img {
+	vertical-align: middle;
+}
+
+.user-info .username {
+    font-weight: bold;
+}
+
+.user-details th {
+	text-align: left;
+}
+
+.user-details th,
+.user-details td {
+	padding: 0.3em 0.5em;
+}
+
+.user-project {
+	margin: 1em 0;
+	border: 1px solid #DDD;
+}
+
+.user-project > * {
+	padding: 0.5em 1em;
+}
+
+.user-project .published {
+	color: gray;
+	font-size: smaller;
+}
+
+.user-link {
+	font-weight: bold;
 }

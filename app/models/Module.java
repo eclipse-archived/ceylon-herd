@@ -1,6 +1,7 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,5 +64,14 @@ public class Module extends Model {
 		if(!matcher.matches())
 			return null;
 		return matcher.group(2);
+	}
+
+	@Transient
+	public Date getLastPublished(){
+		return find("SELECT MAX(published) FROM ModuleVersion WHERE module = ?", this).first(); 
+	}
+	
+	public static Module findByName(String moduleName) {
+		return find("name = ?", moduleName).first();
 	}
 }

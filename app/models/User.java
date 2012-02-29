@@ -9,6 +9,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import play.db.jpa.Model;
 import play.libs.Codec;
@@ -38,8 +39,27 @@ public class User extends Model {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	public UserStatus status;
-	
+
+	@Transient
+	public List<Project> getOwnedProjects(){
+		return Project.find("owner = ? AND status = ?", this, ProjectStatus.CONFIRMED).fetch();
+	}
+
+	@Transient
+	public List<ModuleVersion> getLastPublishedModuleVersions(){
+		return ModuleVersion.find("module.owner = ? ORDER BY published DESC", this).fetch(20);
+	}
+
+	@Transient
+	public long getPublishedModules(){
+		return ModuleVersion.count("module.owner = ?", this);
+	}
+
 	public static User connect(String username, String password) {
 		return find("userName = ? AND password = ?", username, Codec.hexSHA1(password)).first();
+	}
+
+	public static User findByUserName(String username) {
+		return find("userName = ? AND status = ?", username, UserStatus.REGISTERED).first();
 	}
 }

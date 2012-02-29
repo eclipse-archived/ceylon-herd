@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Transient;
 
 import play.db.jpa.Model;
 
@@ -44,5 +45,10 @@ public class Project extends Model {
 	}
 	public boolean canBeRejected(){
 		return status != ProjectStatus.REJECTED;
+	}
+	
+	@Transient
+	public Module getModule(){
+		return Module.findByName(moduleName);
 	}
 }

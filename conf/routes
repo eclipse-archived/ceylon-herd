@@ -43,6 +43,8 @@ GET     /modules/{moduleId}/{versionId}/remove3 LoggedInRepo.remove3
 
 GET     /repo/{<.*>path}                        Repo.viewFile
 
+GET     /users/{username}                       User.view
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 

@@ -23,7 +23,7 @@
                             <li class="user">
                                 #{if user.isAdmin}<i class="icon-star icon-white"></i>#{/if}
                                 #{gravatar.img user.email, size:20, default:'mm' /}
-                                ${user.userName}
+                                #{user user /}
                             </li>
                         #{/if}
                         <li><a href="@{Repo.viewFile('')}">Repository</a>
