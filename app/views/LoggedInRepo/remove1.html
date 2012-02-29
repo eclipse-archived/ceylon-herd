@@ -1,0 +1,9 @@
+#{extends 'main.html' /}
+#{set title:'Are you sure you want to remove a module?' /}
+
+<p>
+    Are you sure?
+</p>
+
+<a href="@{Repo.view(module.id, moduleVersion.id)}" class="btn">No, let's cancel</a>
+<a href="@{LoggedInRepo.remove2(module.id, moduleVersion.id)}" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>

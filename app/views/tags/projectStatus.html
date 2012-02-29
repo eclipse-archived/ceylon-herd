@@ -1,0 +1,9 @@
+%{
+    if(_arg == models.ProjectStatus.CONFIRMED)
+        labelType = "success";
+    else if(_arg == models.ProjectStatus.REJECTED)
+        labelType = "important";
+    else if(_arg == models.ProjectStatus.CLAIMED)
+        labelType = "warning";
+}%
+<span class="label label-${labelType}">${_arg}</span>

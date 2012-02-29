@@ -1,0 +1,131 @@
+#{extends 'main.html' /}
+#{set title:'View upload' /}
+
+<table class="table table-bordered">
+    <caption>Upload</caption>
+    <tbody>
+        <tr>
+            <th>Status</th>
+            <td><span class="label label-${uploadInfo.status == 'error' ? 'important' : uploadInfo.status}">${uploadInfo.status}</span></td>
+        </tr>
+        <tr>
+            <th>Repo path</th>
+            <td><a href="@{UploadAPI.viewFile(upload.id, '')}">@{UploadAPI.viewFile(upload.id, "")}</a></td>
+        </tr>
+        <tr>
+            <th>Size</th>
+            <td>${upload.size.formatSize()}</td>
+        </tr>
+        <tr>
+            <th>Created on</th>
+            <td>${upload.created.format("HH:mm dd MMM yyyy")}</td>
+        </tr>
+        <tr>
+            <th></th>
+            <td>
+                <a class="btn" href="@{Upload.uploadRepoForm(upload.id)}">Upload repo archive</a>
+                <a href="@{Upload.delete(upload.id)}" class="btn btn-danger">Delete</a>
+                #{if uploadInfo.publishable}
+                    <a href="@{Upload.publish(upload.id)}" class="btn btn-primary">Publish</a>
+                #{/if}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#status" data-toggle="tab">Status</a></li>
+  <li><a href="#files" data-toggle="tab">Files</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane active" id="status">
+
+<table class="table table-bordered">
+    <caption>Diagnostics</caption>
+    <tbody>
+        #{list items:uploadInfo.diagnostics, as:'diagnostic'}
+            <tr>
+                <td>
+                    <span class="label label-${diagnostic.type == 'error' ? 'important' : diagnostic.type}">${diagnostic.type}</span>
+                </td>
+                <td>
+                    #{if diagnostic.unknownPath}
+                        <a class="btn btn-danger btn-mini pull-right" 
+                           href="@{UploadAPI.deleteFile(upload.id, diagnostic.unknownPath)}">Delete</a>
+                        Unknown file:
+                        <a href="@{UploadAPI.viewFile(upload.id, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
+                    #{/if}
+                    #{else}
+                        ${diagnostic.message}
+                    #{/else}
+                </td>
+            </tr>
+        #{/list}
+        #{list items:uploadInfo.modules, as:'module'}
+            <tr>
+                <td>
+                    %{
+                        type = module.type;
+                    }%
+                    <span class="label label-${type == 'error' ? 'important' : type}">${type}</span>
+                </td>
+                <td>
+                    <a href="@{UploadAPI.deleteFile(upload.id, module.path.substring(1))}" class="btn btn-danger btn-mini pull-right">Delete</a>
+                    ${module.name}/${module.version}
+                    <ul>
+                        #{list items:module.diagnostics, as:'diagnostic'}
+                            <li>
+                                <span class="label label-${diagnostic.type == 'error' ? 'important' : diagnostic.type}">
+                                    ${diagnostic.message}
+                                </span>
+                                #{if diagnostic.projectClaim}
+                                    #{if diagnostic.project == null}
+                                        <a href="@{Project.claimForm(module.name)}" class="btn btn-mini">Claim this project</a>
+                                    #{/if}
+                                    #{else}
+                                        <a href="@{Project.view(diagnostic.project.id)}" class="btn btn-mini">Claim this project</a>
+                                    #{/else}
+                                #{/if}
+                            </li>
+                        #{/list}
+                    </ul>
+                    <a href="@{UploadAPI.viewFile(upload.id, module.path.substring(1))}"><i class="icon-folder-open"></i> Browse</a><br/>
+                    #{if module.hasDocs}
+                        <a href="@{UploadAPI.viewFile(upload.id, module.docPath)}"><i class="icon-book"></i> View docs</a>
+                    #{/if}
+                </td>
+            </tr>
+        #{/list}
+    </tbody>
+</table>
+
+</div>
+<div class="tab-pane" id="files">
+
+#{if uploadedFiles.empty}
+    <div class="alert alert-info">
+        No file uploaded yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-bordered">
+        <caption>Files</caption>
+        <tbody>
+            #{list items:uploadedFiles, as:'file'}
+                <tr>
+                    %{
+                        path = file.relativeTo(upload); 
+                    }%
+                    <td><a href="@{UploadAPI.viewFile(upload.id, path)}">/${path}</a></td>
+                    <td>${file.length().formatSize()}</td>
+                    <td><a class="btn btn-danger btn-mini" href="@{UploadAPI.deleteFile(upload.id, path)}">Delete</a></td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}
+
+</div>
+
+</div>

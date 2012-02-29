@@ -1,0 +1,8 @@
+#{extends 'email.html' /}
+
+<p>
+ ${user.userName} has just added the following comment on project claim for ${project.moduleName}:
+</p>
+${comment.text.md()}
+<hr/>
+<a href="@@{Project.view(project.id)}#comment-${comment.id}">See comment online</a>.

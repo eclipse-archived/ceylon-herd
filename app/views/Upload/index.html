@@ -1,0 +1,56 @@
+#{extends 'main.html' /}
+#{set title:'List of uploads' /}
+
+#{if uploadInfos.empty}
+    <div class="alert alert-info">
+        No open uploads.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>My current uploads</caption>
+        <tbody>
+            #{list items:uploadInfos, as:'uploadInfo'}
+                <tr>
+                    <td><a href="@{Upload.view(uploadInfo.upload.id)}">${uploadInfo.upload.id}</a></td>
+                    <td>Created on ${uploadInfo.upload.created.format('HH:mm dd MMM yyyy')}</td>
+                    <td>${uploadInfo.upload.size.formatSize()}</td>
+                    <td>
+                        %{ count = uploadInfo.upload.fileCount}%
+                        ${count} ${count.pluralize('file', 'files')}
+                    </td>
+                    <td>Status: <span class="label label-${uploadInfo.status == 'error' ? 'important' : uploadInfo.status}">${uploadInfo.status}</span></td>
+                    <td>
+                        #{if uploadInfo.modules.empty}
+                            <span class="label label-important">No module</span>
+                        #{/if}
+                        #{else}
+                            Modules:
+                            <ul>
+                                #{list items:uploadInfo.modules, as:"module"}
+                                    <li>
+                                        %{
+                                            type = module.type;
+                                        }%
+                                        <span class="label label-${type == 'error' ? 'important' : type}">${module.name}/${module.version}</span>
+                                    </li>
+                                #{/list}
+                            </ul>
+                            #{if !uploadInfo.diagnostics.empty}
+                                <span class="label label-important">Other errors</span>
+                            #{/if}
+                        #{/else}
+                    </td>
+                    <td>
+                        <a href="@{Upload.delete(uploadInfo.upload.id)}" class="btn btn-danger">Delete</a>
+                        #{if uploadInfo.publishable}
+                            <a href="@{Upload.publish(uploadInfo.upload.id)}" class="btn btn-primary">Publish</a>
+                        #{/if}
+                    </td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}
+
+<a class="btn btn-primary" href="@{Upload.newUpload()}"><i class="icon-plus icon-white"></i> New Upload</a>

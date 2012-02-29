@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set title:'Versions for '+module.name /}
+
+#{if user != null && user == module.owner}
+    <div class="alert alert-info">
+        <a href="@{LoggedInRepo.editForm(module.id)}" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+        You own this module.
+    </div>
+#{/if}
+
+#{if versions.empty}
+    <div class="alert alert-info">
+        No versions for ${module.name} in repository yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>List of versions for ${module.name}</caption>
+        <tbody>
+            #{list items:versions, as:'version'}
+                <tr>
+                    <td><a href="@{Repo.view(module.id, version.id)}">${version.version}</a></td>
+                    <td>
+                        #{secure.check 'admin'} 
+                            <a href="@{LoggedInRepo.remove1(module.id, version.id)}" 
+                               class="btn btn-danger btn-mini pull-right"
+                               ><i class="icon-trash icon-white"></i> Remove</a>
+                        #{/secure.check}
+                    
+                    </td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

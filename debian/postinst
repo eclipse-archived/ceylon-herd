@@ -1,0 +1,41 @@
+#!/bin/sh
+
+APP=ceylon-repo
+PLAY_USER=ceylrepo
+CLUSTER=
+
+if test -n "$CLUSTER"
+then
+	APP_FOLDER=$APP/$CLUSTER
+	APP_NAME=$APP-$CLUSTER
+else
+	APP_FOLDER=$APP
+	APP_NAME=$APP
+fi
+
+set -e
+
+case "$1" in
+configure)
+	if grep $PLAY_USER /etc/passwd > /dev/null
+	then
+		echo User $PLAY_USER already exists
+	else
+		echo Creating user $PLAY_USER
+		adduser --system --home /usr/share/$APP_FOLDER --shell /bin/false --no-create-home \
+			--group --disabled-password --disabled-login $PLAY_USER
+	fi
+
+	chown $PLAY_USER. /var/log/$APP_FOLDER /var/lib/$APP_FOLDER /var/run/$APP_FOLDER
+
+	update-rc.d $APP_NAME defaults 91 09
+
+	. /etc/default/$APP_NAME
+	
+	if test "$IS_PLAY_CONFIGURED" = 1
+	then
+		/etc/init.d/$APP_NAME restart
+	else
+		echo "Not starting $APP_NAME, configure /etc/$APP_FOLDER/application.conf and /etc/default/$APP_NAME, then run /etc/init.d/$APP_NAME start"
+	fi
+esac

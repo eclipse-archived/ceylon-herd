@@ -1,0 +1,53 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                                       Application.index
+
+GET     /logout                                 Secure.logout
+GET     /login                                  Secure.login
+
+GET     /register                               Register.index
+POST    /register/confirmation-sent             Register.register
+GET     /register/confirm/{confirmationCode}    Register.confirm
+POST    /register/welcome                       Register.complete
+
+GET     /projects                               Project.index
+GET     /projects/claim                         Project.claimform
+GET     /projects/{id}                          Project.view
+GET     /projects/{id}/delete                   Project.delete
+
+GET     /admin/projects/claims                  Project.claims
+GET     /admin/projects/{id}/accept             Project.accept
+GET     /admin/projects/{id}/reject             Project.reject
+
+GET     /uploads                                Upload.index
+GET     /uploads/new                            Upload.newUpload
+GET     /uploads/{id}                           Upload.view
+GET     /uploads/{uploadId}/upload              Upload.uploadRepoForm
+GET     /uploads/{id}/delete                    Upload.delete
+
+GET     /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.viewFile
+PUT     /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.addFile
+*       /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.dispatch
+
+GET     /modules                                Repo.index
+GET     /modules/{id}                           Repo.versions
+GET     /modules/{id}/edit                      LoggedInRepo.editForm
+GET     /modules/{moduleId}/{versionId}         Repo.view
+GET     /search                                 Repo.search
+GET     /modules/{moduleId}/{versionId}/remove1 LoggedInRepo.remove1
+GET     /modules/{moduleId}/{versionId}/remove2 LoggedInRepo.remove2
+GET     /modules/{moduleId}/{versionId}/remove3 LoggedInRepo.remove3
+
+GET     /repo/{<.*>path}                        Repo.viewFile
+
+# Ignore favicon requests
+GET     /favicon.ico                            404
+
+# Map static resources from the /app/public folder to the /public path
+GET     /public/                                staticDir:public
+
+# Catch all
+*       /{controller}/{action}                  {controller}.{action}

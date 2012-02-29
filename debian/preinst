@@ -1,0 +1,22 @@
+#!/bin/sh
+
+APP=ceylon-repo
+PLAY_USER=ceylrepo
+CLUSTER=
+
+if test -n "$CLUSTER"
+then
+	APP_FOLDER=$APP/$CLUSTER
+	APP_NAME=$APP-$CLUSTER
+else
+	APP_FOLDER=$APP
+	APP_NAME=$APP
+fi
+
+set -e
+
+case "$1" in
+upgrade)
+	# Remove tmp contents before upgrading
+	rm -rf /var/lib/$APP_FOLDER/tmp/*
+esac

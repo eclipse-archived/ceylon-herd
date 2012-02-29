@@ -1,0 +1,131 @@
+#{extends 'main.html' /}
+#{set title:'View project claim' /}
+
+#{if !otherOwners.isEmpty()}
+    <div class="alert">
+        Project ${project.status == models.ProjectStatus.CONFIRMED ? 'also' : 'already'} owned by:
+        <ul>
+            #{list items:otherOwners, as:'o'}
+                <li>${o.userName}</li>
+            #{/list}
+        </ul>
+    </div>
+#{/if}
+
+<table class="table table-bordered">
+    <caption>Project</caption>
+    <tbody>
+    <tr>
+        <th>Module</th>
+        <td>
+            <a href="@{Project.delete(project.id)}" 
+               class="btn btn-danger btn-mini pull-right"><i class="icon-trash icon-white"></i> Delete</a>
+            ${project.moduleName}
+        </td>
+    </tr>
+    <tr>
+        <th>Owner</th>
+        <td>${project.owner.userName}</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>
+            #{projectStatus project.status /}
+            #{secure.check 'admin'}
+                <span class="pull-right">
+                #{if project.canBeAccepted()}
+                    <a class="btn btn-success btn-mini" 
+                       href="@{Project.accept(project.id)}"><i class="icon-ok icon-white"></i> Accept</a>
+                #{/if}
+                #{if project.canBeRejected()}
+                    <a class="btn btn-danger btn-mini" 
+                       href="@{Project.reject(project.id)}"><i class="icon-remove icon-white"></i> Reject</a>
+                #{/if}
+                </span>
+            #{/secure.check}
+        </td>
+    </tr>
+    <tr>
+        <th>URL</th>
+        <td>${project.url}</td>
+    </tr>
+    <tr>
+        <th>License</th>
+        <td>${project.license}</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>${project.description}</td>
+    </tr>
+    <tr>
+        <th>Motivation</th>
+        <td>${project.motivation}</td>
+    </tr>
+    </tbody>
+</table>
+
+#{list items: project.comments, as: 'comment'}
+    #{if comment.status != null}
+    <div class="comment-status">
+        #{projectStatus comment.status /}
+        #{gravatar.img comment.owner.email, size:30, default:'mm' /}<b>${comment.owner.userName}</b>
+        ${comment.status.name().toLowerCase()} this project ${comment.date.since(true)}
+    </div>
+    #{/if}
+    #{else}
+    <div class="comment" id="comment-${comment.id}">
+        #{gravatar.img comment.owner.email, size:50, default:'mm' /}
+        <div class="data">
+            <div class="header">
+                <span class="author"><i class="icon-comment"></i> <b>${comment.owner.userName}</b> <span class="small">commented</span></span>
+                <span class="date"><a href="#comment-${comment.id}">${comment.date.since(true)}</a></span>
+            </div>
+            <div class="text" id="comment-${comment.id}-view">
+                #{if user.isAdmin || comment.owner == user}
+                    <a href="@{Project.deleteComment(project.id, comment.id)}" 
+                       class="btn btn-danger btn-mini action"><i class="icon-trash icon-white"></i> Delete</a>
+                    <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
+                       class="btn btn-mini action"><i class="icon-edit"></i> Edit</a>
+                #{/if}
+                ${comment.text.md()}
+            </div>
+            <div class="text" id="comment-${comment.id}-edit" style="display:none;">
+                #{form @Project.editComment(project.id, comment.id)}
+                    <textarea name="text" rows="5">${comment.text}</textarea>
+                    <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
+                       class="btn">Cancel</a>
+                    <button class="btn btn-primary" type="submit"><i class="icon-ok icon-white"></i> Save</button>
+                #{/form}
+            </div>
+        </div>
+    </div>
+    #{/else}
+#{/list}
+
+#{form @Project.addComment(project.id)}
+    <div class="comment" id="comment-add">
+        #{gravatar.img user.email, size:50, default:'mm' /}
+        <div class="data">
+            <div class="header">
+                <span class="author"><i class="icon-comment"></i> Comment on this claim</span>
+            </div>
+            <div class="text">
+                <textarea name="text" rows="5"></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary"><i class="icon-comment icon-white"></i> Add comment</button>
+        #{if project.status == models.ProjectStatus.REJECTED}
+            <button type="submit" class="btn btn-warning" name="projectAction" value="claim"><i class="icon-plus icon-white"></i> Comment and reclaim</button> 
+        #{/if}
+        #{secure.check 'admin'}
+            #{if project.canBeAccepted()}
+                <button type="submit" class="btn btn-success" name="projectAction" value="accept"><i class="icon-ok icon-white"></i> Comment and accept</button> 
+            #{/if}
+            #{if project.canBeRejected()}
+                <button type="submit" class="btn btn-danger" name="projectAction" value="reject"><i class="icon-remove icon-white"></i> Comment and reject</button>
+            #{/if}
+        #{/secure.check}
+    </div>
+#{/form}

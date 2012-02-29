@@ -1,0 +1,32 @@
+#{extends 'main.html' /}
+#{set title:'Browse upload repo' /}
+
+<p>
+    <a href="@{Upload.view(upload.id)}">Back to upload</a>
+</p>
+
+#{if file.isRoot(upload) && file.listFiles().length == 0}
+    <div class="alert alert-info">
+        No file uploaded yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table">
+        <caption>Browse ${file.relativeTo(upload) ?: 'root'}</caption>
+        #{if !file.isRoot(upload)}
+        <tr>
+            <td colspan="3"><a href="@{UploadAPI.viewFile(upload.id, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
+        </tr>
+        #{/if}
+        #{list items:file.listFiles(), as:'child'}
+        <tr>
+            <td><a href="@{UploadAPI.viewFile(upload.id, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td>
+                #{if child.directory}${child.folderSize().formatSize()}#{/if}
+                #{else}${child.length().formatSize()}#{/else}
+            </td>
+            <td><a class="btn btn-danger btn-mini" href="@{UploadAPI.deleteFile(upload.id, child.relativeTo(upload), true)}">Delete</a></td>
+        </tr>
+        #{/list}
+    </table>
+#{/else}

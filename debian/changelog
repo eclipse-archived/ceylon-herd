@@ -1,0 +1,12 @@
+ceylon-repo (1.2) oneiric; urgency=low
+
+  * New DB
+  * Added stuff
+
+ -- Stephane Epardaud <stephane@epardaud.fr>  Wed, 29 Feb 2012 00:38:12 +0100
+
+ceylon-repo (1.0) UNRELEASED; urgency=low
+
+  * Initial release
+
+ -- Stephane Epardaud <stephane@epardaud.fr>  Sun, 26 Feb 2012 22:23:26 +0100

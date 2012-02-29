@@ -1,0 +1,43 @@
+#{extends 'main.html' /}
+#{set title:'Edit module' /}
+#{set hasForm: true /}
+
+#{form action: @LoggedInRepo.edit(module.id), class: "form-horizontal"}
+
+<fieldset>
+    <legend>Edit module</legend>
+    <div class="control-group #{errorClassBootstrap 'friendlyName'/}">
+        <label class="control-label" for="friendlyName">Friendly name</label>
+        <div class="controls">
+            <input name="friendlyName" value="${flash.friendlyName ?: module.friendlyName}"/>
+            <span class="help-inline">​#{error 'friendlyName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'url'/}">
+        <label class="control-label" for="url">Home page</label>
+        <div class="controls">
+            <input name="url" value="${flash.url ?: module.homeURL}"/>
+            <span class="help-inline">​#{error 'url'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'code'/}">
+        <label class="control-label" for="code">Code URL</label>
+        <div class="controls">
+            <input name="code" value="${flash.code ?: module.codeURL}"/>
+            <span class="help-inline">​#{error 'code'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'issues'/}">
+        <label class="control-label" for="issues">Issue tracker URL</label>
+        <div class="controls">
+            <input name="issues" value="${flash.issues ?: module.issueTrackerURL}"/>
+            <span class="help-inline">​#{error 'issues'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a href="@{Repo.versions(module.id)}" class="btn">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save module"/>
+    </div>
+</fieldset>
+
+#{/form}

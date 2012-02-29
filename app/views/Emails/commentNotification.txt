@@ -1,0 +1,6 @@
+${user.userName} has just added the following comment on project claim for ${project.moduleName}:
+
+${comment.text}
+--
+See comment online: @@{Project.view(project.id)}#comment-${comment.id}
+

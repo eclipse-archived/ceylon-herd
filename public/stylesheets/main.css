@@ -1,0 +1,85 @@
+.nav .user {
+    margin: 10px 10px 0 10px;
+    font-weight: bold;
+    color: white;
+}
+
+.nav .user img {
+    vertical-align: middle;
+}
+
+#logo {
+	position: absolute;
+    top: 0px;
+    left: 20px;
+}
+
+.comment,
+.comment-status {
+	margin: 1em 0;
+}
+
+.comment-status img {
+	vertical-align: middle;
+}
+
+.comment-status img,
+.comment-status span {
+    margin-right: 0.5em;
+}
+
+.comment .action {
+    display: none;
+    float: right;
+    margin-left: 0.5em;
+}
+
+.comment:hover .action {
+	display: inline;
+}
+
+.comment img {
+	float: left;
+}
+
+.comment .data {
+	border: 1px solid #DDD;
+    margin-left: 60px;
+    min-height: 50px;
+}
+
+.comment .header {
+	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+	
+background-image: linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -o-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(227,227,227)),
+    color-stop(1, rgb(245,245,245))
+);
+}
+
+.comment .date {
+	float: right;
+}
+
+.comment .header,
+.comment .text {
+    padding: 0.5em 0.7em;
+}
+
+.comment .small,
+.comment .date a {
+	color: gray;
+}
+
+.comment textarea {
+	width: 850px;
+}

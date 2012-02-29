@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>#{get 'title' /}</title>
+        <meta charset="${_response_encoding}">
+        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
+        <link rel="stylesheet" media="screen" href="@{'/public/bootstrap/css/bootstrap.css'}">
+        #{get 'moreStyles' /}
+        <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="@{'/public/images/favicon.ico'}">
+        <script src="@{'/public/javascripts/jquery-1.7.1.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/bootstrap/js/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/bootstrap/js/bootstrap-tab.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        #{get 'moreScripts' /}
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="@{Application.index()}"><img id="logo" src="@{'/public/images/elephant-50.png'}"/> Ceylon repo</a>
+                    <ul class="nav">
+                        #{if session.username != null}
+                            <li class="user">
+                                #{if user.isAdmin}<i class="icon-star icon-white"></i>#{/if}
+                                #{gravatar.img user.email, size:20, default:'mm' /}
+                                ${user.userName}
+                            </li>
+                        #{/if}
+                        <li><a href="@{Repo.viewFile('')}">Repository</a>
+                        <li><a href="@{Repo.index()}">Modules</a>
+                        #{if session.username != null}
+                            <li><a href="@{Project.index()}">My projects</a>
+                            <li><a href="@{Upload.index()}">My uploads</a>
+                            #{if user.isAdmin}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="@{Project.claims()}">Current project claims</a>
+                                    </li>
+                                </ul>
+                            #{/if}
+                            <li><a href="@{Secure.logout()}">Logout</a>
+                        #{/if}
+                        #{if session.username == null}
+                            <li><a href="@{Register.index()}">Register</a>
+                            <li><a href="@{Secure.login()}">Log in</a>
+                        #{/if}
+                    </ul>
+                    <form class="navbar-search pull-right" action="@{Repo.search}">
+                        <input name="q" type="text" class="search-query" placeholder="Search module">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            #{if flash.message || flash.message2}
+                <div class="alert alert-success">
+                    #{if flash.message}<li>${flash.message}</li>#{/if}
+                    #{if flash.message2}<li>${flash.message2}</li>#{/if}
+                </div>
+            #{/if}
+            #{if flash.warning}
+                <div class="alert">
+                    ${flash.warning}
+                </div>
+            #{/if}
+            #{ifErrors}
+                #{if !hasForm}
+                    <div class="alert alert-error">
+                        Please correct the following errors:
+                        <ul>
+                        #{list items:play.data.validation.Validation.errors(), as:'error'}
+                                <li>${error.key} ${error.message}</li>
+                        #{/list}
+                        </ul>
+                    </div>
+                #{/if}
+            #{/ifErrors}
+            #{doLayout /}
+        </div>
+    </body>
+</html>

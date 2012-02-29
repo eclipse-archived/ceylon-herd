@@ -1,0 +1,57 @@
+#{extends 'main.html' /}
+#{set title:'Claim new project' /}
+#{set hasForm: true /}
+
+#{form action: @Project.claim(), class: "form-horizontal"}
+
+<fieldset>
+    <legend>Claim new project</legend>
+    <div class="control-group #{errorClassBootstrap 'module'/}">
+        <label class="control-label" for="module">Module name</label>
+        <div class="controls">
+            <input name="module" value="${module ?: flash.module}"/>
+            <span class="help-inline">​#{error 'module'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'license'/}">
+        <label class="control-label" for="license">License</label>
+        <div class="controls">
+            <input name="license" value="${flash.license}"/>
+            <span class="help-inline">​#{error 'license'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'url'/}">
+        <label class="control-label" for="url">URL</label>
+        <div class="controls">
+            <input name="url" value="${flash.url}"/>
+            <span class="help-inline">​#{error 'url'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'role'/}">
+        <label class="control-label" for="role">Your role in the project</label>
+        <div class="controls">
+            <input name="role" value="${flash.role}"/>
+            <span class="help-inline">​#{error 'role'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'description'/}">
+        <label class="control-label" for="description">Project description</label>
+        <div class="controls">
+            <textarea name="description" class="input-xxlarge" rows="10">${flash.description}</textarea>
+            <span class="help-inline">​#{error 'description'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'motivation'/}">
+        <label class="control-label" for="motivation">Motivation</label>
+        <div class="controls">
+            <textarea name="motivation" class="input-xxlarge" rows="10">${flash.motivation}</textarea>
+            <span class="help-inline">​#{error 'motivation'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a href="@{Project.index()}" class="btn">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Claim project"/>
+    </div>
+</fieldset>
+
+#{/form}

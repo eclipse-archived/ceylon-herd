@@ -1,0 +1,27 @@
+#{extends 'main.html' /}
+#{set title:'Browse repo' /}
+
+#{if file.isRoot() && file.listFiles().length == 0}
+    <div class="alert alert-info">
+        No file yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table">
+        <caption>Browse ${file.relative() ?: 'root'}</caption>
+        #{if !file.isRoot()}
+        <tr>
+            <td colspan="3"><a href="@{Repo.viewFile(file.parentFile.relative())}"><i class="icon-folder-open"></i> Parent</a></td>
+        </tr>
+        #{/if}
+        #{list items:file.listFiles(), as:'child'}
+        <tr>
+            <td><a href="@{Repo.viewFile(child.relative())}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td>
+                #{if child.directory}${child.folderSize().formatSize()}#{/if}
+                #{else}${child.length().formatSize()}#{/else}
+            </td>
+        </tr>
+        #{/list}
+    </table>
+#{/else}

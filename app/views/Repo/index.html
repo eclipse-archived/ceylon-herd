@@ -1,0 +1,26 @@
+#{extends 'main.html' /}
+#{set title:'List of modules' /}
+
+#{if modules.empty}
+    <div class="alert alert-info">
+        No module in repository yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>List of modules</caption>
+        <tbody>
+            #{list items:modules, as:'module'}
+                <tr>
+                    <td><a href="@{Repo.versions(module.id)}">${module.name}</a></td>
+                    <td>
+                        #{if user != null && module.owner == user}
+                            <a href="@{LoggedInRepo.editForm(module.id)}" 
+                               class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+                        #{/if}
+                    </td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

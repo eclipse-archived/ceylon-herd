@@ -1,0 +1,95 @@
+#{extends 'main.html' /}
+#{set title:'View module' /}
+
+#{if module.github}
+#{set 'moreScripts'}
+<script type="text/javascript">
+function loadInfos(result){
+	var image = result.data.owner.avatar_url;
+	if(image){
+		jQuery("#img-holder").append(jQuery("<img/>").attr('src', image));
+	}
+	var issues = result.data.open_issues;
+	if(issues != null){
+		jQuery("#issues").append(" ("+issues+" open issues)");
+	}
+    var descr = result.data.description;
+    if(descr != null){
+        jQuery("#description").text(descr);
+    }
+}
+jQuery(function (){
+    jQuery.getJSON("https://api.github.com/repos/${module.githubOwner}/${module.githubProject}?callback=?", loadInfos);
+});
+</script>
+#{/set}
+#{/if}
+
+#{if user != null && user == module.owner}
+    <div class="alert alert-info">
+        <a href="@{LoggedInRepo.editForm(module.id)}" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+        You own this module.
+    </div>
+#{/if}
+
+#{secure.check 'admin'} 
+    <a href="@{LoggedInRepo.remove1(module.id, moduleVersion.id)}" 
+       class="btn btn-danger pull-right"><i class="icon-trash icon-white"></i> Remove</a>
+#{/secure.check}
+
+<table class="table table-bordered">
+    <caption>Module info</caption>
+    <tbody>
+        <tr>
+            <th>Name</th>
+            <td>
+                <div id="img-holder" class="pull-right"></div>
+                #{if module.friendlyName}
+                    ${module.friendlyName}<br/>
+                #{/if}
+                <a href="@{Repo.versions(module.id)}">${module.name}</a>/${moduleVersion.version}
+            </td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td id="description"></td>
+        </tr>
+        <tr>
+            <th>Published</th>
+            <td>${moduleVersion.published.since(true)}</td>
+        </tr>
+        <tr>
+            <th>Info</th>
+            <td>
+                #{if module.homeURL}
+                    <a href="${module.homeURL}"><i class="icon-home"></i> Home</a><br/>
+                #{/if}
+                #{if module.codeURL}
+                    <a href="${module.codeURL}"><i class="icon-heart"></i> Code repository</a><br/>
+                #{/if}
+                #{if module.issueTrackerURL}
+                    <a href="${module.issueTrackerURL}" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+                #{/if}
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="@{Repo.viewFile(moduleVersion.path)}"><i class="icon-folder-open"></i> Browse</a><br/>
+                <a href="@{Repo.viewFile(moduleVersion.carPath)}"><i class="icon-download"></i> Download .car</a><br/>
+                #{if moduleVersion.isSourcePresent}
+                    <a href="@{Repo.viewFile(moduleVersion.sourcePath)}"><i class="icon-heart"></i> Download source archive</a><br/>
+                #{/if}
+                #{else}
+                    <i class="icon-remove"></i> No source archive<br/>
+                #{/else}
+                #{if moduleVersion.isAPIPresent}
+                    <a href="@{Repo.viewFile(moduleVersion.APIPath)}"><i class="icon-book"></i> View docs</a><br/>
+                #{/if}
+                #{else}
+                    <i class="icon-remove"></i> No API docs<br/>
+                #{/else}
+            </td>
+        </tr>
+    </tbody>
+</table>

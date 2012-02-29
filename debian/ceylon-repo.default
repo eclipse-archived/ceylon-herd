@@ -1,0 +1,2 @@
+# Set this to 1 to allow ceylon-repo to start
+IS_PLAY_CONFIGURED=0

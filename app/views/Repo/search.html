@@ -1,0 +1,20 @@
+#{extends 'main.html' /}
+#{set title:'Search modules' /}
+
+#{if modules.empty}
+    <div class="alert alert-info">
+        No module found.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>Modules matching '${q}'</caption>
+        <tbody>
+            #{list items:modules, as:'module'}
+                <tr>
+                    <td><a href="@{Repo.view(module.id)}">${module.name}/${module.version}</a></td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

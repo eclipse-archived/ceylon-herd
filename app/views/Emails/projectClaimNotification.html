@@ -1,0 +1,15 @@
+#{extends 'email.html' /}
+
+<p>
+ ${user.userName} has just claimed the project ${project.moduleName}:
+</p>
+<p>
+User: ${user.userName}<br/>
+Module name: ${project.moduleName}<br/> 
+License: ${project.license}<br/> 
+Description: ${project.description}<br/> 
+Motivation: ${project.motivation}<br/> 
+Role: ${project.role}<br/>
+</p> 
+<hr/>
+<a href="@@{Project.view(project.id)}">See project claim online</a>.

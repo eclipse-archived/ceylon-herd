@@ -1,0 +1,49 @@
+#{extends 'main.html' /}
+#{set title:'Complete registration' /}
+#{set hasForm: true /}
+
+#{form @Register.complete(user.confirmationCode)}
+
+<fieldset>
+    <legend>Complete registration for ${user.email}</legend>
+    <div class="control-group #{errorClassBootstrap 'userName'/}">
+        <label class="control-label" for="userName">User name</label>
+        <div class="controls">
+            <input name="userName" value="${flash.userName}"/>
+            <span class="help-inline">​#{error 'userName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'password'/}">
+        <label class="control-label" for="password">Password</label>
+        <div class="controls">
+            <input type="password" name="password" value="${flash.password}"/>
+            <span class="help-inline">​#{error 'password'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'password2'/}">
+        <label class="control-label" for="password2">Password confirmation</label>
+        <div class="controls">
+            <input type="password" name="password2" value="${flash.password2}"/>
+            <span class="help-inline">​#{error 'password2'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'firstName'/}">
+        <label class="control-label" for="firstName">First name</label>
+        <div class="controls">
+            <input name="firstName" value="${flash.firstName}"/>
+            <span class="help-inline">​#{error 'firstName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'lastName'/}">
+        <label class="control-label" for="lastName">Last name</label>
+        <div class="controls">
+            <input name="lastName" value="${flash.lastName}"/>
+            <span class="help-inline">​#{error 'lastName'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">​
+        <input type="submit" class="btn-primary" value="Complete registration"/>
+    </div>
+</fieldset>
+
+#{/form}
