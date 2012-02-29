@@ -1,5 +1,18 @@
 #!/bin/sh
 
+random () {
+ i=0
+ while [ $i -lt 64 ]
+ do
+     RAND=$(od -An -N1 -t u1 /dev/urandom)
+     val=$(( ($RAND % 62) + 1 ))
+     key=$(echo "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" | cut -c $val)
+     echo -n $key
+     i=$(( i+1 ))
+ done
+ echo
+}
+
 APP=ceylon-repo
 PLAY_USER=ceylrepo
 CLUSTER=
@@ -19,4 +32,12 @@ case "$1" in
 upgrade)
 	# Remove tmp contents before upgrading
 	rm -rf /var/lib/$APP_FOLDER/tmp/*
+	;;
 esac
+
+if test \! -f /etc/$APP_FOLDER/application-secret.conf
+then
+    echo Generating new secret key in /etc/$APP_FOLDER/application-secret.conf
+    echo -n "application.secret=" > /etc/$APP_FOLDER/application-secret.conf
+    random >> /etc/$APP_FOLDER/application-secret.conf
+fi

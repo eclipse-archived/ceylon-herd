@@ -23,6 +23,7 @@ override_dh_auto_install:
 	install -d $(DEB_PATH)$(INSTALL_PATH) $(DEB_PATH)$(ETC_PATH) $(DEB_PATH)$(LOG_PATH) $(DEB_PATH)$(LIB_PATH) $(DEB_PATH)$(RUN_PATH)
 	rsync --exclude .svn --exclude .CVS -r app lib public $(DEB_PATH)$(INSTALL_PATH)
 	cp conf/* $(DEB_PATH)$(ETC_PATH)
+	rm $(DEB_PATH)$(ETC_PATH)/application-secret.conf
 	ln -s $(ETC_PATH) $(DEB_PATH)$(INSTALL_PATH)/conf
 	ln -s /www/ceylon.inforealm.org/repo $(DEB_PATH)$(INSTALL_PATH)/repo
 	ln -s /www/ceylon.inforealm.org/uploads $(DEB_PATH)$(INSTALL_PATH)/uploads
