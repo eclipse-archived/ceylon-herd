@@ -2,3 +2,6 @@
 
 require:
     - play
+    - gravatar 1.0.2
+    - markdown 1.7
+
