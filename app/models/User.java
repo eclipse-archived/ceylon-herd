@@ -60,6 +60,6 @@ public class User extends Model {
 	}
 
 	public static User findByUserName(String username) {
-		return find("userName = ? AND status = ?", username, UserStatus.REGISTERED).first();
+		return find("LOWER(userName) = ? AND status = ?", username.toLowerCase(), UserStatus.REGISTERED).first();
 	}
 }

@@ -2,6 +2,11 @@
 #{set title:'Edit module' /}
 #{set hasForm: true /}
 
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#" onclick="return false;">Information</a></li>
+  <li><a href="@{LoggedInRepo.permissionsForm(module.id)}">Permissions</a></li>
+</ul>
+
 #{form action: @LoggedInRepo.edit(module.id), class: "form-horizontal"}
 
 <fieldset>

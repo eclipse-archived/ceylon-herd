@@ -35,6 +35,7 @@ PUT     /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.addFile
 GET     /modules                                Repo.index
 GET     /modules/{id}                           Repo.versions
 GET     /modules/{id}/edit                      LoggedInRepo.editForm
+GET     /modules/{id}/permissions               LoggedInRepo.permissionsForm
 GET     /modules/{moduleId}/{versionId}         Repo.view
 GET     /search                                 Repo.search
 GET     /modules/{moduleId}/{versionId}/remove1 LoggedInRepo.remove1

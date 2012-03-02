@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -37,6 +39,12 @@ public class Module extends Model {
 	
 	@OneToMany(mappedBy = "module")
 	public List<ModuleVersion> versions = new ArrayList<ModuleVersion>();
+
+	@ManyToMany
+    @JoinTable(name = "module_admin_user",
+            	joinColumns = { @JoinColumn(name = "module") },
+            	inverseJoinColumns = { @JoinColumn(name = "admin") })
+	public List<User> admins = new ArrayList<User>();
 
 	@Transient
 	public boolean isGithub(){

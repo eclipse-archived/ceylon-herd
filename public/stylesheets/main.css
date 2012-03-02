@@ -134,3 +134,7 @@ background-image: -webkit-gradient(
 .user-link a {
 	color: inherit;
 }
+
+.admin {
+	margin: 1em 0;
+}

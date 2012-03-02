@@ -1,0 +1,60 @@
+#{extends 'main.html' /}
+#{set title:'Edit module permissions' /}
+#{set hasForm: true /}
+
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/jquery-ui-1.8.18.autocomplete.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+#{/set}
+
+#{set 'moreStyles'}
+    <style>
+        /* Adapt the Bootstrap style to jQuery UI */
+        .dropdown-menu a.ui-state-hover {
+            color: white;
+            text-decoration: none;
+            background-color: #08C;
+        }
+    </style>
+#{/set}
+
+<ul class="nav nav-tabs">
+    <li><a href="@{LoggedInRepo.editForm(module.id)}">Information</a></li>
+    <li class="active"><a href="#" onclick="return false;">Permissions</a></li>
+</ul>
+
+<div class="row">
+    <div class="span4">
+        <h3>Current Admins</h3>
+        #{list items:module.admins, as:'admin'}
+            <div class="admin">
+                #{form action: @LoggedInRepo.removeAdmin(module.id, admin.id), class: "form-inline"}
+                    #{user admin, img:true /}
+                    <button type="submit" class="btn btn-danger btn-mini" title="Remove"><i class="icon-remove icon-white"></i></button>
+                #{/form}
+            </div>
+        #{/list}
+    </div>
+    <div class="span8">
+        <h3>Add Admin</h3>
+        
+        <p>
+        #{form action: @LoggedInRepo.addAdmin(module.id), class: "form-inline"}
+        <div class="control-group #{errorClassBootstrap 'userName'/}">
+                <label class="control-label" for="userName">User name</label>
+                <input name="userName" id="new-user" placeholder="Add admin" 
+                            value="${flash.userName ?: ''}"/>
+                <span class="help-inline">​#{error 'userName'/}</span>
+                <button type="submit" class="btn btn-primary"><i class="icon-plus icon-white"></i> Add admin</button>
+        </div>
+        #{/form}
+        </p>
+        
+        <script type="text/javascript">
+        jQuery( "#new-user" ).autocomplete({
+            source: "@{LoggedInRepo.userList()}"
+        })
+        // adapt the jQuery UI style to Bootstrap CSS
+        .data( "autocomplete" ).menu.element.addClass("typeahead dropdown-menu");
+        </script>
+    </div>
+</div>
