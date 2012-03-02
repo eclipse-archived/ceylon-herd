@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import models.Comment;
+import models.Module;
 import models.Project;
 import models.User;
 import models.UserStatus;
@@ -51,6 +52,14 @@ public class Emails extends Mailer {
 			setRecipient(recipient);
 			send(project, comment, user);
 		}
+	}
+
+	public static void addAdminNotification(Module module, User admin, User user) {
+		setSubject("[Ceylon repo] You are now admin on the "+module.name + " module");
+		setFrom(FROM);
+		addRecipient(admin.email);
+		
+		send(module, admin, user);
 	}
 
 	private static String[] getNotificationRecipients(Project project, User user) {

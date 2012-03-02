@@ -1,0 +1,11 @@
+#{extends 'email.html' /}
+
+<p>
+ User ${user.userName} has just made you administrator of module <a href="@@{Repo.versions(module.id)}">${module.name}</a>.
+</p>
+<p>
+    You can now edit this module's details, publish versions of this module, and edit the administrator list for
+    this module.
+</p>
+<hr/>
+<a href="@@{Repo.versions(module.id)}">See module online</a>.

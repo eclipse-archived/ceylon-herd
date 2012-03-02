@@ -8,6 +8,7 @@ import java.util.List;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
+import notifiers.Emails;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -100,6 +101,8 @@ public class LoggedInRepo extends LoggedInController {
 		
 		module.admins.add(user);
 		module.save();
+		
+		Emails.addAdminNotification(module, user, getUser());
 		
 		flash("message", "User "+user.userName+" added as admin on this project");
 		permissionsForm(id);
