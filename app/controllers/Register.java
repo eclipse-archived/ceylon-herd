@@ -69,7 +69,7 @@ public class Register extends MyController {
 		if(validationFailed())
 			confirm(confirmationCode);
 		validation.equals(password, password2);
-		if(User.find("userName = ?", userName).first() != null)
+		if(User.findByUserName(userName) != null)
 			Validation.addError("userName", "User name already taken");
 		if(validationFailed())
 			confirm(confirmationCode);

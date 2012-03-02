@@ -18,7 +18,7 @@ public class User extends MyController {
     }
 
 	public static void view(@Required String username){
-		models.User user = models.User.findByUserName(username);
+		models.User user = models.User.findRegisteredByUserName(username);
 		notFoundIfNull(user);
 		
 		List<Project> ownedProjects = user.getOwnedProjects();

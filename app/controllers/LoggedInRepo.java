@@ -94,7 +94,7 @@ public class LoggedInRepo extends LoggedInController {
 			prepareForErrorRedirect();
 			permissionsForm(id);
 		}
-		User user = User.findByUserName(userName);
+		User user = User.findRegisteredByUserName(userName);
 		if(user == null){
 			Validation.addError("userName", "User unknown");
 			prepareForErrorRedirect();

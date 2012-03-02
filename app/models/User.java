@@ -59,7 +59,11 @@ public class User extends Model {
 		return find("userName = ? AND password = ?", username, Codec.hexSHA1(password)).first();
 	}
 
-	public static User findByUserName(String username) {
+	public static User findRegisteredByUserName(String username) {
 		return find("LOWER(userName) = ? AND status = ?", username.toLowerCase(), UserStatus.REGISTERED).first();
+	}
+
+	public static User findByUserName(String username) {
+		return find("LOWER(userName) = ?", username.toLowerCase()).first();
 	}
 }
