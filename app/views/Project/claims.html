@@ -12,7 +12,7 @@
         #{list items:projects, as:'project'}
             <tr>
                 <td><a href="@{Project.view(project.id)}">${project.moduleName}</a></td>
-                <td>${project.owner.userName}</td>
+                <td>#{user project.owner, img: true /}</td>
             </tr>
         #{/list}
     </table>
