@@ -25,12 +25,7 @@ jQuery(function (){
 #{/set}
 #{/if}
 
-#{if user != null && user == module.owner}
-    <div class="alert alert-info">
-        <a href="@{LoggedInRepo.editForm(module.id)}" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
-        You own this module.
-    </div>
-#{/if}
+#{moduleEditBar module, user: user /}
 
 #{secure.check 'admin'} 
     <a href="@{LoggedInRepo.remove1(module.id, moduleVersion.id)}" 

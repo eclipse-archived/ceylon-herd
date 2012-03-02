@@ -138,3 +138,7 @@ background-image: -webkit-gradient(
 .admin {
 	margin: 1em 0;
 }
+
+h1 {
+	margin-bottom: 20px !important;
+}

@@ -14,7 +14,7 @@
                 <tr>
                     <td><a href="@{Repo.versions(module.id)}">${module.name}</a></td>
                     <td>
-                        #{if user != null && module.owner == user}
+                        #{if module.canEdit(user)}
                             <a href="@{LoggedInRepo.editForm(module.id)}" 
                                class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
                         #{/if}

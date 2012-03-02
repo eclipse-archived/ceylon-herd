@@ -2,6 +2,8 @@
 #{set title:'Edit module' /}
 #{set hasForm: true /}
 
+<h1>${module.name} Administration</h1>
+
 <ul class="nav nav-tabs">
   <li class="active"><a href="#" onclick="return false;">Information</a></li>
   <li><a href="@{LoggedInRepo.permissionsForm(module.id)}">Permissions</a></li>

@@ -78,6 +78,16 @@ public class Module extends Model {
 	public Date getLastPublished(){
 		return find("SELECT MAX(published) FROM ModuleVersion WHERE module = ?", this).first(); 
 	}
+
+	public boolean canEdit(User user){
+		return user != null
+				&& (user.equals(owner)
+						|| user.isAdmin
+						|| admins.contains(user));
+	}
+	
+	//
+	// Static helpers
 	
 	public static Module findByName(String moduleName) {
 		return find("name = ?", moduleName).first();

@@ -43,7 +43,7 @@ public class LoggedInRepo extends LoggedInController {
 			Repo.index();
 		}
 		User user = getUser();
-		if(!user.isAdmin && module.owner != user){
+		if(!module.canEdit(user)){
 			Validation.addError(null, "Unauthorised");
 			prepareForErrorRedirect();
 			Repo.index();
