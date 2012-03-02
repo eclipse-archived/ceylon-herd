@@ -17,16 +17,17 @@ import play.mvc.Mailer;
 public class Emails extends Mailer {
 	
 	private static final String FROM = "Ceylon repo <ceylon-repo@inforealm.org>";
+	private static final String SUBJECT_PREFIX = "[Ceylon Herd] ";
 
 	public static void confirm(User user) {
-		setSubject("[Ceylon repo] Please confirm your email address");
+		setSubject(SUBJECT_PREFIX + "Please confirm your email address");
 		addRecipient(user.email);
 		setFrom(FROM);
 		send(user);
 	}
 
 	public static void projectClaimNotification(Project project, User user) {
-		setSubject("[Ceylon repo] New project claim for "+project.moduleName+" from "+user.userName);
+		setSubject(SUBJECT_PREFIX + "New project claim for "+project.moduleName+" from "+user.userName);
 		setFrom(FROM);
 		for(String recipient : getNotificationRecipients(null, user)){
 			setRecipient(recipient);
@@ -36,7 +37,7 @@ public class Emails extends Mailer {
 
 	public static void projectStatusNotification(Project project, User user) {
 		String status = project.status.toString().toLowerCase();
-		setSubject("[Ceylon repo] Your project claim "+project.moduleName+" has been "+status);
+		setSubject(SUBJECT_PREFIX + "Your project claim "+project.moduleName+" has been "+status);
 		setFrom(FROM);
 		for(String recipient : getNotificationRecipients(project, user)){
 			setRecipient(recipient);
@@ -46,7 +47,7 @@ public class Emails extends Mailer {
 
 	public static void commentNotification(Comment comment, User user) {
 		Project project = comment.project;
-		setSubject("[Ceylon repo] New comment from "+user.userName+" on project claim "+project.moduleName);
+		setSubject(SUBJECT_PREFIX + "New comment from "+user.userName+" on project claim "+project.moduleName);
 		setFrom(FROM);
 		for(String recipient : getNotificationRecipients(project, user)){
 			setRecipient(recipient);
@@ -55,7 +56,7 @@ public class Emails extends Mailer {
 	}
 
 	public static void addAdminNotification(Module module, User admin, User user) {
-		setSubject("[Ceylon repo] You are now admin on the "+module.name + " module");
+		setSubject(SUBJECT_PREFIX + "You are now admin on the "+module.name + " module");
 		setFrom(FROM);
 		addRecipient(admin.email);
 		
