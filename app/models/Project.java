@@ -51,4 +51,11 @@ public class Project extends Model {
 	public Module getModule(){
 		return Module.findByName(moduleName);
 	}
+	
+	//
+	// Static helpers
+	
+	public static Project findOwner(String moduleName) {
+		return find("moduleName = ? AND status = ?", moduleName, ProjectStatus.CONFIRMED).first();
+	}
 }

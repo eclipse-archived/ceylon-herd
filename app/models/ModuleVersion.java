@@ -46,4 +46,11 @@ public class ModuleVersion extends Model {
 	public String getSourcePath(){
 		return getPath() + "/" + module.name + "-" + version + ".src";
 	}
+
+	//
+	// Static helpers
+	
+	public static ModuleVersion findByVersion(String name, String version) {
+		return find("module.name = ? AND version = ?", name, version).first();
+	}
 }

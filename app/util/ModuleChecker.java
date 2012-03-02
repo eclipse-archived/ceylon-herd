@@ -21,7 +21,6 @@ import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.BooleanMemberValue;
 import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
-import models.ProjectStatus;
 import models.User;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -61,13 +60,24 @@ public class ModuleChecker {
 
 	public static void checkModule(File uploadsDir,
 			Map<String, File> fileByPath, Module m, User user, List<Module> modules) {
-		models.Project project = models.Project.find("moduleName = ? AND owner = ?", m.name, user).first();
-		if(project == null || project.status != ProjectStatus.CONFIRMED)
+		models.Project project = models.Project.findOwner(m.name);
+		if(project == null)
 			m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
-		else
-			m.diagnostics.add(new Diagnostic("success", "You own this module"));
+		else{
+			// do we own it?
+			if(project.owner == user)
+				m.diagnostics.add(new Diagnostic("success", "You own this module"));
+			else{
+				// we don't own it but we may be admin
+				models.Module publishedModule = models.Module.findByName(m.name);
+				if(publishedModule == null || !publishedModule.canEdit(user))
+					m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
+				else
+					m.diagnostics.add(new Diagnostic("success", "You are admin on this module"));
+			}
+		}
 		
-		models.ModuleVersion publishedModule = models.ModuleVersion.find("module.name = ? AND version = ?", m.name, m.version).first();
+		models.ModuleVersion publishedModule = models.ModuleVersion.findByVersion(m.name, m.version);
 		if(publishedModule != null)
 			m.diagnostics.add(new Diagnostic("error", "Module already published"));
 		
