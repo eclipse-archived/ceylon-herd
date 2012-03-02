@@ -3,12 +3,12 @@
 
 #{if projects.empty}
     <div class="alert alert-info">
-        No current claims.
+        No current project claims.
     </div>
 #{/if}
 #{else}
     <table class="table">
-        <caption>Current claims:</caption>
+        <caption>Current project claims:</caption>
         #{list items:projects, as:'project'}
             <tr>
                 <td><a href="@{Project.view(project.id)}">${project.moduleName}</a></td>

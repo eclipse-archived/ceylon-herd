@@ -1,14 +1,14 @@
 #{extends 'main.html' /}
-#{set title:'My projects' /}
+#{set title:'My project claims' /}
 
 #{if projects.empty}
     <div class="alert alert-info">
-        No projects yet.
+        No project claims yet.
     </div>
 #{/if}
 #{else}
     <table class="table table-striped">
-        <caption>My project list</caption>
+        <caption>My project claims</caption>
         <tbody>
             #{list items:projects, as:'project'}
                 <tr>
