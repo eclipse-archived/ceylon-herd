@@ -20,7 +20,15 @@
         <td>
             <a href="@{Project.delete(project.id)}" 
                class="btn btn-danger btn-mini pull-right"><i class="icon-trash icon-white"></i> Delete</a>
-            ${project.moduleName}
+            %{
+                module = project.module;
+            }%
+            #{if module}
+                #{module module /}
+            #{/if}
+            #{else}
+                ${project.moduleName}
+            #{/else}
         </td>
     </tr>
     <tr>
