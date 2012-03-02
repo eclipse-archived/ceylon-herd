@@ -15,6 +15,7 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 
 import models.Comment;
+import models.ModuleVersion;
 import models.ProjectStatus;
 import models.User;
 
@@ -109,6 +110,7 @@ public class Project extends LoggedInController {
 			index();
 		}
 		User user = getUser();
+		// for these things you have to be owner or site admin, not module admin
 		if(project.owner != user && !user.isAdmin){
 			Validation.addError(null, "You are not authorised to view this project");
 			prepareForErrorRedirect();
@@ -170,6 +172,8 @@ public class Project extends LoggedInController {
 				prepareForErrorRedirect();
 				view(id);
 			}
+			checkBeforeAccept(project);
+			
 			newStatus(project, ProjectStatus.CONFIRMED, user);
 			flash("message2", "Project confirmed");
 		}else if("reject".equals(projectAction)){
@@ -231,12 +235,103 @@ public class Project extends LoggedInController {
 		view(projectId);
 	}
 
+	public static void transferOwnership(Long projectId, Long userId) {
+		models.Project project = getProject(projectId);
+		User newOwner = getUser(userId);
+		checkForTransfer(project, newOwner);
+		
+		models.Module module = project.getModule();
+		List<ModuleVersion> publishedModuleVersions = null;
+		if(module != null){
+			 publishedModuleVersions = module.versions;
+		}
+		render(project, newOwner, publishedModuleVersions);
+	}
+
+	private static void checkForTransfer(models.Project project, User user) {
+		if(project.status != ProjectStatus.CONFIRMED){
+			Validation.addError(null, "Project is not confirmed, it cannot be transfered");
+			prepareForErrorRedirect();
+			Application.index();
+		}
+		if(project.owner == user){
+			Validation.addError(null, "User is already the project owner");
+			prepareForErrorRedirect();
+			Application.index();
+		}
+	}
+
+	public static void transferOwnership2(Long projectId, Long userId) {
+		models.Project project = getProject(projectId);
+		User newOwner = getUser(userId);
+		checkForTransfer(project, newOwner);
+
+		User user = getUser();
+		// reject previous owner
+		newStatus(project, ProjectStatus.REJECTED, user);
+
+		// find the new project claim, if any
+		models.Project newProject = models.Project.findForOwner(project.moduleName, newOwner);
+		if(newProject == null){
+			// must create a new claim
+			newProject = new models.Project();
+			newProject.moduleName = project.moduleName;
+			newProject.owner = newOwner;
+			newProject.license = project.license;
+			newProject.description = project.description;
+			newProject.motivation = project.motivation;
+			newProject.role = project.role;
+			newProject.url = project.url;
+			newProject.status = ProjectStatus.CLAIMED;
+			newProject.create();
+		}
+		// accept new owner
+		newStatus(newProject, ProjectStatus.CONFIRMED, user);
+		
+		// now transfer ownership of Module if any
+		models.Module module = project.getModule();
+		if(module != null){
+			module.owner = newOwner;
+			// make sure we remove the new owner from the module admins if any
+			module.admins.remove(newOwner);
+			module.save();
+		}
+		
+		flash("message", "Project transfered to "+newOwner.userName);
+		Project.index();
+	}
+
+	private static User getUser(Long userId) {
+		if(userId == null){
+			Validation.addError(null, "Missing userId");
+			prepareForErrorRedirect();
+			Application.index();
+		}
+		User user = User.findById(userId);
+		if(user == null){
+			Validation.addError(null, "Unknown user");
+			prepareForErrorRedirect();
+			Application.index();
+		}
+		return user;
+	}
+
 	@Check("admin")
 	public static void accept(Long id){
 		models.Project project = getProject(id);
+		
+		checkBeforeAccept(project);
+
 		newStatus(project, ProjectStatus.CONFIRMED, getUser());
 		flash("message", "Project confirmed");
 		claims();
+	}
+
+	private static void checkBeforeAccept(models.Project project) {
+		models.Project currentOwnedProject = models.Project.findOwner(project.moduleName); 
+		if(currentOwnedProject != null && currentOwnedProject != project){
+			transferOwnership(currentOwnedProject.id, project.owner.id);
+		}
 	}
 
 	@Check("admin")

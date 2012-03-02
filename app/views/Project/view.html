@@ -6,7 +6,7 @@
         Project ${project.status == models.ProjectStatus.CONFIRMED ? 'also' : 'already'} owned by:
         <ul>
             #{list items:otherOwners, as:'o'}
-                <li>${o.userName}</li>
+                <li>#{user o, img:true /}</li>
             #{/list}
         </ul>
     </div>

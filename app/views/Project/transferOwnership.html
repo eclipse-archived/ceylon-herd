@@ -1,0 +1,58 @@
+#{extends 'main.html' /}
+#{set title:'Transfer project ownership' /}
+
+#{set 'moreStyles'}
+<style>
+.alert {
+    font-size: 16pt;
+    line-height: 20pt;
+}
+.transfer {
+    font-size: 24pt;
+    line-height: 30pt;
+    text-align: center;
+}
+.owner {
+    display: inline-block;
+}
+.arrow {
+    font-size: 40pt;
+}
+</style>
+#{/set}
+
+<h1>Transfer ownership</h1>
+
+<div class="alert">
+    <i class="icon-exclamation-sign"></i> 
+    Warning! You are about to transfer ownership of project 
+    <a href="@{Project.view(project.id)}">${project.moduleName}</a>
+    <br/>
+    <div class="transfer">
+        <div class="owner">
+            From<br/>
+            #{user project.owner, img: true, size: 50 /}
+        </div>
+        <span class="arrow">→</span>
+        <div class="owner">
+            To<br/>
+            #{user newOwner, img: true, size: 50 /}
+        </div>
+    </div>
+</div>
+
+<p>
+    The following <strong>${publishedModuleVersions?.size() ?: 0} published</strong> modules will be transfered too:
+</p>
+
+<ul>
+    #{list items: publishedModuleVersions, as:'moduleVersion'}
+        <li>
+            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}">${moduleVersion.version}</a>
+        </li>
+    #{/list}
+</ul>
+
+#{form @Project.transferOwnership2(project.id, newOwner.id)}
+    <button class="btn btn-danger pull-right"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
+#{/form}

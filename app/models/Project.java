@@ -58,4 +58,8 @@ public class Project extends Model {
 	public static Project findOwner(String moduleName) {
 		return find("moduleName = ? AND status = ?", moduleName, ProjectStatus.CONFIRMED).first();
 	}
+
+	public static Project findForOwner(String moduleName, User owner) {
+		return find("moduleName = ? AND owner = ?", moduleName, owner).first();
+	}
 }
