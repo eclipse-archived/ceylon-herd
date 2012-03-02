@@ -16,6 +16,10 @@
     left: 20px;
 }
 
+.hero-unit img {
+	margin-right: 1em;
+}
+
 .comment,
 .comment-status {
 	margin: 1em 0;
