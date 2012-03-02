@@ -5,8 +5,11 @@
 <h1>${module.name} Administration</h1>
 
 <ul class="nav nav-tabs">
-  <li class="active"><a href="#" onclick="return false;">Information</a></li>
-  <li><a href="@{LoggedInRepo.permissionsForm(module.id)}">Permissions</a></li>
+    <li class="active"><a href="#" onclick="return false;">Information</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.id)}">Permissions</a></li>
+    #{if module.isOwnedBy(user)}
+        <li><a href="@{LoggedInRepo.transferForm(module.id)}">Transfer</a></li>
+    #{/if}
 </ul>
 
 #{form action: @LoggedInRepo.edit(module.id), class: "form-horizontal"}

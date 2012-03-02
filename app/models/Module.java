@@ -86,6 +86,12 @@ public class Module extends Model {
 						|| admins.contains(user));
 	}
 	
+	public boolean isOwnedBy(User user){
+		return user != null
+				&& (user.equals(owner)
+						|| user.isAdmin);
+	}
+
 	//
 	// Static helpers
 	

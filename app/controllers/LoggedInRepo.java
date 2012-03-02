@@ -89,17 +89,9 @@ public class LoggedInRepo extends LoggedInController {
 
 	public static void addAdmin(@Required Long id, String userName){
 		Module module = getModule(id);
-		if(StringUtils.isEmpty(userName)){
-			Validation.addError("userName", "User required");
-			prepareForErrorRedirect();
+		User user = getUser(userName);
+		if(user == null) // error
 			permissionsForm(id);
-		}
-		User user = User.findRegisteredByUserName(userName);
-		if(user == null){
-			Validation.addError("userName", "User unknown");
-			prepareForErrorRedirect();
-			permissionsForm(id);
-		}
 		
 		if(module.admins.contains(user) || module.owner.equals(user)){
 			flash("message", "User already admin on this module");
@@ -111,6 +103,21 @@ public class LoggedInRepo extends LoggedInController {
 		
 		flash("message", "User "+user.userName+" added as admin on this project");
 		permissionsForm(id);
+	}
+
+	private static User getUser(String userName) {
+		if(StringUtils.isEmpty(userName)){
+			Validation.addError("userName", "User required");
+			prepareForErrorRedirect();
+			return null;
+		}
+		User user = User.findRegisteredByUserName(userName);
+		if(user == null){
+			Validation.addError("userName", "User unknown");
+			prepareForErrorRedirect();
+			return null;
+		}
+		return user;
 	}
 
 	public static void removeAdmin(@Required Long id, Long userId){
@@ -139,6 +146,39 @@ public class LoggedInRepo extends LoggedInController {
 		permissionsForm(id);
 	}
 
+	public static void transferForm(Long id){
+		Module module = getModule(id);
+		checkModuleOwner(module);
+
+		render(module);
+	}
+	
+	private static void checkModuleOwner(Module module) {
+		// restricted
+		if(!module.isOwnedBy(getUser())){
+			Validation.addError(null, "Unauthorised");
+			prepareForErrorRedirect();
+			LoggedInRepo.editForm(module.id);
+		}
+	}
+
+	public static void transfer(Long id, String userName){
+		Module module = getModule(id);
+		checkModuleOwner(module);
+		
+		User newOwner = getUser(userName);
+		if(newOwner == null) // error
+			transferForm(id);
+		
+		if(module.owner.equals(newOwner)){
+			flash("message", "User already owns this module");
+			transferForm(id);
+		}
+		
+		models.Project project = models.Project.findOwner(module.name);
+		Project.transferOwnership(project.id, newOwner.id);
+	}
+	
 	@Check("admin")
 	public static void remove1(@Required Long moduleId, @Required Long versionId){
 		ModuleVersion moduleVersion = getModuleVersion(versionId);
