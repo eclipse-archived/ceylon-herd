@@ -234,9 +234,7 @@ public class Project extends LoggedInController {
 	@Check("admin")
 	public static void accept(Long id){
 		models.Project project = getProject(id);
-		project.status = ProjectStatus.CONFIRMED;
-		project.save();
-		Emails.projectStatusNotification(project, getUser());
+		newStatus(project, ProjectStatus.CONFIRMED, getUser());
 		flash("message", "Project confirmed");
 		claims();
 	}
@@ -244,9 +242,8 @@ public class Project extends LoggedInController {
 	@Check("admin")
 	public static void reject(Long id){
 		models.Project project = getProject(id);
-		project.status = ProjectStatus.REJECTED;
-		project.save();
-		Emails.projectStatusNotification(project, getUser());
+		newStatus(project, ProjectStatus.REJECTED, getUser());
+		
 		flash("message", "Project rejected");
 		claims();
 	}
