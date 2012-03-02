@@ -21,6 +21,10 @@
 	margin: 1em 0;
 }
 
+.comment-status img {
+	vertical-align: middle;
+}
+
 .comment-status img,
 .comment-status span {
     margin-right: 0.5em;

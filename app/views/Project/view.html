@@ -68,7 +68,7 @@
     #{if comment.status != null}
     <div class="comment-status">
         #{projectStatus comment.status /}
-        #{gravatar.img comment.owner.email, size:30, default:'mm' /}<b>${comment.owner.userName}</b>
+        #{gravatar.img comment.owner.email, size:30, default:'mm' /}#{user comment.owner /}
         ${comment.status.name().toLowerCase()} this project ${comment.date.since(true)}
     </div>
     #{/if}
