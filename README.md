@@ -8,8 +8,6 @@
     1. _enter `ceylon-repo` as password when prompted_
     1. createdb -O ceylon-repo -E utf8 ceylon-repo
     1. exit
-1. Create the repo and uploads folders
-    1. mkdir repo uploads
 1. Run the application
     1. play run
 
