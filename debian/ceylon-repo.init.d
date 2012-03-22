@@ -1,23 +1,23 @@
 #! /bin/sh
 #
-# Startup script for ceylon-repo.
+# Startup script for ceylon-herd.
 #
 # Stephane Epardaud <stephane@epardaud.fr>
 # Copyright 2010, Stephane Epardaud
 #
 
 ### BEGIN INIT INFO
-# Provides: ceylon-repo-
+# Provides: ceylon-herd
 # Required-Start: $local_fs $network $named
 # Required-Stop: $local_fs $network $named
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
-# Short-Description: start and stop ceylon-repo-
-# Description: ceylon-repo- application
+# Short-Description: start and stop ceylon-herd
+# Description: ceylon-herd application
 ### END INIT INFO
 
-APP=ceylon-repo
-USER=ceylrepo
+APP=ceylon-herd
+USER=ceylherd
 CLUSTER=
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -50,7 +50,7 @@ fi
 
 test -d $APP_PATH || exit 0
 
-if test "$IS_PLAY_CONFIGURED" = 0
+if test "$IS_HERD_CONFIGURED" = 0
 then
 	log_failure_msg "You must configure $APP_NAME in /etc/default/$APP_NAME before running it"
 	case "$1" in
