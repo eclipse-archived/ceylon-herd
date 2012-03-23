@@ -3,11 +3,19 @@ package controllers;
 import java.net.HttpURLConnection;
 
 import models.User;
+import play.Logger;
 import play.data.validation.Validation;
+import play.mvc.Before;
 import play.mvc.Controller;
 import play.mvc.results.Status;
 
 public class MyController extends Controller {
+	
+    @Before
+    static void before(){
+        Logger.info("[%s] %s %s", Security.connected(), request.method, request.path);
+    }
+	
     protected static boolean validationFailed() {
         if(Validation.hasErrors()) {
             prepareForErrorRedirect();

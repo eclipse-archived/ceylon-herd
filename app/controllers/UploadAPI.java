@@ -22,7 +22,7 @@ public class UploadAPI extends LoggedInController {
 
 	@Before
 	static void before(){
-		Logger.info("[%s] %s %s", Security.connected(), request.method, request.path);
+		Logger.info("UploadAPI [%s] %s %s", Security.connected(), request.method, request.path);
 		String user = request.user;
 		String password = request.password;
 		if(Security.isConnected())
