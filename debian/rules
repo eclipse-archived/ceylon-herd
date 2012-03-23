@@ -27,3 +27,4 @@ override_dh_auto_install:
 	ln -s $(ETC_PATH) $(DEB_PATH)$(INSTALL_PATH)/conf
 	ln -s /www/ceylon.inforealm.org/repo $(DEB_PATH)$(INSTALL_PATH)/repo
 	ln -s /www/ceylon.inforealm.org/uploads $(DEB_PATH)$(INSTALL_PATH)/uploads
+	cp debian/logrotate $(DEB_PATH)/etc/logrotate.d/$(NAME)

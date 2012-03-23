@@ -43,6 +43,7 @@ rm $RPM_BUILD_ROOT/%{herd_etc_path}/application-secret.conf
 ln -s %{herd_etc_path} $RPM_BUILD_ROOT/%{herd_install_path}/conf
 ln -s %{herd_repo_path} $RPM_BUILD_ROOT/%{herd_install_path}/repo
 ln -s %{herd_uploads_path} $RPM_BUILD_ROOT/%{herd_install_path}/uploads
+cp debian/logrotate $RPM_BUILD_ROOT/etc/logrotate.d/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
