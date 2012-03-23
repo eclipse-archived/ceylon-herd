@@ -34,7 +34,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/%{herd_install_path} $RPM_BUILD_ROOT/%{herd_etc_path} \
            $RPM_BUILD_ROOT/%{herd_log_path} $RPM_BUILD_ROOT/%{herd_lib_path} \
            $RPM_BUILD_ROOT/%{herd_run_path} $RPM_BUILD_ROOT/etc/default \
-           $RPM_BUILD_ROOT/etc/init.d
+           $RPM_BUILD_ROOT/etc/init.d $RPM_BUILD_ROOT/etc/logrotate.d
 rsync --exclude .git -r app lib public modules $RPM_BUILD_ROOT/%{herd_install_path}/
 cp conf/* $RPM_BUILD_ROOT/%{herd_etc_path}/
 cp debian/ceylon-herd.default $RPM_BUILD_ROOT/etc/default/%{name}
@@ -58,6 +58,7 @@ rm -rf $RPM_BUILD_ROOT
 %{herd_log_path}
 %{herd_lib_path}
 %{herd_run_path}
+/etc/logrotate.d/%name
 %attr(0755, root, root) /etc/init.d/%name
 
 %post
