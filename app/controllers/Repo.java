@@ -87,6 +87,10 @@ public class Repo extends MyController {
 			renderBinary(file);
 	}
 
+	public static void noFile() throws IOException{
+	    render();
+	}
+
 	private static void checkPath(File file, File repoDir) throws IOException{
 		String repoPath = repoDir.getCanonicalPath();
 		String filePath = file.getCanonicalPath();

@@ -43,6 +43,8 @@ GET     /modules/{moduleId}/{versionId}/remove2 LoggedInRepo.remove2
 GET     /modules/{moduleId}/{versionId}/remove3 LoggedInRepo.remove3
 
 GET     /test/{<.*>path}                        Repo.viewFile
+GET     /repo/?                                 Repo.noFile
+GET     /repo/{<.*>path}                        404
 
 GET     /users/{username}                       User.view
 
