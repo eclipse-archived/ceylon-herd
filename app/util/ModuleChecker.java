@@ -39,9 +39,28 @@ public class ModuleChecker {
 			fileByPath.put(path, f);
 			if(name.endsWith(".car")){
 				int sep = name.indexOf('-');
+				if(sep == -1){
+					if(name.equals("default.car"))
+						diagnostics.add(new Diagnostic("error", "Default module not allowed."));
+					else
+						diagnostics.add(new Diagnostic("error", "Module car has no version: "+name));
+					continue;
+				}
 				int dot = name.lastIndexOf('.');
 				String module = name.substring(0, sep);
+				if(module.isEmpty()){
+					diagnostics.add(new Diagnostic("error", "Empty module name not allowed: "+name));
+					continue;
+				}
+				if(module.equals("default")){
+					diagnostics.add(new Diagnostic("error", "Default module not allowed: "+name));
+					continue;
+				}
 				String version = name.substring(sep+1, dot);
+				if(version.isEmpty()){
+					diagnostics.add(new Diagnostic("error", "Empty version number not allowed: "+name));
+					continue;
+				}
 				modules.add(new Module(module, version, path.substring(0, path.length()-name.length()), f));
 			}
 		}
