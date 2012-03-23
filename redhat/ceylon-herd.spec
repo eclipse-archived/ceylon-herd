@@ -37,7 +37,7 @@ install -d $RPM_BUILD_ROOT/%{herd_install_path} $RPM_BUILD_ROOT/%{herd_etc_path}
            $RPM_BUILD_ROOT/etc/init.d
 rsync --exclude .git -r app lib public modules $RPM_BUILD_ROOT/%{herd_install_path}/
 cp conf/* $RPM_BUILD_ROOT/%{herd_etc_path}/
-cp debian/ceylon-repo.default $RPM_BUILD_ROOT/etc/default/%{name}
+cp debian/ceylon-herd.default $RPM_BUILD_ROOT/etc/default/%{name}
 cp redhat/ceylon-herd.init.d $RPM_BUILD_ROOT/etc/init.d/%{name}
 rm $RPM_BUILD_ROOT/%{herd_etc_path}/application-secret.conf
 ln -s %{herd_etc_path} $RPM_BUILD_ROOT/%{herd_install_path}/conf

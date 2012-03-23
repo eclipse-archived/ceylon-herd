@@ -13,8 +13,8 @@ random () {
  echo
 }
 
-APP=ceylon-repo
-PLAY_USER=ceylrepo
+APP=ceylon-herd
+PLAY_USER=ceylherd
 CLUSTER=
 
 if test -n "$CLUSTER"

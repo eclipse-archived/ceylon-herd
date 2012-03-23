@@ -1,5 +1,0 @@
-# Set this to 1 to allow ceylon-repo to start
-IS_HERD_CONFIGURED=0
-
-PLAY_ID=prod
-

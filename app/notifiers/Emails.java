@@ -16,7 +16,7 @@ import play.mvc.Mailer;
 
 public class Emails extends Mailer {
 	
-	private static final String FROM = "Ceylon repo <ceylon-repo@inforealm.org>";
+	private static final String FROM = "Ceylon Herd Module Repository <ceylon-herd@inforealm.org>";
 	private static final String SUBJECT_PREFIX = "[Ceylon Herd] ";
 
 	public static void confirm(User user) {
