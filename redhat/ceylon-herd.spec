@@ -53,11 +53,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc
 %config(noreplace) %{herd_etc_path}
+%config(noreplace) /etc/default/%name
 %{herd_install_path}
 %{herd_log_path}
 %{herd_lib_path}
 %{herd_run_path}
-/etc/default/%name
 %attr(0755, root, root) /etc/init.d/%name
 
 %post
