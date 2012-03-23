@@ -20,6 +20,8 @@ public class Register extends MyController {
     }
 
     public static void register(@Required String email) {
+        badRequest();
+        
     	if(validationFailed())
     		index();
     	User user = User.find("email = ? AND status = ?", email, UserStatus.CONFIRMATION_REQUIRED).first();
