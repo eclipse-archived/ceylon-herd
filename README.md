@@ -22,3 +22,8 @@ This can only be done by hand for now:
     1. `psql -h localhost -U ceylon-herd`
 1. Set yourself as admin
     1. `UPDATE user_table SET admin = true WHERE username = 'your-user-name';`
+
+# License
+
+The content of this repository is released under the AGPL V3
+as provided in the LICENSE file that accompanied this code.
