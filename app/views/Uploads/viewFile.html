@@ -2,7 +2,7 @@
 #{set title:'Browse upload repo' /}
 
 <p>
-    <a href="@{Upload.view(upload.id)}">Back to upload</a>
+    <a href="@{Uploads.view(upload.id)}">Back to upload</a>
 </p>
 
 #{if file.isRoot(upload) && file.listFiles().length == 0}

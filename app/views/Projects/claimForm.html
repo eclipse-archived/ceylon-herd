@@ -2,7 +2,7 @@
 #{set title:'Claim new project' /}
 #{set hasForm: true /}
 
-#{form action: @Project.claim(), class: "form-horizontal"}
+#{form action: @Projects.claim(), class: "form-horizontal"}
 
 <fieldset>
     <legend>Claim new project</legend>
@@ -49,7 +49,7 @@
         </div>
     </div>
     <div class="form-actions">
-        <a href="@{Project.index()}" class="btn">Cancel</a>​
+        <a href="@{Projects.index()}" class="btn">Cancel</a>​
         <input type="submit" class="btn btn-primary" value="Claim project"/>
     </div>
 </fieldset>

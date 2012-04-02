@@ -18,7 +18,7 @@
     <tr>
         <th>Module name</th>
         <td>
-            <a href="@{Project.delete(project.id)}" 
+            <a href="@{Projects.delete(project.id)}" 
                class="btn btn-danger btn-mini pull-right"><i class="icon-trash icon-white"></i> Delete</a>
             %{
                 module = project.module;
@@ -43,11 +43,11 @@
                 <span class="pull-right">
                 #{if project.canBeAccepted()}
                     <a class="btn btn-success btn-mini" 
-                       href="@{Project.accept(project.id)}"><i class="icon-ok icon-white"></i> Accept</a>
+                       href="@{Projects.accept(project.id)}"><i class="icon-ok icon-white"></i> Accept</a>
                 #{/if}
                 #{if project.canBeRejected()}
                     <a class="btn btn-danger btn-mini" 
-                       href="@{Project.reject(project.id)}"><i class="icon-remove icon-white"></i> Reject</a>
+                       href="@{Projects.reject(project.id)}"><i class="icon-remove icon-white"></i> Reject</a>
                 #{/if}
                 </span>
             #{/secure.check}
@@ -90,7 +90,7 @@
             </div>
             <div class="text" id="comment-${comment.id}-view">
                 #{if user.isAdmin || comment.owner == user}
-                    <a href="@{Project.deleteComment(project.id, comment.id)}" 
+                    <a href="@{Projects.deleteComment(project.id, comment.id)}" 
                        class="btn btn-danger btn-mini action"><i class="icon-trash icon-white"></i> Delete</a>
                     <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
                        class="btn btn-mini action"><i class="icon-edit"></i> Edit</a>
@@ -98,7 +98,7 @@
                 ${comment.text.md()}
             </div>
             <div class="text" id="comment-${comment.id}-edit" style="display:none;">
-                #{form @Project.editComment(project.id, comment.id)}
+                #{form @Projects.editComment(project.id, comment.id)}
                     <textarea name="text" rows="5">${comment.text}</textarea>
                     <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
                        class="btn">Cancel</a>
@@ -110,7 +110,7 @@
     #{/else}
 #{/list}
 
-#{form @Project.addComment(project.id)}
+#{form @Projects.addComment(project.id)}
     <div class="comment" id="comment-add">
         #{gravatar.img user.email, size:50, default:'mm' /}
         <div class="data">

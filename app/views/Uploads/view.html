@@ -23,10 +23,10 @@
         <tr>
             <th></th>
             <td>
-                <a class="btn" href="@{Upload.uploadRepoForm(upload.id)}">Upload repo archive</a>
-                <a href="@{Upload.delete(upload.id)}" class="btn btn-danger">Delete</a>
+                <a class="btn" href="@{Uploads.uploadRepoForm(upload.id)}">Upload repo archive</a>
+                <a href="@{Uploads.delete(upload.id)}" class="btn btn-danger">Delete</a>
                 #{if uploadInfo.publishable}
-                    <a href="@{Upload.publish(upload.id)}" class="btn btn-primary">Publish</a>
+                    <a href="@{Uploads.publish(upload.id)}" class="btn btn-primary">Publish</a>
                 #{/if}
             </td>
         </tr>
@@ -81,10 +81,10 @@
                                 </span>
                                 #{if diagnostic.projectClaim}
                                     #{if diagnostic.project == null}
-                                        <a href="@{Project.claimForm(module.name)}" class="btn btn-mini">Claim this project</a>
+                                        <a href="@{Projects.claimForm(module.name)}" class="btn btn-mini">Claim this project</a>
                                     #{/if}
                                     #{else}
-                                        <a href="@{Project.view(diagnostic.project.id)}" class="btn btn-mini">Claim this project</a>
+                                        <a href="@{Projects.view(diagnostic.project.id)}" class="btn btn-mini">Claim this project</a>
                                     #{/else}
                                 #{/if}
                             </li>

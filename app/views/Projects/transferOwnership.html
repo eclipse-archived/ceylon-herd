@@ -26,7 +26,7 @@
 <div class="alert">
     <i class="icon-exclamation-sign"></i> 
     Warning! You are about to transfer ownership of project 
-    <a href="@{Project.view(project.id)}">${project.moduleName}</a>
+    <a href="@{Projects.view(project.id)}">${project.moduleName}</a>
     <br/>
     <div class="transfer">
         <div class="owner">
@@ -53,6 +53,6 @@
     #{/list}
 </ul>
 
-#{form @Project.transferOwnership2(project.id, newOwner.id)}
+#{form @Projects.transferOwnership2(project.id, newOwner.id)}
     <button class="btn btn-danger pull-right"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
 #{/form}

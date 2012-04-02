@@ -2,4 +2,4 @@
 #{if _img}
     #{gravatar.img _arg.email, size:(_size ?: 20), default:'mm' /}
 #{/if}
-<a href="@{User.view(_arg.userName)}">${_arg.userName}</a></span>
+<a href="@{Users.view(_arg.userName)}">${_arg.userName}</a></span>

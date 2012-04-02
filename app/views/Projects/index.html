@@ -12,12 +12,12 @@
         <tbody>
             #{list items:projects, as:'project'}
                 <tr>
-                    <td><a href="@{Project.view(project.id)}">${project.moduleName}</a></td>
+                    <td><a href="@{Projects.view(project.id)}">${project.moduleName}</a></td>
                     <td>
                         #{projectStatus project.status /}
                     </td>
                     <td>
-                        <a href="@{Project.delete(project.id)}" class="btn btn-danger btn-mini action">Delete</a>
+                        <a href="@{Projects.delete(project.id)}" class="btn btn-danger btn-mini action">Delete</a>
                     </td>
                 </tr>
             #{/list}
@@ -25,4 +25,4 @@
     </table>
 #{/else}
 
-<a class="btn btn-primary" href="@{Project.claimForm()}"><i class="icon-plus icon-white"></i> Claim new project</a>
+<a class="btn btn-primary" href="@{Projects.claimForm()}"><i class="icon-plus icon-white"></i> Claim new project</a>

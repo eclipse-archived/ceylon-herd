@@ -6,7 +6,7 @@ import models.Project;
 import play.data.validation.Required;
 import play.mvc.Before;
 
-public class User extends MyController {
+public class Users extends MyController {
 
 	// we set it if it's there, otherwise we don't require it
 	@Before

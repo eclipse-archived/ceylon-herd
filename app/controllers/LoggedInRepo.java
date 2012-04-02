@@ -179,7 +179,7 @@ public class LoggedInRepo extends LoggedInController {
 		}
 		
 		models.Project project = models.Project.findOwner(module.name);
-		Project.transferOwnership(project.id, newOwner.id);
+		Projects.transferOwnership(project.id, newOwner.id);
 	}
 	
 	@Check("admin")

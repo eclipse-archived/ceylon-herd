@@ -12,7 +12,7 @@
         <tbody>
             #{list items:uploadInfos, as:'uploadInfo'}
                 <tr>
-                    <td><a href="@{Upload.view(uploadInfo.upload.id)}">${uploadInfo.upload.id}</a></td>
+                    <td><a href="@{Uploads.view(uploadInfo.upload.id)}">${uploadInfo.upload.id}</a></td>
                     <td>Created on ${uploadInfo.upload.created.format('HH:mm dd MMM yyyy')}</td>
                     <td>${uploadInfo.upload.size.formatSize()}</td>
                     <td>
@@ -42,9 +42,9 @@
                         #{/else}
                     </td>
                     <td>
-                        <a href="@{Upload.delete(uploadInfo.upload.id)}" class="btn btn-danger">Delete</a>
+                        <a href="@{Uploads.delete(uploadInfo.upload.id)}" class="btn btn-danger">Delete</a>
                         #{if uploadInfo.publishable}
-                            <a href="@{Upload.publish(uploadInfo.upload.id)}" class="btn btn-primary">Publish</a>
+                            <a href="@{Uploads.publish(uploadInfo.upload.id)}" class="btn btn-primary">Publish</a>
                         #{/if}
                     </td>
                 </tr>
@@ -53,4 +53,4 @@
     </table>
 #{/else}
 
-<a class="btn btn-primary" href="@{Upload.newUpload()}"><i class="icon-plus icon-white"></i> New Upload</a>
+<a class="btn btn-primary" href="@{Uploads.newUpload()}"><i class="icon-plus icon-white"></i> New Upload</a>

@@ -57,7 +57,7 @@ public class UploadAPI extends LoggedInController {
 	// Stupid DAV shit
 
 	private static void propfind(Long uploadId, String path) throws IOException {
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -122,7 +122,7 @@ public class UploadAPI extends LoggedInController {
 	}
 
 	private static void mkdir(Long uploadId, String path) throws IOException{
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -135,7 +135,7 @@ public class UploadAPI extends LoggedInController {
 
 
 	public static void addFile(Long uploadId, String path) throws IOException{
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		if(request.body.available() > 0){
 			File uploadsDir = Util.getUploadDir(upload.id);
 			File file = new File(uploadsDir, path);
@@ -152,7 +152,7 @@ public class UploadAPI extends LoggedInController {
 	}
 
 	public static void viewFile(Long uploadId, String path) throws IOException{
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -174,7 +174,7 @@ public class UploadAPI extends LoggedInController {
 	}
 	
 	public static void deleteFile(Long uploadId, String path, boolean returnToBrowse) throws IOException{
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -198,15 +198,15 @@ public class UploadAPI extends LoggedInController {
 			String parentPath = JavaExtensions.relativeTo(parent, upload);
 			viewFile(upload.id, parentPath);
 		}else
-			Upload.view(uploadId);
+			Uploads.view(uploadId);
 	}
 
 	public static void uploadRepo(Long uploadId, @Required File repo) throws ZipException, IOException{
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		File uploadsDir = Util.getUploadDir(upload.id);
 
 		if(validationFailed()){
-			Upload.uploadRepoForm(uploadId);
+			Uploads.uploadRepoForm(uploadId);
 		}
 		
 		ZipFile zip = new ZipFile(repo);
@@ -247,6 +247,6 @@ public class UploadAPI extends LoggedInController {
 			zip.close();
 		}
 		
-		Upload.view(uploadId);
+		Uploads.view(uploadId);
 	}
 }

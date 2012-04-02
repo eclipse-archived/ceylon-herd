@@ -19,7 +19,7 @@ import models.ModuleVersion;
 import models.ProjectStatus;
 import models.User;
 
-public class Project extends LoggedInController {
+public class Projects extends LoggedInController {
 
     public static void index() {
     	User user = getUser();
@@ -298,7 +298,7 @@ public class Project extends LoggedInController {
 		}
 		
 		flash("message", "Project transfered to "+newOwner.userName);
-		Project.index();
+		Projects.index();
 	}
 
 	private static User getUser(Long userId) {

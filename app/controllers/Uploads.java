@@ -18,7 +18,7 @@ import util.ModuleChecker.Module;
 import util.ModuleChecker.UploadInfo;
 import util.Util;
 
-public class Upload extends LoggedInController {
+public class Uploads extends LoggedInController {
 
 	private static final FileFilter NonEmptyDirectoryFilter = new FileFilter(){
 		@Override
@@ -166,7 +166,7 @@ public class Upload extends LoggedInController {
 	}
 	
 	public static void uploadRepoForm(Long uploadId){
-		models.Upload upload = Upload.getUpload(uploadId);
+		models.Upload upload = Uploads.getUpload(uploadId);
 		render(upload);
 	}
 	

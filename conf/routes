@@ -13,20 +13,20 @@ POST    /register/confirmation-sent             Register.register
 GET     /register/confirm/{confirmationCode}    Register.confirm
 POST    /register/welcome                       Register.complete
 
-GET     /projects                               Project.index
-GET     /projects/claim                         Project.claimform
-GET     /projects/{id}                          Project.view
-GET     /projects/{id}/delete                   Project.delete
+GET     /projects                               Projects.index
+GET     /projects/claim                         Projects.claimform
+GET     /projects/{id}                          Projects.view
+GET     /projects/{id}/delete                   Projects.delete
 
-GET     /admin/projects/claims                  Project.claims
-GET     /admin/projects/{id}/accept             Project.accept
-GET     /admin/projects/{id}/reject             Project.reject
+GET     /admin/projects/claims                  Projects.claims
+GET     /admin/projects/{id}/accept             Projects.accept
+GET     /admin/projects/{id}/reject             Projects.reject
 
-GET     /uploads                                Upload.index
-GET     /uploads/new                            Upload.newUpload
-GET     /uploads/{id}                           Upload.view
-GET     /uploads/{uploadId}/upload              Upload.uploadRepoForm
-GET     /uploads/{id}/delete                    Upload.delete
+GET     /uploads                                Uploads.index
+GET     /uploads/new                            Uploads.newUpload
+GET     /uploads/{id}                           Uploads.view
+GET     /uploads/{uploadId}/upload              Uploads.uploadRepoForm
+GET     /uploads/{id}/delete                    Uploads.delete
 
 GET     /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.viewFile
 PUT     /uploads/{uploadId}/repo/{<.*>path}     UploadAPI.addFile
@@ -46,7 +46,7 @@ GET     /test/{<.*>path}                        Repo.viewFile
 GET     /repo/?                                 Repo.noFile
 GET     /repo/{<.*>path}                        404
 
-GET     /users/{username}                       User.view
+GET     /users/{username}                       Users.view
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
