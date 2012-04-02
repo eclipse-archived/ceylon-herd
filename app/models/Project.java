@@ -62,4 +62,16 @@ public class Project extends Model {
 	public static Project findForOwner(String moduleName, User owner) {
 		return find("moduleName = ? AND owner = ?", moduleName, owner).first();
 	}
+	
+    public static Long countForOwner(User owner) {
+        return count("owner = ?", owner);
+    }
+    
+    public static long countClaims() {
+        return count("status = ?", ProjectStatus.CLAIMED);
+    }
+    
+    public static List<Project> findClaims() {
+        return find("status = ?", ProjectStatus.CLAIMED).fetch();
+    }
 }

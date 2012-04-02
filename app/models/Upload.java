@@ -26,4 +26,11 @@ public class Upload extends Model {
 	public long getFileCount(){
 		return JavaExtensions.countFiles(Util.getUploadDir(id));
 	}
+
+	//
+	// Static helpers
+	
+    public static Long countForOwner(User owner) {
+        return count("owner = ?", owner);
+    }
 }

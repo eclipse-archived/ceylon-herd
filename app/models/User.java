@@ -11,8 +11,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import play.cache.Cache;
 import play.db.jpa.Model;
 import play.libs.Codec;
+import play.mvc.Scope.Session;
+import util.MyCache;
 
 @SuppressWarnings("serial")
 @Entity
@@ -53,6 +56,16 @@ public class User extends Model {
 	@Transient
 	public long getPublishedModules(){
 		return ModuleVersion.count("module.owner = ?", this);
+	}
+
+	@Transient
+	public long getProjectsCached(){
+	    return MyCache.getProjectsForOwner(this);
+	}
+
+	@Transient
+	public long getUploadsCached(){
+	    return MyCache.getUploadsForOwner(this);
 	}
 
 	public static User connect(String username, String password) {

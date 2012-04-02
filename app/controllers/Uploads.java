@@ -13,6 +13,7 @@ import org.apache.commons.io.FileUtils;
 
 import play.data.validation.Validation;
 import util.ModuleChecker;
+import util.MyCache;
 import util.ModuleChecker.Diagnostic;
 import util.ModuleChecker.Module;
 import util.ModuleChecker.UploadInfo;
@@ -67,7 +68,10 @@ public class Uploads extends LoggedInController {
 		File uploadDir = Util.getUploadDir(upload.id);
 		if(!uploadDir.mkdirs())
 			throw new RuntimeException("Failed to create upload dir "+uploadDir.getAbsolutePath());
-		view(upload.id);
+        
+		MyCache.evictUploadsForOwner(upload.owner);
+
+        view(upload.id);
 	}
 	
 	private static void collectFiles(File file, List<File> uploadedFiles) {
@@ -122,7 +126,9 @@ public class Uploads extends LoggedInController {
 		
 		upload.delete();
 		FileUtils.deleteDirectory(uploadsDir);
-		
+
+		MyCache.evictUploadsForOwner(upload.owner);
+
 		flash("message", "Upload repository deleted");
 		index();
 	}
@@ -160,6 +166,8 @@ public class Uploads extends LoggedInController {
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);
 		FileUtils.deleteDirectory(uploadsDir);
 		upload.delete();
+
+		MyCache.evictUploadsForOwner(user);
 		
 		flash("message", "Repository published");
 		index();

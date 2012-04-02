@@ -31,15 +31,15 @@
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">My stuff<b class="caret"></b></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="@{Projects.index()}">My project claims</a>
-                                    <li><a href="@{Uploads.index()}">My uploads</a></li>
+                                    <li><a href="@{Projects.index()}">My project claims <span class="badge">${user.projectsCached}</span></a>
+                                    <li><a href="@{Uploads.index()}">My uploads <span class="badge">${user.uploadsCached}</span></a></li>
                                 </ul>
                             </li>
                             #{if user.isAdmin}
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
                                     <ul class="dropdown-menu">
-                                        <li><a href="@{Projects.claims()}">Current project claims</a></li>
+                                        <li><a href="@{Projects.claims()}">Current project claims <span class="badge">${util.MyCache.getClaims()}</span></a></li>
                                     </ul>
                                 </li>
                             #{/if}

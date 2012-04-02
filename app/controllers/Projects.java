@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
+import util.MyCache;
 
 import models.Comment;
 import models.ModuleVersion;
@@ -29,7 +30,7 @@ public class Projects extends LoggedInController {
 
     @Check("admin")
     public static void claims() {
-    	List<models.Project> projects = models.Project.find("status = ?", ProjectStatus.CLAIMED).fetch();
+    	List<models.Project> projects = models.Project.findClaims();
         render(projects);
     }
 
@@ -67,6 +68,9 @@ public class Projects extends LoggedInController {
 		
 		Emails.projectClaimNotification(project, user);
 
+		MyCache.evictProjectsForOwner(user);
+		MyCache.evictClaims();
+		
 		flash("message", "Your project has been claimed, we will examine the claim shortly and let you know by email.");
 		view(project.id);
     }
@@ -89,6 +93,8 @@ public class Projects extends LoggedInController {
 	public static void delete(Long id){
 		models.Project project = getProject(id);
 		
+		MyCache.evictProjectsForOwner(project.owner);
+        MyCache.evictClaims();
 		project.delete();
 		
 		flash("message", "Project deleted");
@@ -216,6 +222,8 @@ public class Projects extends LoggedInController {
 		comment.date = new Date();
 		comment.project = project;
 		comment.create();
+
+        MyCache.evictClaims();
 	}
 
 	public static void editComment(Long projectId, Long commentId, String text){
@@ -284,6 +292,7 @@ public class Projects extends LoggedInController {
 			newProject.url = project.url;
 			newProject.status = ProjectStatus.CLAIMED;
 			newProject.create();
+			MyCache.evictProjectsForOwner(newOwner);
 		}
 		// accept new owner
 		newStatus(newProject, ProjectStatus.CONFIRMED, user);
