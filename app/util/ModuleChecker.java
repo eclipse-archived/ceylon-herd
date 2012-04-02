@@ -80,18 +80,22 @@ public class ModuleChecker {
 	public static void checkModule(File uploadsDir,
 			Map<String, File> fileByPath, Module m, User user, List<Module> modules) {
 		models.Project project = models.Project.findOwner(m.name);
-		if(project == null)
+		if(project == null){
+            // nobody owns it, but perhaps we already have a claim for it
+            project = models.Project.findForOwner(m.name, user);
 			m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
-		else{
+		}else{
 			// do we own it?
 			if(project.owner == user)
 				m.diagnostics.add(new Diagnostic("success", "You own this module"));
 			else{
 				// we don't own it but we may be admin
 				models.Module publishedModule = models.Module.findByName(m.name);
-				if(publishedModule == null || !publishedModule.canEdit(user))
+				if(publishedModule == null || !publishedModule.canEdit(user)){
+				    // we're not the owner, and not admin, but perhaps we already have a claim for it
+				    project = models.Project.findForOwner(m.name, user);
 					m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
-				else
+				}else
 					m.diagnostics.add(new Diagnostic("success", "You are admin on this module"));
 			}
 		}
