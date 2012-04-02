@@ -10,6 +10,7 @@ import models.ModuleVersion;
 import models.User;
 import play.data.validation.Required;
 import play.data.validation.Validation;
+import play.libs.MimeTypes;
 import play.mvc.Before;
 import util.Util;
 
@@ -83,8 +84,10 @@ public class Repo extends MyController {
 		
 		if(file.isDirectory())
 			render("Repo/viewFile.html", file);
-		else
+		else{
+		    response.contentType = MimeTypes.getContentType(file.getName());
 			renderBinary(file);
+		}
 	}
 
 	public static void noFile() throws IOException{
