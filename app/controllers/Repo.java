@@ -40,7 +40,7 @@ public class Repo extends MyController {
 			prepareForErrorRedirect();
 			index();
 		}
-		List<models.ModuleVersion> versions = models.ModuleVersion.find("module = ?", module).fetch();
+		List<models.ModuleVersion> versions = models.ModuleVersion.findByModule(module);
 		
 		render(module, versions);
 	}
@@ -49,7 +49,7 @@ public class Repo extends MyController {
 		if(StringUtils.isEmpty(q))
 			index();
 		
-		List<models.ModuleVersion> modules = models.ModuleVersion.find("LOCATE(?, name) <> 0", q).fetch();
+		List<models.Module> modules = models.Module.searchByName(q);
 		
 		render(modules, q);
 	}

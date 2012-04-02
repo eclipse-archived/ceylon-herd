@@ -98,4 +98,8 @@ public class Module extends Model {
 	public static Module findByName(String moduleName) {
 		return find("name = ?", moduleName).first();
 	}
+
+    public static List<Module> searchByName(String q) {
+        return find("LOCATE(?, name) <> 0", q).fetch();
+    }
 }
