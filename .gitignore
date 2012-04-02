@@ -2,3 +2,8 @@ bin
 tmp
 uploads
 repo
+.classpath
+.project
+.settings
+debian/files
+modules
