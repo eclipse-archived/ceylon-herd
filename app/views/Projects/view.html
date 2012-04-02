@@ -18,8 +18,10 @@
     <tr>
         <th>Module name</th>
         <td>
-            <a href="@{Projects.delete(project.id)}" 
-               class="btn btn-danger btn-mini pull-right"><i class="icon-trash icon-white"></i> Delete</a>
+            #{form @Projects.delete(project.id), class:"form-no-margin, pull-right"}
+                <button type="submit" class="btn btn-danger btn-mini action"
+                        title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>
+            #{/form}
             %{
                 module = project.module;
             }%
@@ -42,12 +44,16 @@
             #{secure.check 'admin'}
                 <span class="pull-right">
                 #{if project.canBeAccepted()}
-                    <a class="btn btn-success btn-mini" 
-                       href="@{Projects.accept(project.id)}"><i class="icon-ok icon-white"></i> Accept</a>
+                    #{form @Projects.accept(project.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-success btn-mini"
+                                title="Accept project claim"><i class="icon-ok icon-white"></i> Accept</button>
+                    #{/form}
                 #{/if}
                 #{if project.canBeRejected()}
-                    <a class="btn btn-danger btn-mini" 
-                       href="@{Projects.reject(project.id)}"><i class="icon-remove icon-white"></i> Reject</a>
+                    #{form @Projects.reject(project.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-danger btn-mini"
+                                title="Reject project claim"><i class="icon-remove icon-white"></i> Reject</button>
+                    #{/form}
                 #{/if}
                 </span>
             #{/secure.check}
@@ -76,13 +82,15 @@
     #{if comment.status != null}
     <div class="comment-status">
         #{projectStatus comment.status /}
-        #{gravatar.img comment.owner.email, size:30, default:'mm' /}#{user comment.owner /}
+        #{user comment.owner, img: true, size:30 /}
         ${comment.status.name().toLowerCase()} this project ${comment.date.since(true)}
     </div>
     #{/if}
     #{else}
     <div class="comment" id="comment-${comment.id}">
-        #{gravatar.img comment.owner.email, size:50, default:'mm' /}
+        <a href="@{Users.view(comment.owner.userName)}" title="View ${comment.owner.userName}´s profile">
+            #{gravatar.img comment.owner.email, size:50, default:'mm' /}
+        </a>
         <div class="data">
             <div class="header">
                 <span class="author"><i class="icon-comment"></i> #{user comment.owner /} <span class="small">commented</span></span>
@@ -90,10 +98,12 @@
             </div>
             <div class="text" id="comment-${comment.id}-view">
                 #{if user.isAdmin || comment.owner == user}
-                    <a href="@{Projects.deleteComment(project.id, comment.id)}" 
-                       class="btn btn-danger btn-mini action"><i class="icon-trash icon-white"></i> Delete</a>
+                    #{form @Projects.deleteComment(project.id, comment.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-danger btn-mini action"
+                                title="Delete this comment"><i class="icon-trash icon-white"></i> Delete</button>
+                    #{/form}
                     <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
-                       class="btn btn-mini action"><i class="icon-edit"></i> Edit</a>
+                       title="Edit this comment" class="btn btn-mini action"><i class="icon-edit"></i> Edit</a>
                 #{/if}
                 ${comment.text.md()}
             </div>
@@ -101,8 +111,9 @@
                 #{form @Projects.editComment(project.id, comment.id)}
                     <textarea name="text" rows="5">${comment.text}</textarea>
                     <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
-                       class="btn">Cancel</a>
-                    <button class="btn btn-primary" type="submit"><i class="icon-ok icon-white"></i> Save</button>
+                       class="btn" title="Abort!">Cancel</a>
+                    <button class="btn btn-primary" type="submit"
+                        title="Save this comment"><i class="icon-ok icon-white"></i> Save</button>
                 #{/form}
             </div>
         </div>
@@ -123,16 +134,20 @@
         </div>
     </div>
     <div class="pull-right">
-        <button type="submit" class="btn btn-primary"><i class="icon-comment icon-white"></i> Add comment</button>
+        <button type="submit" class="btn btn-primary" 
+            title="Add comment to this project claim"><i class="icon-comment icon-white"></i> Add comment</button>
         #{if project.status == models.ProjectStatus.REJECTED}
-            <button type="submit" class="btn btn-warning" name="projectAction" value="claim"><i class="icon-plus icon-white"></i> Comment and reclaim</button> 
+            <button type="submit" class="btn btn-warning" name="projectAction" 
+                value="claim" title="Comment and reclaim this project"><i class="icon-plus icon-white"></i> Comment and reclaim</button> 
         #{/if}
         #{secure.check 'admin'}
             #{if project.canBeAccepted()}
-                <button type="submit" class="btn btn-success" name="projectAction" value="accept"><i class="icon-ok icon-white"></i> Comment and accept</button> 
+                <button type="submit" class="btn btn-success" name="projectAction" 
+                    value="accept" title="Comment and accept this project claim"><i class="icon-ok icon-white"></i> Comment and accept</button> 
             #{/if}
             #{if project.canBeRejected()}
-                <button type="submit" class="btn btn-danger" name="projectAction" value="reject"><i class="icon-remove icon-white"></i> Comment and reject</button>
+                <button type="submit" class="btn btn-danger" name="projectAction" 
+                    value="reject" title="Comment and reject this project claim"><i class="icon-remove icon-white"></i> Comment and reject</button>
             #{/if}
         #{/secure.check}
     </div>

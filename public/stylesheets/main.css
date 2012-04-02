@@ -150,3 +150,11 @@ h1 {
 h3 {
 	margin-bottom: 12px !important;
 }
+
+form.form-no-margin {
+	margin: 0;
+}
+
+form.inline {
+	display: inline;
+}

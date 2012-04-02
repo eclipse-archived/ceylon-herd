@@ -41,15 +41,15 @@ public class UploadAPI extends LoggedInController {
 			unauthorized();
 	}
 	
-	public static void dispatch(Long uploadId, String path) throws IOException{
+	public static void dispatch(Long id, String path) throws IOException{
 		if("MKCOL".equals(request.method))
-			mkdir(uploadId, path);
+			mkdir(id, path);
 		else if("LOCK".equals(request.method))
-			lock(uploadId, path);
+			lock(id, path);
 		else if("UNLOCK".equals(request.method))
-			unlock(uploadId, path);
+			unlock(id, path);
 		else if("PROPFIND".equals(request.method))
-			propfind(uploadId, path);
+			propfind(id, path);
 		badRequest();
 	}
 
@@ -134,8 +134,8 @@ public class UploadAPI extends LoggedInController {
 	}
 
 
-	public static void addFile(Long uploadId, String path) throws IOException{
-		models.Upload upload = Uploads.getUpload(uploadId);
+	public static void addFile(Long id, String path) throws IOException{
+		models.Upload upload = Uploads.getUpload(id);
 		if(request.body.available() > 0){
 			File uploadsDir = Util.getUploadDir(upload.id);
 			File file = new File(uploadsDir, path);
@@ -151,8 +151,8 @@ public class UploadAPI extends LoggedInController {
 		error(HttpURLConnection.HTTP_BAD_REQUEST, "Empty file");
 	}
 
-	public static void viewFile(Long uploadId, String path) throws IOException{
-		models.Upload upload = Uploads.getUpload(uploadId);
+	public static void viewFile(Long id, String path) throws IOException{
+		models.Upload upload = Uploads.getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -161,7 +161,7 @@ public class UploadAPI extends LoggedInController {
 			notFound(path);
 		
 		if(file.isDirectory())
-			render("Upload/viewFile.html", upload, file);
+			render("Uploads/viewFile.html", upload, file);
 		else
 			renderBinary(file);
 	}
@@ -173,8 +173,8 @@ public class UploadAPI extends LoggedInController {
 			forbidden("Path is not in your uploads repository");
 	}
 	
-	public static void deleteFile(Long uploadId, String path, boolean returnToBrowse) throws IOException{
-		models.Upload upload = Uploads.getUpload(uploadId);
+	public static void deleteFile(Long id, String path, boolean returnToBrowse) throws IOException{
+		models.Upload upload = Uploads.getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
@@ -198,15 +198,15 @@ public class UploadAPI extends LoggedInController {
 			String parentPath = JavaExtensions.relativeTo(parent, upload);
 			viewFile(upload.id, parentPath);
 		}else
-			Uploads.view(uploadId);
+			Uploads.view(id);
 	}
 
-	public static void uploadRepo(Long uploadId, @Required File repo) throws ZipException, IOException{
-		models.Upload upload = Uploads.getUpload(uploadId);
+	public static void uploadRepo(Long id, @Required File repo) throws ZipException, IOException{
+		models.Upload upload = Uploads.getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);
 
 		if(validationFailed()){
-			Uploads.uploadRepoForm(uploadId);
+			Uploads.uploadRepoForm(id);
 		}
 		
 		ZipFile zip = new ZipFile(repo);
@@ -247,6 +247,6 @@ public class UploadAPI extends LoggedInController {
 			zip.close();
 		}
 		
-		Uploads.view(uploadId);
+		Uploads.view(id);
 	}
 }

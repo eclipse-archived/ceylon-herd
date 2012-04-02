@@ -86,8 +86,8 @@ public class Projects extends LoggedInController {
 		render(project, otherOwners);
 	}
 
-	public static void delete(Long projectId){
-		models.Project project = getProject(projectId);
+	public static void delete(Long id){
+		models.Project project = getProject(id);
 		
 		project.delete();
 		
@@ -245,7 +245,7 @@ public class Projects extends LoggedInController {
 		if(module != null){
 			 publishedModuleVersions = module.versions;
 		}
-		render(project, newOwner, publishedModuleVersions);
+		render(project, newOwner, publishedModuleVersions, module);
 	}
 
 	private static void checkForTransfer(models.Project project, User user) {

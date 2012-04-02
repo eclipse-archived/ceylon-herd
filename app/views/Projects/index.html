@@ -17,7 +17,10 @@
                         #{projectStatus project.status /}
                     </td>
                     <td>
-                        <a href="@{Projects.delete(project.id)}" class="btn btn-danger btn-mini action">Delete</a>
+                        #{form @Projects.delete(project.id), class:"form-no-margin"}
+                            <button type="submit" class="btn btn-danger btn-mini action"
+                             title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>
+                        #{/form}
                     </td>
                 </tr>
             #{/list}

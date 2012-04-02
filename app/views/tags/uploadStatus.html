@@ -1,0 +1,15 @@
+%{
+    if(_arg == "error"){
+        labelType = "important";
+        labelTooltip = "Error";
+    }else if(_arg == "warning"){
+        labelType = "warning";
+        labelTooltip = "Warning";
+    }else if(_arg == "success"){
+        labelType = "success";
+        labelTooltip = "Success";
+    }
+    if(_message)
+        labelTooltip = _message;
+}%
+<span class="label label-${labelType}" title="${labelTooltip}">${labelTooltip}</span>

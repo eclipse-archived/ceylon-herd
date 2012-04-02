@@ -12,14 +12,14 @@
         <tbody>
             #{list items:uploadInfos, as:'uploadInfo'}
                 <tr>
-                    <td><a href="@{Uploads.view(uploadInfo.upload.id)}">${uploadInfo.upload.id}</a></td>
+                    <td><a href="@{Uploads.view(uploadInfo.upload.id)}" title="View this upload">View upload</a></td>
                     <td>Created on ${uploadInfo.upload.created.format('HH:mm dd MMM yyyy')}</td>
                     <td>${uploadInfo.upload.size.formatSize()}</td>
                     <td>
                         %{ count = uploadInfo.upload.fileCount}%
                         ${count} ${count.pluralize('file', 'files')}
                     </td>
-                    <td>Status: <span class="label label-${uploadInfo.status == 'error' ? 'important' : uploadInfo.status}">${uploadInfo.status}</span></td>
+                    <td>Status: #{uploadStatus uploadInfo.status /}</td>
                     <td>
                         #{if uploadInfo.modules.empty}
                             <span class="label label-important">No module</span>
@@ -32,7 +32,7 @@
                                         %{
                                             type = module.type;
                                         }%
-                                        <span class="label label-${type == 'error' ? 'important' : type}">${module.name}/${module.version}</span>
+                                        #{uploadStatus type, message: module.name+"/"+module.version /}
                                     </li>
                                 #{/list}
                             </ul>
@@ -42,9 +42,15 @@
                         #{/else}
                     </td>
                     <td>
-                        <a href="@{Uploads.delete(uploadInfo.upload.id)}" class="btn btn-danger">Delete</a>
+                        #{form @Uploads.delete(uploadInfo.upload.id), class:"form-no-margin inline"}
+                            <button type="submit" class="btn btn-danger"
+                                    title="Drop upload"><i class="icon-trash icon-white"></i> Delete</button>
+                        #{/form}
                         #{if uploadInfo.publishable}
-                            <a href="@{Uploads.publish(uploadInfo.upload.id)}" class="btn btn-primary">Publish</a>
+                            #{form @Uploads.publish(uploadInfo.upload.id), class:"form-no-margin inline"}
+                                <button type="submit" class="btn btn-primary"
+                                        title="Publish this upload"><i class="icon-ok icon-white"></i> Publish</button>
+                            #{/form}
                         #{/if}
                     </td>
                 </tr>
@@ -53,4 +59,5 @@
     </table>
 #{/else}
 
-<a class="btn btn-primary" href="@{Uploads.newUpload()}"><i class="icon-plus icon-white"></i> New Upload</a>
+<a class="btn btn-primary" href="@{Uploads.newUpload()}" 
+    title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> New Upload</a>

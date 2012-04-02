@@ -3,7 +3,7 @@
 #{set hasForm: true /}
 
 <p>
-    <a href="@{Uploads.view(upload.id)}">Back to upload</a>
+    <a href="@{Uploads.view(upload.id)}" title="Cancel and go back to upload">Back to upload</a>
 </p>
 
 #{form @UploadAPI.uploadRepo(upload.id), enctype:'multipart/form-data'}
@@ -13,13 +13,14 @@
     <div class="control-group #{errorClassBootstrap 'repo'/}">
         <label class="control-label" for="Repo">Repo archive file (zip)</label>
         <div class="controls">
-            <input name="repo" type="file" value="${flash.repo}"/>
+            <input name="repo" type="file" value="${flash.repo}" title="Choose zip file to upload"/>
             <span class="help-inline">​#{error 'repo'/}</span>
         </div>
     </div>
     <div class="form-actions">
-        <a class="btn" href="@{Uploads.view(upload.id)}">Cancel</a>​
-        <input type="submit" class="btn btn-primary" value="Upload repo archive"/>
+        <a class="btn" href="@{Uploads.view(upload.id)}" title="Cancel and go back to upload">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Upload repo archive"
+            title="Upload this repo archive"/>
     </div>
 </fieldset>
 

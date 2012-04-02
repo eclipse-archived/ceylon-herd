@@ -28,8 +28,11 @@ jQuery(function (){
 #{moduleEditBar module, user: user /}
 
 #{secure.check 'admin'} 
-    <a href="@{LoggedInRepo.remove1(module.id, moduleVersion.id)}" 
-       class="btn btn-danger pull-right"><i class="icon-trash icon-white"></i> Remove</a>
+    #{form @LoggedInRepo.remove1(module.id, moduleVersion.id), class: "form-no-margin inline pull-right"}
+        <button type="submit" title="Remove this module"
+            class="btn btn-danger"
+            ><i class="icon-trash icon-white"></i> Remove</button>
+    #{/form}
 #{/secure.check}
 
 <table class="table table-bordered">
@@ -42,7 +45,7 @@ jQuery(function (){
                 #{if module.friendlyName}
                     ${module.friendlyName}<br/>
                 #{/if}
-                <a href="@{Repo.versions(module.id)}">${module.name}</a>/${moduleVersion.version}
+                <a href="@{Repo.versions(module.id)}" title="Browse module files">${module.name}</a>/${moduleVersion.version}
             </td>
         </tr>
         <tr>
@@ -61,29 +64,29 @@ jQuery(function (){
             <th>Info</th>
             <td>
                 #{if module.homeURL}
-                    <a href="${module.homeURL}"><i class="icon-home"></i> Home</a><br/>
+                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
                 #{/if}
                 #{if module.codeURL}
-                    <a href="${module.codeURL}"><i class="icon-heart"></i> Code repository</a><br/>
+                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
                 #{/if}
                 #{if module.issueTrackerURL}
-                    <a href="${module.issueTrackerURL}" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
                 #{/if}
             </td>
         </tr>
         <tr>
             <td></td>
             <td>
-                <a href="@{Repo.viewFile(moduleVersion.path)}"><i class="icon-folder-open"></i> Browse</a><br/>
-                <a href="@{Repo.viewFile(moduleVersion.carPath)}"><i class="icon-download"></i> Download .car</a><br/>
+                <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
+                <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module binary archive"><i class="icon-download"></i> Download .car</a><br/>
                 #{if moduleVersion.isSourcePresent}
-                    <a href="@{Repo.viewFile(moduleVersion.sourcePath)}"><i class="icon-heart"></i> Download source archive</a><br/>
+                    <a href="@{Repo.viewFile(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No source archive<br/>
                 #{/else}
                 #{if moduleVersion.isAPIPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.APIPath)}"><i class="icon-book"></i> View docs</a><br/>
+                    <a href="@{Repo.viewFile(moduleVersion.APIPath)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No API docs<br/>

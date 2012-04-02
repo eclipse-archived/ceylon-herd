@@ -2,7 +2,7 @@
 #{set title:'Browse upload repo' /}
 
 <p>
-    <a href="@{Uploads.view(upload.id)}">Back to upload</a>
+    <a href="@{Uploads.view(upload.id)}" title="Go back to upload">Back to upload</a>
 </p>
 
 #{if file.isRoot(upload) && file.listFiles().length == 0}
@@ -25,7 +25,12 @@
                 #{if child.directory}${child.folderSize().formatSize()}#{/if}
                 #{else}${child.length().formatSize()}#{/else}
             </td>
-            <td><a class="btn btn-danger btn-mini" href="@{UploadAPI.deleteFile(upload.id, child.relativeTo(upload), true)}">Delete</a></td>
+            <td>
+                #{form @UploadAPI.deleteFile(upload.id, child.relativeTo(upload), true), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-danger btn-mini"
+                        title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
+                #{/form}
+            </td>
         </tr>
         #{/list}
     </table>

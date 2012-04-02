@@ -5,10 +5,10 @@
 <h1>#{module module /} Administration</h1>
 
 <ul class="nav nav-tabs">
-    <li class="active"><a href="#" onclick="return false;">Information</a></li>
-    <li><a href="@{LoggedInRepo.permissionsForm(module.id)}">Permissions</a></li>
+    <li class="active"><a href="#" onclick="return false;" title="General information">Information</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.id)}" title="Edit module permissions">Permissions</a></li>
     #{if module.isOwnedBy(user)}
-        <li><a href="@{LoggedInRepo.transferForm(module.id)}">Transfer</a></li>
+        <li><a href="@{LoggedInRepo.transferForm(module.id)}" title="Transfer module">Transfer</a></li>
     #{/if}
 </ul>
 
@@ -45,8 +45,8 @@
         </div>
     </div>
     <div class="form-actions">
-        <a href="@{Repo.versions(module.id)}" class="btn">Cancel</a>​
-        <input type="submit" class="btn btn-primary" value="Save module"/>
+        <a href="@{Repo.versions(module.id)}" class="btn" title="Go back to module">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save module" title="Save module"/>
     </div>
 </fieldset>
 

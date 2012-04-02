@@ -3,9 +3,12 @@
 
 #{set 'moreStyles'}
 <style>
-.alert {
-    font-size: 16pt;
-    line-height: 20pt;
+.alert,
+.alert p {
+    font-size: 12pt;
+}
+.alert p {
+    margin: 1em 0;
 }
 .transfer {
     font-size: 24pt;
@@ -24,10 +27,11 @@
 <h1>Transfer ownership</h1>
 
 <div class="alert">
-    <i class="icon-exclamation-sign"></i> 
-    Warning! You are about to transfer ownership of project 
-    <a href="@{Projects.view(project.id)}">${project.moduleName}</a>
-    <br/>
+    <h4 class="alert-heading">Warning!</h4>
+    <p>
+        You are about to transfer ownership of project 
+        <a href="@{Projects.view(project.id)}" title="View project claim">${project.moduleName}</a>
+    </p>
     <div class="transfer">
         <div class="owner">
             From<br/>
@@ -39,6 +43,17 @@
             #{user newOwner, img: true, size: 50 /}
         </div>
     </div>
+    <p>
+        You understand that once you´ve transfered ownership of this project:
+    </p>
+    <ul>
+        <li>The new owner will own this project</li>
+        <li>All the corresponding published modules will be transfered to him</li>
+        <li>Unless the new owner grants you administration rights, you will not be able to publish this
+            module anymore</li>
+        <li>You can only get this project back if the new owner transfers it to you or if you reclaim it and
+            the Ceylon Herd administrators agree with your claim, for which there is absolutely no guarantee</li>
+    </ul>
 </div>
 
 <p>
@@ -48,11 +63,12 @@
 <ul>
     #{list items: publishedModuleVersions, as:'moduleVersion'}
         <li>
-            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}">${moduleVersion.version}</a>
+            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}" title="View module version">${moduleVersion.version}</a>
         </li>
     #{/list}
 </ul>
 
-#{form @Projects.transferOwnership2(project.id, newOwner.id)}
-    <button class="btn btn-danger pull-right"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
+#{form @Projects.transferOwnership2(project.id, newOwner.id), class:"pull-right"}
+    <a href="@{Repo.versions(module.id)}" class="btn" title="Go back to module">Cancel</a>
+    <button class="btn btn-danger" title="Transfer ownership"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
 #{/form}

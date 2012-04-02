@@ -113,7 +113,7 @@ public class Uploads extends LoggedInController {
 		UploadInfo uploadInfo = new UploadInfo(upload, modules, diagnostics);
 		
 		String base = uploadsDir.getPath();
-		render("Upload/view.html", upload, uploadInfo, uploadedFiles, base);
+		render("Uploads/view.html", upload, uploadInfo, uploadedFiles, base);
 	}
 
 	public static void delete(Long id) throws IOException {
@@ -165,8 +165,8 @@ public class Uploads extends LoggedInController {
 		index();
 	}
 	
-	public static void uploadRepoForm(Long uploadId){
-		models.Upload upload = Uploads.getUpload(uploadId);
+	public static void uploadRepoForm(Long id){
+		models.Upload upload = Uploads.getUpload(id);
 		render(upload);
 	}
 	

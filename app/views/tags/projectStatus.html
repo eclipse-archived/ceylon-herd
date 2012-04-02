@@ -1,9 +1,13 @@
 %{
-    if(_arg == models.ProjectStatus.CONFIRMED)
+    if(_arg == models.ProjectStatus.CONFIRMED){
         labelType = "success";
-    else if(_arg == models.ProjectStatus.REJECTED)
+        labelTooltip = "This project claim is confirmed";
+    }else if(_arg == models.ProjectStatus.REJECTED){
         labelType = "important";
-    else if(_arg == models.ProjectStatus.CLAIMED)
+        labelTooltip = "This project claim has been rejected";
+    }else if(_arg == models.ProjectStatus.CLAIMED){
         labelType = "warning";
+        labelTooltip = "This project claim is not confirmed yet";
+    }
 }%
-<span class="label label-${labelType}">${_arg}</span>
+<span class="label label-${labelType}" title="${labelTooltip}">${_arg}</span>

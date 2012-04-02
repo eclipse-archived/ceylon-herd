@@ -11,7 +11,7 @@
         <caption>Current project claims:</caption>
         #{list items:projects, as:'project'}
             <tr>
-                <td><a href="@{Projects.view(project.id)}">${project.moduleName}</a></td>
+                <td><a href="@{Projects.view(project.id)}" title="View project claim">${project.moduleName}</a></td>
                 <td>#{user project.owner, img: true /}</td>
             </tr>
         #{/list}
