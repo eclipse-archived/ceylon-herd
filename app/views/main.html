@@ -21,7 +21,7 @@
                     <ul class="nav">
                         #{if session.username != null}
                             <li class="user">
-                                #{if user.isAdmin}<i class="icon-star icon-white"></i>#{/if}
+                                #{if user.isAdmin}<i class="icon-star icon-white" title="You are an administrator"></i>#{/if}
                                 #{user user, img:true /}
                             </li>
                         #{/if}
