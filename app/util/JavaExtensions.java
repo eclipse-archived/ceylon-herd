@@ -3,6 +3,12 @@ package util;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import markdown.Markdown;
 import models.Upload;
@@ -82,6 +88,13 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 		} catch (ParseException e) {
 			return e.toString();
 		}
-
+	}
+	
+	public static String toISO8601(Date date) throws DatatypeConfigurationException{
+        final GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        final XMLGregorianCalendar xmlCalendar = DatatypeFactory.newInstance()
+                        .newXMLGregorianCalendar(calendar);
+        return xmlCalendar.toXMLFormat();
 	}
 }

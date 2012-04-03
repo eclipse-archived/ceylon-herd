@@ -12,6 +12,7 @@
         <script src="@{'/public/bootstrap/js/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/bootstrap/js/bootstrap-tab.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         #{get 'moreScripts' /}
+        <link href="@{Feed.repo()}" type="application/atom+xml" rel="alternate" title="Repository Atom Feed" />
     </head>
     <body>
         <div class="navbar">
@@ -49,6 +50,7 @@
                             <li><a href="@{Register.index()}">Register</a>
                             <li><a href="@{Secure.login()}">Log in</a>
                         #{/if}
+                        <li><a href="@{Feed.repo()}" title="Subscribe to the repository feed"><img src="@{'/public/images/feed.png'}"/></a></li>
                     </ul>
                     <form class="navbar-search pull-right" action="@{Repo.search}">
                         <input name="q" type="text" class="search-query" placeholder="Search module">

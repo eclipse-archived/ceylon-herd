@@ -14,6 +14,7 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
+import play.mvc.results.RenderStatic;
 import util.JavaExtensions;
 import util.Util;
 

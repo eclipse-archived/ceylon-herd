@@ -1,0 +1,11 @@
+<entry>
+    <title>${_arg.module.name}/${_arg.version}</title>
+    <link href="@@{Repo.view(_arg.module.name, _arg.version)}" />
+    <id>@@{Repo.view(_arg.module.name, _arg.version)}</id>
+    <updated>${_arg.published?.toISO8601()}</updated>
+    <summary>Version ${_arg.version} of ${_arg.module.name} has been released.</summary>
+    <author>
+        <name>${_arg.module.owner.userName}</name>
+        <uri>@@{Users.view(_arg.module.owner.userName)}</uri>
+    </author>
+</entry>

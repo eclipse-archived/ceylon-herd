@@ -5,6 +5,7 @@
     #{gravatar.img user.email, size:50, default:'mm' /}
     <span class="username">${user.userName}</span>
     <span class="name">(${user.firstName} ${user.lastName})</span>
+    <a href="@{Feed.user(user.userName)}" title="Subscribe to this user´s feed"><img src="@{'/public/images/feed.png'}"/></a>
 </div>
 
 <hr/>
@@ -38,6 +39,7 @@
 		        <div class="header">
 		            #{if module}
 		                <a href="@{Repo.versions(module.name)}" title="View published versions">${project.moduleName}</a>
+    		            <a href="@{Feed.module(module.name)}" title="Subscribe to this module´s feed"><img src="@{'/public/images/feed.png'}"/></a>
 		            #{/if}
 		            #{else}
 		                ${project.moduleName}

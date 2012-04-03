@@ -7,6 +7,8 @@ GET     /                                                  Application.index
                                                            
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login
+
+GET     /feed.atom                                         Feed.repo
                                                            
 GET     /register                                          Register.index
 POST    /register/confirmation-sent                        Register.register
@@ -44,6 +46,7 @@ PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
 
 GET     /modules                                           Repo.index
 GET     /modules/{moduleName}                              Repo.versions
+GET     /modules/{moduleName}/feed.atom                    Feed.module
 GET     /modules/{moduleName}/edit                         LoggedInRepo.editForm
 POST    /modules/{moduleName}/edit                         LoggedInRepo.edit
 GET     /modules/{moduleName}/permissions                  LoggedInRepo.permissionsForm
@@ -64,6 +67,7 @@ GET     /repo/?                                            Repo.noFile
 GET     /repo/{<.*>path}                                   404
                                                            
 GET     /users/{username}                                  Users.view
+GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
                                                            
 # Ignore favicon requests                                  

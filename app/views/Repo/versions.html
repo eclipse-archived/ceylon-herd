@@ -74,7 +74,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 #{/if}
 #{else}
     <table class="table table-striped">
-        <caption>List of published versions</caption>
+        <caption>List of published versions <a href="@{Feed.module(module.name)}" title="Subscribe to this module´s feed"><img src="@{'/public/images/feed.png'}"/></a></caption>
         <tbody>
             #{list items:versions, as:'version'}
                 <tr>
