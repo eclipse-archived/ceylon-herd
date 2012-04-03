@@ -2,5 +2,5 @@ ${user.userName} has just added the following comment on project claim for ${pro
 
 ${comment.text}
 --
-See comment online: @@{Project.view(project.id)}#comment-${comment.id}
+See comment online: @@{Projects.view(project.id)}#comment-${comment.id}
 
