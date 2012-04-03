@@ -16,11 +16,15 @@ import play.Logger;
 import play.data.validation.Required;
 import play.mvc.Before;
 import util.JavaExtensions;
+import util.ModuleChecker;
+import util.ModuleSpec;
 import util.Util;
 
 public class UploadAPI extends LoggedInController {
 
-	@Before
+	private static final String[] SupportedExtensions = new String[]{".car", ".jar", ".src"};
+
+    @Before
 	static void before(){
 		Logger.info("UploadAPI [%s] %s %s", Security.connected(), request.method, request.path);
 		String user = request.user;
@@ -209,44 +213,94 @@ public class UploadAPI extends LoggedInController {
 			Uploads.uploadRepoForm(id);
 		}
 		
-		ZipFile zip = new ZipFile(repo);
-		try{
-			// first check them all
-			Enumeration<? extends ZipEntry> entries = zip.entries();
-			while(entries.hasMoreElements()){
-				ZipEntry entry = entries.nextElement();
-				// skip directories
-				if(entry.isDirectory())
-					continue;
-				File file = new File(uploadsDir, entry.getName());
-				checkUploadPath(file, uploadsDir);
-				if(file.isDirectory())
-					error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid path for upload: "+entry.getName()+" (is a directory)");
-			}
-			// then store
-			entries = zip.entries();
-			int files = 0;
-			while(entries.hasMoreElements()){
-				ZipEntry entry = entries.nextElement();
-				// skip directories
-				if(entry.isDirectory())
-					continue;
-				File file = new File(uploadsDir, entry.getName());
-
-				files++;
-				file.getParentFile().mkdirs();
-				InputStream inputStream = zip.getInputStream(entry);
-				try{
-					FileUtils.copyInputStreamToFile(inputStream, file);
-				}finally{
-					inputStream.close();
-				}
-			}
-			flash("message", "Uploaded "+files+" file"+(files>1 ?"s":""));
-		}finally{
-			zip.close();
+		String name = repo.getName();
+		if(name.endsWith(".zip"))
+		    uploadZip(repo, uploadsDir);
+		else{
+		    boolean found = false;
+		    for(String postfix : SupportedExtensions){
+		        if(name.endsWith(postfix)){
+		            uploadArchive(repo, postfix, uploadsDir);
+		            found = true;
+		            break;
+		        }
+		    }
+		    if(!found)
+		        error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid uploaded file (must be zip, car, jar or src)");
 		}
+		
 		
 		Uploads.view(id);
 	}
+
+    private static void uploadArchive(File file, String postfix, File uploadsDir) throws IOException {
+        try{
+            // parse
+            ModuleSpec spec = ModuleSpec.parse(file.getName(), postfix);
+            
+            // build dest file
+            String path = spec.name.replace('.', File.separatorChar) 
+                    + File.separatorChar + spec.version 
+                    + File.separatorChar + file.getName();
+            File destFile = new File(uploadsDir, path);
+            
+            // check
+            checkUploadPath(destFile, uploadsDir);
+            if(destFile.isDirectory())
+                error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid path for upload: "+destFile.getName()+" (is a directory)");
+            
+            // all good, let's copy
+            destFile.getParentFile().mkdirs();
+            FileUtils.copyFile(file, destFile);
+            
+            // now let's sha1 it
+            String sha1 = ModuleChecker.sha1(destFile);
+            File sha1File = new File(uploadsDir, path+".sha1");
+            FileUtils.write(sha1File, sha1);
+            
+            flash("message", "Uploaded archive file");
+        }catch(ModuleSpec.ModuleSpecException x){
+            error(HttpURLConnection.HTTP_BAD_REQUEST, x.getMessage());
+        }
+    }
+
+    private static void uploadZip(File repo, File uploadsDir) throws ZipException, IOException {
+        ZipFile zip = new ZipFile(repo);
+        try{
+            // first check them all
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                // skip directories
+                if(entry.isDirectory())
+                    continue;
+                File file = new File(uploadsDir, entry.getName());
+                checkUploadPath(file, uploadsDir);
+                if(file.isDirectory())
+                    error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid path for upload: "+entry.getName()+" (is a directory)");
+            }
+            // then store
+            entries = zip.entries();
+            int files = 0;
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                // skip directories
+                if(entry.isDirectory())
+                    continue;
+                File file = new File(uploadsDir, entry.getName());
+
+                files++;
+                file.getParentFile().mkdirs();
+                InputStream inputStream = zip.getInputStream(entry);
+                try{
+                    FileUtils.copyInputStreamToFile(inputStream, file);
+                }finally{
+                    inputStream.close();
+                }
+            }
+            flash("message", "Uploaded "+files+" file"+(files>1 ?"s":""));
+        }finally{
+            zip.close();
+        }
+    }
 }

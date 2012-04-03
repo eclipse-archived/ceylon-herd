@@ -301,18 +301,23 @@ public class ModuleChecker {
 		File checksumFile = new File(uploadsDir, checksumPath);
 		try{
 			String checksum = FileUtils.readFileToString(checksumFile);
-			InputStream is = new FileInputStream(checkedFile);
-			try{
-				String realChecksum = DigestUtils.shaHex(is);
-				return realChecksum.equals(checksum);
-			}finally{
-				is.close();
-			}
+			String realChecksum = sha1(checkedFile);
+			return realChecksum.equals(checksum);
 		}catch(Exception x){
 			return false;
 		}
 	}
 
+	public static String sha1(File file) throws IOException{
+        InputStream is = new FileInputStream(file);
+        try{
+            String realChecksum = DigestUtils.shaHex(is);
+            return realChecksum;
+        }finally{
+            is.close();
+        }
+	}
+	
 	private static String getPathRelativeTo(File uploadsDir, File f) {
 		try{
 			String prefix = uploadsDir.getCanonicalPath();
