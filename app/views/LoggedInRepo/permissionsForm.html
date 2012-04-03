@@ -20,10 +20,10 @@
 <h1>#{module module /} Administration</h1>
 
 <ul class="nav nav-tabs">
-    <li><a href="@{LoggedInRepo.editForm(module.id)}" title="General information">Information</a></li>
+    <li><a href="@{LoggedInRepo.editForm(module.name)}" title="General information">Information</a></li>
     <li class="active"><a href="#" onclick="return false;" title="Edit module permissions">Permissions</a></li>
     #{if module.isOwnedBy(user)}
-        <li><a href="@{LoggedInRepo.transferForm(module.id)}" title="Transfer module">Transfer</a></li>
+        <li><a href="@{LoggedInRepo.transferForm(module.name)}" title="Transfer module">Transfer</a></li>
     #{/if}
 </ul>
 
@@ -32,7 +32,7 @@
         <h3>Current Admins</h3>
         #{list items:module.admins, as:'admin'}
             <div class="admin">
-                #{form action: @LoggedInRepo.removeAdmin(module.id, admin.id), class: "form-inline"}
+                #{form action: @LoggedInRepo.removeAdmin(module.name, admin.id), class: "form-inline"}
                     #{user admin, img:true /}
                     <button type="submit" class="btn btn-danger btn-mini" title="Remove administration rights"><i class="icon-remove icon-white"></i></button>
                 #{/form}
@@ -42,7 +42,7 @@
     <div class="span8">
         <h3>Add Admin</h3>
         
-        #{form action: @LoggedInRepo.addAdmin(module.id), class: "form-inline"}
+        #{form action: @LoggedInRepo.addAdmin(module.name), class: "form-inline"}
         <div class="control-group #{errorClassBootstrap 'userName'/}">
                 <label class="control-label" for="userName">User name</label>
                 <input name="userName" id="new-user" placeholder="Add admin" 

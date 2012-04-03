@@ -6,13 +6,13 @@
 
 <ul class="nav nav-tabs">
     <li class="active"><a href="#" onclick="return false;" title="General information">Information</a></li>
-    <li><a href="@{LoggedInRepo.permissionsForm(module.id)}" title="Edit module permissions">Permissions</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.name)}" title="Edit module permissions">Permissions</a></li>
     #{if module.isOwnedBy(user)}
-        <li><a href="@{LoggedInRepo.transferForm(module.id)}" title="Transfer module">Transfer</a></li>
+        <li><a href="@{LoggedInRepo.transferForm(module.name)}" title="Transfer module">Transfer</a></li>
     #{/if}
 </ul>
 
-#{form action: @LoggedInRepo.edit(module.id), class: "form-horizontal"}
+#{form action: @LoggedInRepo.edit(module.name), class: "form-horizontal"}
 
 <fieldset>
     <legend>Edit module</legend>
@@ -45,7 +45,7 @@
         </div>
     </div>
     <div class="form-actions">
-        <a href="@{Repo.versions(module.id)}" class="btn" title="Go back to module">Cancel</a>​
+        <a href="@{Repo.versions(module.name)}" class="btn" title="Go back to module">Cancel</a>​
         <input type="submit" class="btn btn-primary" value="Save module" title="Save module"/>
     </div>
 </fieldset>

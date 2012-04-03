@@ -28,7 +28,7 @@ jQuery(function (){
 #{moduleEditBar module, user: user /}
 
 #{secure.check 'admin'} 
-    #{form @LoggedInRepo.remove1(module.id, moduleVersion.id), class: "form-no-margin inline pull-right"}
+    #{form @LoggedInRepo.remove1(module.name, moduleVersion.version), class: "form-no-margin inline pull-right"}
         <button type="submit" title="Remove this module"
             class="btn btn-danger"
             ><i class="icon-trash icon-white"></i> Remove</button>
@@ -45,7 +45,7 @@ jQuery(function (){
                 #{if module.friendlyName}
                     ${module.friendlyName}<br/>
                 #{/if}
-                <a href="@{Repo.versions(module.id)}" title="View published versions">${module.name}</a>/${moduleVersion.version}
+                <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>/${moduleVersion.version}
             </td>
         </tr>
         <tr>

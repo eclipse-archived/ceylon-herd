@@ -20,14 +20,14 @@
 <h1>#{module module /} Administration</h1>
 
 <ul class="nav nav-tabs">
-    <li><a href="@{LoggedInRepo.editForm(module.id)}" title="General information">Information</a></li>
-    <li><a href="@{LoggedInRepo.permissionsForm(module.id)}" title="Edit module permissions">Permissions</a></li>
+    <li><a href="@{LoggedInRepo.editForm(module.name)}" title="General information">Information</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.name)}" title="Edit module permissions">Permissions</a></li>
     <li class="active"><a href="#" onclick="return false;" title="Transfer module">Transfer</a></li>
 </ul>
 
 <h3>Transfer Ownership</h3>
 
-#{form action: @LoggedInRepo.transfer(module.id), class: "form-inline"}
+#{form action: @LoggedInRepo.transfer(module.name), class: "form-inline"}
 <div class="control-group #{errorClassBootstrap 'userName'/}">
         <label class="control-label" for="userName">User name</label>
         <input name="userName" id="new-user" placeholder="New owner" 

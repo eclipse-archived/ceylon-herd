@@ -63,12 +63,12 @@
 <ul>
     #{list items: publishedModuleVersions, as:'moduleVersion'}
         <li>
-            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}" title="View module version">${moduleVersion.version}</a>
+            <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" title="View module version">${moduleVersion.version}</a>
         </li>
     #{/list}
 </ul>
 
 #{form @Projects.transferOwnership2(project.id, newOwner.id), class:"pull-right"}
-    <a href="@{Repo.versions(module.id)}" class="btn" title="Go back to module">Cancel</a>
+    <a href="@{Repo.versions(module.name)}" class="btn" title="Go back to module">Cancel</a>
     <button class="btn btn-danger" title="Transfer ownership"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
 #{/form}

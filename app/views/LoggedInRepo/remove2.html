@@ -15,7 +15,7 @@
     Are you <b>really really</b> sure?
 </p>
 
-#{form @LoggedInRepo.remove3(module.id, moduleVersion.id)}
+#{form @LoggedInRepo.remove3(module.name, moduleVersion.version)}
     <button type="submit" class="btn btn-danger" title="Remove this module, there´s no going back"><i class="icon-trash icon-white"></i> Yes I am <b>really really</b> sure, let's do this</button>
-    <a href="@{Repo.view(module.id, moduleVersion.id)}" title="Pfiew, you know? I´m not so sure anymore, let´s back off a bit…" class="btn">No, let's cancel</a>
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Pfiew, you know? I´m not so sure anymore, let´s back off a bit…" class="btn">No, let's cancel</a>
 #{/form}

@@ -19,10 +19,10 @@ import util.Util;
 
 public class LoggedInRepo extends LoggedInController {
 
-	private static ModuleVersion getModuleVersion(Long id) {
+	private static ModuleVersion getModuleVersion(String moduleName, String version) {
 		if(validationFailed())
 			Repo.index();
-		models.ModuleVersion moduleVersion = models.ModuleVersion.findById(id);
+		models.ModuleVersion moduleVersion = models.ModuleVersion.findByVersion(moduleName, version);
 		if(moduleVersion == null){
 			Validation.addError(null, "Unknown module version");
 			prepareForErrorRedirect();
@@ -31,13 +31,13 @@ public class LoggedInRepo extends LoggedInController {
 		return moduleVersion;
 	}
 
-	private static Module getModule(Long id) {
-		if(id == null){
-			Validation.addError(null, "Module id required");
+	private static Module getModule(String moduleName) {
+		if(moduleName == null){
+			Validation.addError(null, "Module name required");
 			prepareForErrorRedirect();
 			Repo.index();
 		}
-		models.Module module = models.Module.findById(id);
+		models.Module module = models.Module.findByName(moduleName);
 		if(module == null){
 			Validation.addError(null, "Unknown module");
 			prepareForErrorRedirect();
@@ -52,15 +52,15 @@ public class LoggedInRepo extends LoggedInController {
 		return module;
 	}
 
-	public static void editForm(@Required Long id){
-		Module module = getModule(id);
+	public static void editForm(@Required String moduleName){
+		Module module = getModule(moduleName);
 		
 		render(module);
 	}
 
 
-	public static void edit(@Required Long id, String url, String issues, String code, String friendlyName){
-		Module module = getModule(id);
+	public static void edit(@Required String moduleName, String url, String issues, String code, String friendlyName){
+		Module module = getModule(moduleName);
 		
 		module.codeURL = code;
 		module.homeURL = url;
@@ -68,7 +68,7 @@ public class LoggedInRepo extends LoggedInController {
 		module.friendlyName = friendlyName;
 		module.save();
 		
-		Repo.versions(module.id);
+		Repo.versions(moduleName);
 	}
 
 	public static void userList(String term){
@@ -82,21 +82,21 @@ public class LoggedInRepo extends LoggedInController {
 		renderJSON(userNames);
 	}
 	
-	public static void permissionsForm(@Required Long id){
-		Module module = getModule(id);
+	public static void permissionsForm(@Required String moduleName){
+		Module module = getModule(moduleName);
 		
 		render(module);
 	}
 
-	public static void addAdmin(@Required Long id, String userName){
-		Module module = getModule(id);
+	public static void addAdmin(@Required String moduleName, String userName){
+		Module module = getModule(moduleName);
 		User user = getUser(userName);
 		if(user == null) // error
-			permissionsForm(id);
+			permissionsForm(moduleName);
 		
 		if(module.admins.contains(user) || module.owner.equals(user)){
 			flash("message", "User already admin on this module");
-			permissionsForm(id);
+			permissionsForm(moduleName);
 		}
 		
 		module.admins.add(user);
@@ -105,7 +105,7 @@ public class LoggedInRepo extends LoggedInController {
 		Emails.addAdminNotification(module, user, getUser());
 		
 		flash("message", "User "+user.userName+" added as admin on this project");
-		permissionsForm(id);
+		permissionsForm(moduleName);
 	}
 
 	private static User getUser(String userName) {
@@ -123,34 +123,34 @@ public class LoggedInRepo extends LoggedInController {
 		return user;
 	}
 
-	public static void removeAdmin(@Required Long id, Long userId){
-		Module module = getModule(id);
+	public static void removeAdmin(@Required String moduleName, Long userId){
+		Module module = getModule(moduleName);
 		if(userId == null){
 			Validation.addError("userName", "User required");
 			prepareForErrorRedirect();
-			permissionsForm(id);
+			permissionsForm(moduleName);
 		}
 		User user = User.findById(userId);
 		if(user == null){
 			Validation.addError("userName", "User unknown");
 			prepareForErrorRedirect();
-			permissionsForm(id);
+			permissionsForm(moduleName);
 		}
 		
 		if(!module.admins.contains(user)){
 			flash("message", "User not admin on this module");
-			permissionsForm(id);
+			permissionsForm(moduleName);
 		}
 		
 		module.admins.remove(user);
 		module.save();
 		
 		flash("message", "User "+user.userName+" is not admin anymore on this project");
-		permissionsForm(id);
+		permissionsForm(moduleName);
 	}
 
-	public static void transferForm(Long id){
-		Module module = getModule(id);
+	public static void transferForm(String moduleName){
+		Module module = getModule(moduleName);
 		checkModuleOwner(module);
 
 		render(module);
@@ -161,21 +161,21 @@ public class LoggedInRepo extends LoggedInController {
 		if(!module.isOwnedBy(getUser())){
 			Validation.addError(null, "Unauthorised");
 			prepareForErrorRedirect();
-			LoggedInRepo.editForm(module.id);
+			LoggedInRepo.editForm(module.name);
 		}
 	}
 
-	public static void transfer(Long id, String userName){
-		Module module = getModule(id);
+	public static void transfer(String moduleName, String userName){
+		Module module = getModule(moduleName);
 		checkModuleOwner(module);
 		
 		User newOwner = getUser(userName);
 		if(newOwner == null) // error
-			transferForm(id);
+			transferForm(moduleName);
 		
 		if(module.owner.equals(newOwner)){
 			flash("message", "User already owns this module");
-			transferForm(id);
+			transferForm(moduleName);
 		}
 		
 		models.Project project = models.Project.findOwner(module.name);
@@ -183,24 +183,24 @@ public class LoggedInRepo extends LoggedInController {
 	}
 	
 	@Check("admin")
-	public static void remove1(@Required Long moduleId, @Required Long versionId){
-		ModuleVersion moduleVersion = getModuleVersion(versionId);
+	public static void remove1(@Required String moduleName, @Required String version){
+		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
 		
 		render(module, moduleVersion);
 	}
 	
 	@Check("admin")
-	public static void remove2(@Required Long moduleId, @Required Long versionId){
-		ModuleVersion moduleVersion = getModuleVersion(versionId);
+	public static void remove2(@Required String moduleName, @Required String version){
+		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
 		
 		render(module, moduleVersion);
 	}
 	
 	@Check("admin")
-	public static void remove3(@Required Long moduleId, @Required Long versionId) throws IOException{
-		ModuleVersion moduleVersion = getModuleVersion(versionId);
+	public static void remove3(@Required String moduleName, @Required String version) throws IOException{
+		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		
 		String path = moduleVersion.getPath();
 		File repoDir = Util.getRepoDir();

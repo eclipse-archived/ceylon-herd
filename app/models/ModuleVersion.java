@@ -15,7 +15,7 @@ import play.db.jpa.Model;
 
 @Entity
 @SuppressWarnings("serial")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module", "version"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module_id", "version"}))
 public class ModuleVersion extends Model {
 
 	@Column(nullable = false)

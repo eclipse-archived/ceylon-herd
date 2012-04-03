@@ -37,7 +37,7 @@
 		        }%
 		        <div class="header">
 		            #{if module}
-		                <a href="@{Repo.versions(module.id)}" title="View published versions">${project.moduleName}</a>
+		                <a href="@{Repo.versions(module.name)}" title="View published versions">${project.moduleName}</a>
 		            #{/if}
 		            #{else}
 		                ${project.moduleName}
@@ -61,7 +61,7 @@
         <h2>Last published modules</h2>
         
         #{list items:user.lastPublishedModuleVersions, as:'moduleVersion'}
-            <a href="@{Repo.view(moduleVersion.module.id, moduleVersion.id)}" title="View module version">${moduleVersion.module.name}/${moduleVersion.version}</a> 
+            <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" title="View module version">${moduleVersion.module.name}/${moduleVersion.version}</a> 
             was published ${moduleVersion.published.since(true)}
             <hr/>
         #{/list}

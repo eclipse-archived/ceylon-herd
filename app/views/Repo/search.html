@@ -12,7 +12,7 @@
         <tbody>
             #{list items:modules, as:'module'}
                 <tr>
-                    <td><a href="@{Repo.versions(module.id)}">${module.name}</a></td>
+                    <td><a href="@{Repo.versions(module.name)}">${module.name}</a></td>
                 </tr>
             #{/list}
         </tbody>

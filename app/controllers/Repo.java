@@ -33,11 +33,11 @@ public class Repo extends MyController {
 		render(modules);
 	}
 
-	public static void versions(@Required Long id){
+	public static void versions(@Required String moduleName){
 		if(validationFailed()){
 			index();
 		}
-		models.Module module = models.Module.findById(id);
+		models.Module module = models.Module.findByName(moduleName);
 		if(module == null){
 			Validation.addError(null, "Unknown module");
 			prepareForErrorRedirect();
@@ -57,17 +57,17 @@ public class Repo extends MyController {
 		render(modules, q);
 	}
 
-	public static void view(@Required Long moduleId, @Required Long versionId){
-		models.ModuleVersion moduleVersion = getModuleVersion(versionId);
+	public static void view(@Required String moduleName, @Required String version){
+		models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		models.Module module = moduleVersion.module;
 		
 		render(module, moduleVersion);
 	}
 
-	private static ModuleVersion getModuleVersion(Long id) {
+	private static ModuleVersion getModuleVersion(String moduleName, String version) {
 		if(validationFailed())
 			index();
-		models.ModuleVersion moduleVersion = models.ModuleVersion.findById(id);
+		models.ModuleVersion moduleVersion = models.ModuleVersion.findByVersion(moduleName, version);
 		if(moduleVersion == null){
 			Validation.addError(null, "Unknown module");
 			prepareForErrorRedirect();

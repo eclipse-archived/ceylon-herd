@@ -14,10 +14,10 @@
         <tbody>
             #{list items:versions, as:'version'}
                 <tr>
-                    <td><a href="@{Repo.view(module.id, version.id)}" title="View module">${version.version}</a></td>
+                    <td><a href="@{Repo.view(module.name, version.version)}" title="View module">${version.version}</a></td>
                     <td>
                         #{secure.check 'admin'}
-                            #{form @LoggedInRepo.remove1(module.id, version.id), class: "form-no-margin inline pull-right"}
+                            #{form @LoggedInRepo.remove1(module.name, version.version), class: "form-no-margin inline pull-right"}
                                 <button type="submit" title="Remove this module"
                                     class="btn btn-danger btn-mini"
                                     ><i class="icon-trash icon-white"></i> Remove</button>

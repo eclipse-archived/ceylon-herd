@@ -1,6 +1,6 @@
 #{if _arg.canEdit(_user)}
     <div class="alert alert-info">
-        <a href="@{LoggedInRepo.editForm(_arg.id)}" class="btn btn-mini pull-right"
+        <a href="@{LoggedInRepo.editForm(_arg.name)}" class="btn btn-mini pull-right"
             title="Edit this module"><i class="icon-edit"></i> Edit</a>
         You ${_user == _arg.owner ? 'own' : 'are admin on'} this module.
     </div>
