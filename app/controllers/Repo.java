@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import models.Module;
 import models.ModuleVersion;
 import models.User;
 import play.Logger;
@@ -91,16 +92,52 @@ public class Repo extends MyController {
 		if(!file.exists())
 			notFound(path);
 		
-		if(file.isDirectory())
-			render("Repo/viewFile.html", file);
-		else{
+		if(file.isDirectory()){
+		    // try a module version
+		    ModuleVersion moduleVersion = findModuleVersion(file);
+		    Module module = null;
+		    if(moduleVersion == null){
+		        // try a module
+		        module= findModule(file);
+		    }
+			render("Repo/viewFile.html", file, moduleVersion, module);
+		}else{
 		    response.contentType = MimeTypes.getContentType(file.getName());
 		    increaseStats(file);
 			renderBinary(file);
 		}
 	}
 
-	private static void increaseStats(File file) {
+	private static Module findModule(File file) {
+	    for(File f : file.listFiles()){
+	        if(!f.isDirectory()){
+	            // fail fast: if we have a file we're not in a module dir
+	            return null;
+	        }
+	        // look for a ModuleVersion in the first folder we find
+	        ModuleVersion v = findModuleVersion(f);
+	        // fail fast if there's no ModuleVersion there, it means we're not in a module dir
+	        return v != null ? v.module : null;
+	    }
+	    return null;
+	}
+
+	private static ModuleVersion findModuleVersion(File file) {
+	    for(File f : file.listFiles()){
+	        if(f.isDirectory()){
+	            // fail fast: if we have a directory and it's not "module-doc" we're not in a module version dir
+	            if(!f.getName().equals("module-doc"))
+	                return null;
+	            continue;
+	        }
+	        ModuleVersion v = findModuleVersion(f.getName(), f, ".car");
+	        if(v != null)
+	            return v;
+	    }
+	    return null;
+    }
+
+    private static void increaseStats(File file) {
 	    String name = file.getName();
 	    ModuleVersion mv = findModuleVersion(name, file, ".car");
 	    if(mv != null){
