@@ -93,7 +93,7 @@ jQuery(function (){
                     <i class="icon-remove"></i> No source archive<br/>
                 #{/else}
                 #{if moduleVersion.isAPIPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.APIPath)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
+                    <a href="@{Repo.viewDoc(module.name, moduleVersion.version)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No API docs<br/>

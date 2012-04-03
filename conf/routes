@@ -51,6 +51,7 @@ POST    /modules/{moduleName}/permissions/remove           LoggedInRepo.removeAd
 GET     /modules/{moduleName}/transfer                     LoggedInRepo.transferForm
 POST    /modules/{moduleName}/transfer                     LoggedInRepo.transfer
 GET     /modules/{moduleName}/{version}                    Repo.view
+GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.remove1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.remove2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.remove3
