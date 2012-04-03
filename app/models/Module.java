@@ -78,6 +78,24 @@ public class Module extends Model {
 	public Date getLastPublished(){
 		return find("SELECT MAX(published) FROM ModuleVersion WHERE module = ?", this).first(); 
 	}
+	
+	@Transient
+	public long getDownloads(){
+	    long ret = 0;
+	    for(ModuleVersion version : versions){
+	        ret += version.downloads;
+	    }
+	    return ret;
+	}
+
+	@Transient
+	public long getSourceDownloads(){
+	    long ret = 0;
+	    for(ModuleVersion version : versions){
+	        ret += version.sourceDownloads;
+	    }
+	    return ret;
+	}
 
 	public boolean canEdit(User user){
 		return user != null

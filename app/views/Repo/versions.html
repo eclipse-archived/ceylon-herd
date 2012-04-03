@@ -3,6 +3,64 @@
 
 #{moduleEditBar module, user: user /}
 
+#{if module.github}
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/github.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+    <script type="text/javascript">
+loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
+    </script>
+#{/set}
+#{/if}
+
+<table class="table table-bordered">
+    <caption>Module info</caption>
+    <tbody>
+        <tr>
+            <th>Name</th>
+            <td>
+                <div id="img-holder" class="pull-right"></div>
+                #{if module.friendlyName}
+                    ${module.friendlyName}<br/>
+                #{/if}
+                <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Owner</th>
+            <td>#{user module.owner, img:true /}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td id="description"></td>
+        </tr>
+        <tr>
+            <th>Last Published</th>
+            <td>${module.lastPublished?.since(true)}</td>
+        </tr>
+        <tr>
+            <th>Stats</th>
+            <td>
+                <b>Downloads:</b> ${module.downloads}<br/>
+                <b>Source downloads:</b> ${module.sourceDownloads}<br/>
+            </td>
+        </tr>
+        <tr>
+            <th>Info</th>
+            <td>
+                #{if module.homeURL}
+                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
+                #{/if}
+                #{if module.codeURL}
+                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
+                #{/if}
+                #{if module.issueTrackerURL}
+                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+                #{/if}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 #{if versions.empty}
     <div class="alert alert-info">
         No versions for ${module.name} in repository yet.
@@ -10,7 +68,7 @@
 #{/if}
 #{else}
     <table class="table table-striped">
-        <caption>List of versions for ${module.name}</caption>
+        <caption>List of published versions</caption>
         <tbody>
             #{list items:versions, as:'version'}
                 <tr>

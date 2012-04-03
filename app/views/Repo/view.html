@@ -3,25 +3,10 @@
 
 #{if module.github}
 #{set 'moreScripts'}
-<script type="text/javascript">
-function loadInfos(result){
-	var image = result.data.owner.avatar_url;
-	if(image){
-		jQuery("#img-holder").append(jQuery("<img/>").attr('src', image));
-	}
-	var issues = result.data.open_issues;
-	if(issues != null){
-		jQuery("#issues").append(" ("+issues+" open issues)");
-	}
-    var descr = result.data.description;
-    if(descr != null){
-        jQuery("#description").text(descr);
-    }
-}
-jQuery(function (){
-    jQuery.getJSON("https://api.github.com/repos/${module.githubOwner}/${module.githubProject}?callback=?", loadInfos);
-});
-</script>
+    <script src="@{'/public/javascripts/github.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+    <script type="text/javascript">
+loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
+    </script>
 #{/set}
 #{/if}
 
