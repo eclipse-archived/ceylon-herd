@@ -2,7 +2,7 @@
 
 <html>
     <head>
-        <title>View API documentation for ${module.name}</title>
+        <title>View API documentation for ${moduleName}</title>
         <meta charset="${_response_encoding}">
         <link rel="stylesheet" media="screen" href="@{'/public/bootstrap/css/bootstrap.css'}">
         <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="@{'/public/images/favicon.ico'}">
@@ -34,7 +34,7 @@ function fullscreen(){
             <div class="container">
                 <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"/> Ceylon Herd</a>
                 <ul class="nav">
-                    <li><a href="@{Repo.view(module.name, moduleVersion.version)}"><i class="icon-arrow-left icon-white"></i> Back to module version</a></li>
+                    <li><a href="@{Uploads.view(upload.id)}"><i class="icon-arrow-left icon-white"></i> Back to upload</a></li>
                 </ul>
                 <ul class="nav pull-right">
                     <li><a href="#" onclick="fullscreen();">Close navigation bar <i class="icon-remove icon-white"></i></a></li>
@@ -43,6 +43,6 @@ function fullscreen(){
         </div>
     </div>
     <div id="wrap">
-        <iframe src="@{Repo.viewFile(moduleVersion.APIPath)}" frameborder="0" id="iframe"></iframe>
+        <iframe src="@{UploadAPI.viewFile(upload.id, docPath)}" frameborder="0" id="iframe"></iframe>
     </div>
 </html>

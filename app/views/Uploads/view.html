@@ -123,7 +123,7 @@
                     <a href="@{UploadAPI.viewFile(upload.id, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
                     #{if module.hasDocs}
-                        <a href="@{UploadAPI.viewFile(upload.id, module.docPath)}"
+                        <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
                             title="View this module´s API documentation"><i class="icon-book"></i> View docs</a>
                     #{/if}
                 </td>

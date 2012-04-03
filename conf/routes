@@ -31,6 +31,7 @@ POST    /admin/projects/{id}/reject                        Projects.reject
 GET     /uploads                                           Uploads.index
 GET     /uploads/new                                       Uploads.newUpload
 GET     /uploads/{id}                                      Uploads.view
+GET     /uploads/{id}/doc/{moduleName}/{version}           Uploads.viewDoc
 GET     /uploads/{id}/upload                               Uploads.uploadRepoForm
 POST    /uploads/{id}/upload                               UploadAPI.uploadRepo
 POST    /uploads/{id}/publish                              Uploads.publish

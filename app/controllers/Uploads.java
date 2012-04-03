@@ -11,6 +11,7 @@ import models.User;
 
 import org.apache.commons.io.FileUtils;
 
+import play.data.validation.Required;
 import play.data.validation.Validation;
 import util.ModuleChecker;
 import util.MyCache;
@@ -118,6 +119,16 @@ public class Uploads extends LoggedInController {
 		
 		String base = uploadsDir.getPath();
 		render("Uploads/view.html", upload, uploadInfo, uploadedFiles, base);
+	}
+
+	public static void viewDoc(@Required Long id, @Required String moduleName, @Required String version){
+        models.Upload upload = getUpload(id);
+        String docPath = moduleName.replace('.', File.separatorChar)
+                + File.separatorChar + version
+                + File.separatorChar + "module-doc"
+                + File.separatorChar + "index.html"; 
+	    
+	    render(upload, moduleName, version, docPath);
 	}
 
 	public static void delete(Long id) throws IOException {
