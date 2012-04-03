@@ -46,10 +46,12 @@
 		        <div class="descr">
 		            #{if module}
 		                ${module.friendlyName}
+		            #{/if}
+                    #{if module && module.lastPublished}
 		                <div class="published">Last published ${module.lastPublished.since(true)}</div>
 		            #{/if}
 		            #{else}
-		                <i>Not published yet.</i>
+		                <div class="published">Not published yet.</div>
 		            #{/else}
 		        </div>
 		    </div>
