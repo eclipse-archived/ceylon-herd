@@ -8,10 +8,12 @@ import org.apache.commons.lang.StringUtils;
 
 import models.ModuleVersion;
 import models.User;
+import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
+import util.JavaExtensions;
 import util.Util;
 
 public class Repo extends MyController {
@@ -86,11 +88,62 @@ public class Repo extends MyController {
 			render("Repo/viewFile.html", file);
 		else{
 		    response.contentType = MimeTypes.getContentType(file.getName());
+		    increaseStats(file);
 			renderBinary(file);
 		}
 	}
 
-	public static void noFile() throws IOException{
+	private static void increaseStats(File file) {
+	    String name = file.getName();
+	    ModuleVersion mv = findModuleVersion(name, file, ".car");
+	    if(mv != null){
+	        ModuleVersion.incrementDownloads(mv);
+	        return;
+	    }
+	    mv = findModuleVersion(name, file, ".src");
+        if(mv != null){
+            ModuleVersion.incrementSourceDownloads(mv);
+            return;
+        }
+	}
+	private static ModuleVersion findModuleVersion(String name, File file, String extension){
+	    if(!name.endsWith(extension)){
+	        return null;
+	    }
+	    String path = JavaExtensions.relative(file);
+	    Logger.debug("Path: %s", path);
+	    int lastFileSep = path.lastIndexOf(File.separatorChar);
+	    if(lastFileSep == -1){
+	        Logger.info("Got a %s without a module? %s", extension, path);
+	        return null;
+	    }
+	    String moduleAndVersion = path.substring(0, lastFileSep);
+	    int versionSep = moduleAndVersion.lastIndexOf(File.separatorChar);
+	    if(versionSep == -1){
+	        Logger.info("Got a %s without a version? %s", extension, path);
+	        return null;
+	    }
+	    String moduleName = moduleAndVersion.substring(0, versionSep).replace(File.separatorChar, '.');
+	    String version = moduleAndVersion.substring(versionSep+1);
+	    if(moduleName.isEmpty() || version.isEmpty()){
+	        Logger.info("Got a %s with empty name or version? %s", extension, path);
+	        return null;
+	    }
+	    String expectedName = moduleName+"-"+version+extension;
+	    if(!name.equals(expectedName)){
+	        Logger.info("%s name %s doesn't match expected name %s", extension, name, expectedName);
+	        return null;
+	    }
+	    Logger.debug("We got a %s", extension);
+	    ModuleVersion moduleVersion = ModuleVersion.findByVersion(moduleName, version);
+	    if(moduleVersion == null){
+	        Logger.info("Failed to find a ModuleVersion for %s/%s", moduleName, version);
+	        return null;
+	    }
+	    return moduleVersion;
+    }
+
+    public static void noFile() throws IOException{
 	    render();
 	}
 

@@ -61,6 +61,13 @@ jQuery(function (){
             <td>${moduleVersion.published.since(true)}</td>
         </tr>
         <tr>
+            <th>Stats</th>
+            <td>
+                <b>Downloads:</b> ${moduleVersion.downloads}<br/>
+                <b>Source downloads:</b> ${moduleVersion.sourceDownloads}<br/>
+            </td>
+        </tr>
+        <tr>
             <th>Info</th>
             <td>
                 #{if module.homeURL}

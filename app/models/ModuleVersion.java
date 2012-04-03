@@ -27,6 +27,9 @@ public class ModuleVersion extends Model {
 
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
+	
+	public long downloads;
+	public long sourceDownloads;
 
 	@Transient
 	public String getPath(){
@@ -57,5 +60,13 @@ public class ModuleVersion extends Model {
 
     public static List<ModuleVersion> findByModule(Module module) {
         return find("module = ?", module).fetch();
+    }
+    
+    public static void incrementDownloads(ModuleVersion v){
+        em().createNativeQuery("UPDATE ModuleVersion set downloads = downloads + 1 WHERE id = ?").setParameter(1, v.id).executeUpdate();
+    }
+
+    public static void incrementSourceDownloads(ModuleVersion v){
+        em().createNativeQuery("UPDATE ModuleVersion set sourceDownloads = sourceDownloads + 1 WHERE id = ?").setParameter(1, v.id).executeUpdate();
     }
 }
