@@ -1,3 +1,20 @@
+html, body {
+    height: 100%;
+}
+body > .pre-footer {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -5em;
+}
+footer, .push {
+    height: 5em;
+}
+
+footer {
+    margin: 0 2em;
+}
+
 .nav .user {
     margin: 10px 10px 0 10px;
     font-weight: bold;

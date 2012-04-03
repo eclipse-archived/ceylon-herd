@@ -4,6 +4,7 @@
 
 # Home page
 GET     /                                                  Application.index
+GET     /about                                             Application.about
                                                            
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login

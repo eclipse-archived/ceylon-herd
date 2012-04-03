@@ -15,6 +15,7 @@
         <link href="@{Feed.repo()}" type="application/atom+xml" rel="alternate" title="Repository Atom Feed" />
     </head>
     <body>
+        <div class="pre-footer">
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="container">
@@ -84,5 +85,12 @@
             #{/ifErrors}
             #{doLayout /}
         </div>
+            <div class="push"></div>
+        </div>
+        <footer>
+            <hr/>
+            Ceylon Herd v${play.configuration.getProperty("version")} Copyright 2012-${new Date().format("yyyy")} Red Hat.
+            <a href="@{Application.about()}">About</a>
+        </footer>
     </body>
 </html>
