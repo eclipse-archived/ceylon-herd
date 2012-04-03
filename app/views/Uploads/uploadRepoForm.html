@@ -1,5 +1,5 @@
 #{extends 'main.html' /}
-#{set title:'Upload a repo archive' /}
+#{set title:'Upload a repo archive or artifact' /}
 #{set hasForm: true /}
 
 <p>
@@ -11,7 +11,7 @@
 <fieldset>
     <legend>Upload a repo archive</legend>
     <div class="control-group #{errorClassBootstrap 'repo'/}">
-        <label class="control-label" for="Repo">Repo archive file (.zip, .car, .jar or .src)</label>
+        <label class="control-label" for="Repo">Repo archive file (.zip) or module artifact (.car, .jar or .src)</label>
         <div class="controls">
             <input name="repo" type="file" value="${flash.repo}" title="Choose file to upload"/>
             <span class="help-inline">​#{error 'repo'/}</span>
@@ -19,7 +19,7 @@
     </div>
     <div class="form-actions">
         <a class="btn" href="@{Uploads.view(upload.id)}" title="Cancel and go back to upload">Cancel</a>​
-        <input type="submit" class="btn btn-primary" value="Upload repo archive"
+        <input type="submit" class="btn btn-primary" value="Upload file"
             title="Upload this repo archive"/>
     </div>
 </fieldset>
