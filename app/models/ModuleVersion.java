@@ -7,12 +7,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import play.db.jpa.Model;
 
 @Entity
 @SuppressWarnings("serial")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module", "version"}))
 public class ModuleVersion extends Model {
 
 	@Column(nullable = false)
