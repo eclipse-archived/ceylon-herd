@@ -15,7 +15,7 @@ Summary:	Ceylon Herd module repository
 Group:		Applications/Publishing
 License:	AGPL
 URL:		http://ceylon-lang.org
-Source0:	ceylon-herd-1.3.tar.gz
+Source0:	ceylon-herd-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:  noarch
 
