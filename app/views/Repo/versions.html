@@ -58,6 +58,12 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{/if}
             </td>
         </tr>
+        <tr>
+            <td></td>
+            <td>
+                <a href="@{Repo.viewFile(module.path)}" title="Browse module repository"><i class="icon-folder-open"></i> Browse</a>
+            </td>
+        </tr>
     </tbody>
 </table>
 

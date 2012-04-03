@@ -97,7 +97,12 @@ public class Module extends Model {
 	    return ret;
 	}
 
-	public boolean canEdit(User user){
+    @Transient
+    public String getPath(){
+        return name.replace('.', '/');
+    }
+
+    public boolean canEdit(User user){
 		return user != null
 				&& (user.equals(owner)
 						|| user.isAdmin
