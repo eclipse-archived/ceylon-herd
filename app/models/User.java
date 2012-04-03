@@ -45,17 +45,17 @@ public class User extends Model {
 
 	@Transient
 	public List<Project> getOwnedProjects(){
-		return Project.find("owner = ? AND status = ?", this, ProjectStatus.CONFIRMED).fetch();
+	    return Project.findForOwner(this);
 	}
 
 	@Transient
 	public List<ModuleVersion> getLastPublishedModuleVersions(){
-		return ModuleVersion.find("module.owner = ? ORDER BY published DESC", this).fetch(20);
+		return ModuleVersion.latestForOwner(this, 20);
 	}
 
 	@Transient
 	public long getPublishedModules(){
-		return ModuleVersion.count("module.owner = ?", this);
+		return ModuleVersion.countForOwner(this);
 	}
 
 	@Transient

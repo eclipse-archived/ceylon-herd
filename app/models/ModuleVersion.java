@@ -72,4 +72,12 @@ public class ModuleVersion extends Model {
     public static void incrementSourceDownloads(ModuleVersion v){
         em().createNativeQuery("UPDATE ModuleVersion set sourceDownloads = sourceDownloads + 1 WHERE id = ?").setParameter(1, v.id).executeUpdate();
     }
+
+    public static List<ModuleVersion> latestForOwner(User owner, int max) {
+        return find("module.owner = ? ORDER BY published DESC", owner).fetch(max);
+    }
+
+    public static long countForOwner(User owner) {
+        return count("module.owner = ?", owner);
+    }
 }

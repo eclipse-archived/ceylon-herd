@@ -74,4 +74,8 @@ public class Project extends Model {
     public static List<Project> findClaims() {
         return find("status = ?", ProjectStatus.CLAIMED).fetch();
     }
+    
+    public static List<Project> findForOwner(User owner) {
+        return find("owner = ? AND status = ?", owner, ProjectStatus.CONFIRMED).fetch();
+    }
 }
