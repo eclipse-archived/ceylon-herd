@@ -8,6 +8,7 @@ GET     /about                                             Application.about
                                                            
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login
+POST    /login                                             Secure.authenticate
 
 GET     /feed.atom                                         Feed.repo
                                                            
