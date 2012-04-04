@@ -12,6 +12,7 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.Codec;
 import play.libs.Crypto;
+import util.Util;
 
 public class Register extends MyController {
 
@@ -84,6 +85,9 @@ public class Register extends MyController {
     	user.confirmationCode = null;
     	user.status = UserStatus.REGISTERED;
     	user.save();
+    	
+    	Util.logSecurityAction("New user: %s", user.userName);
+    	
     	login(user);
     	render(user);
     }

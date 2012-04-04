@@ -1,11 +1,15 @@
 package controllers;
 
+import util.Util;
 import models.User;
 
 
 public class Security extends Secure.Security {
 	static boolean authenticate(String username, String password) {
-	    return User.connect(username, password) != null;
+	    if(User.connect(username, password) != null)
+	        return true;
+	    Util.logSecurityAction("failed login for %s", username);
+	    return false;
 	}
 	static boolean check(String profile) {
 	    if("admin".equals(profile)) {
