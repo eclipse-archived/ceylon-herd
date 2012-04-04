@@ -1,3 +1,5 @@
+#{extends 'email.txt' /}
+
 Welcome to Ceylon Repo.
 
 You received this email because someone (hopefully you) wants to register on Ceylon Repo.
