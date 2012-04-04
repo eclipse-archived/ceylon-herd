@@ -22,6 +22,7 @@ GET     /projects/claim                                    Projects.claimform
 POST    /projects/claim                                    Projects.claim
 GET     /projects/{id}                                     Projects.view
 POST    /projects/{id}/comment                             Projects.addComment
+GET     /projects/{id}/needs-transfer                      Projects.cannotDelete
 POST    /projects/{id}/delete                              Projects.delete
 GET     /projects/{projectId}/transfer                     Projects.transferOwnership
 POST    /projects/{projectId}/transfer                     Projects.transferOwnership2

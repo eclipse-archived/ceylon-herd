@@ -16,6 +16,7 @@ import play.data.validation.Validation;
 import util.MyCache;
 
 import models.Comment;
+import models.Module;
 import models.ModuleVersion;
 import models.ProjectStatus;
 import models.User;
@@ -90,8 +91,36 @@ public class Projects extends LoggedInController {
 		render(project, otherOwners);
 	}
 
+	public static void cannotDelete(Long id){
+        models.Project project = getProject(id);
+
+        if(project.status != ProjectStatus.CONFIRMED){
+            Validation.addError(null, "Project is not confirmed");
+            prepareForErrorRedirect();
+            view(id);
+        }
+
+        Module module = Module.findByName(project.moduleName);
+        if(module == null){
+            Validation.addError(null, "You are not the module owner");
+            prepareForErrorRedirect();
+            view(id);
+        }
+
+        render(project, module);
+	}
+	
 	public static void delete(Long id){
 		models.Project project = getProject(id);
+
+		Logger.info("status: %s", project.status);
+		if(project.status == ProjectStatus.CONFIRMED){
+		    Module module = Module.findByName(project.moduleName);
+	        Logger.info("module: %s, owner: %s", module);
+		    if(module != null){
+		        cannotDelete(id);
+		    }
+		}
 		
 		MyCache.evictProjectsForOwner(project.owner);
         MyCache.evictClaims();
