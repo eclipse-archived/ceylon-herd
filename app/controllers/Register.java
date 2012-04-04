@@ -77,7 +77,8 @@ public class Register extends MyController {
 			confirm(confirmationCode);
 		
     	user.userName = userName;
-    	user.password = Codec.hexSHA1(password);
+    	user.salt = UUID.randomUUID().toString();
+    	user.password = Codec.hexSHA1(user.salt+password);
     	user.firstName = firstName;
     	user.lastName = lastName;
     	user.confirmationCode = null;

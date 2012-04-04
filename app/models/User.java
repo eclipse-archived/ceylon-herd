@@ -11,10 +11,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import play.cache.Cache;
+import org.apache.commons.lang.StringUtils;
+
 import play.db.jpa.Model;
 import play.libs.Codec;
-import play.mvc.Scope.Session;
 import util.MyCache;
 
 @SuppressWarnings("serial")
@@ -27,6 +27,7 @@ public class User extends Model {
 	@Column(unique = true)
 	public String userName;
 	public String password;
+	public String salt;
 	public String firstName;
 	public String lastName;
 	@Column(name = "admin")
@@ -69,7 +70,25 @@ public class User extends Model {
 	}
 
 	public static User connect(String username, String password) {
-		return find("userName = ? AND password = ?", username, Codec.hexSHA1(password)).first();
+	    // sanity check
+	    if(StringUtils.isEmpty(username)
+	            || StringUtils.isEmpty(password))
+	        return null;
+	    // find the user
+	    User nonVerifiedUser = find("userName = ?", username).first();
+	    // doesn't exist?
+	    if(nonVerifiedUser == null)
+	        return null;
+	    // check for invalid users
+	    if(StringUtils.isEmpty(nonVerifiedUser.password)
+	            || StringUtils.isEmpty(nonVerifiedUser.salt))
+	        return null;
+	    // now check the password
+	    if(Codec.hexSHA1(nonVerifiedUser.salt+password).equals(nonVerifiedUser.password))
+	        // all good!
+	        return nonVerifiedUser;
+	    // password fail!
+		return null;
 	}
 
 	public static User findRegisteredByUserName(String username) {
