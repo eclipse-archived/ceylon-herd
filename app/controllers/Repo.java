@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import models.Module;
 import models.ModuleVersion;
 import models.User;
+
+import org.apache.commons.lang.StringUtils;
+
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
-import play.mvc.results.RenderStatic;
 import util.JavaExtensions;
 import util.Util;
 
@@ -30,7 +30,7 @@ public class Repo extends MyController {
     }
 
 	public static void index(){
-		List<models.Module> modules = models.Module.all().fetch();
+		List<models.Module> modules = models.Module.find("ORDER BY name").fetch();
 		
 		render(modules);
 	}

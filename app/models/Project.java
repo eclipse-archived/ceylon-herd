@@ -76,6 +76,6 @@ public class Project extends Model {
     }
     
     public static List<Project> findForOwner(User owner) {
-        return find("owner = ? AND status = ?", owner, ProjectStatus.CONFIRMED).fetch();
+        return find("owner = ? AND status = ? ORDER BY moduleName", owner, ProjectStatus.CONFIRMED).fetch();
     }
 }

@@ -62,7 +62,7 @@ public class ModuleVersion extends Model {
 	}
 
     public static List<ModuleVersion> findByModule(Module module) {
-        return find("module = ?", module).fetch();
+        return find("module = ? ORDER BY published DESC", module).fetch();
     }
     
     public static void incrementDownloads(ModuleVersion v){
