@@ -22,8 +22,11 @@ public class Application extends Controller {
         render();
     }
 
-    public static void getStarted() {
+    public static void usage() {
         render();
     }
 
+    public static void publish() {
+        render();
+    }
 }

@@ -5,7 +5,8 @@
 # Home page
 GET     /                                                  Application.index
 GET     /about                                             Application.about
-GET     /get-started                                       Application.getStarted
+GET     /usage                                             Application.usage
+GET     /publish                                           Application.publish
                                                            
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login

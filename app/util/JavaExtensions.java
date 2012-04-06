@@ -16,6 +16,7 @@ import play.Logger;
 import play.i18n.Lang;
 import play.mvc.Http.Cookie;
 import play.mvc.Http.Request;
+import play.mvc.Router.ActionDefinition;
 import play.templates.BaseTemplate;
 import play.utils.HTML;
 
@@ -110,5 +111,9 @@ public class JavaExtensions extends play.templates.JavaExtensions {
             return format(date, pattern, Lang.get(), name);
         }
         return format(date, pattern, Lang.get());
+    }
+    
+    public static String insecure(ActionDefinition action){
+        return action != null ? action.toString().replace("https://", "http://") : null;
     }
 }

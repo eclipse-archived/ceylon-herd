@@ -71,7 +71,8 @@ function toggleHelp(){
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <li><a href="@{Application.getStarted()}">Get started</a></li>
+                                <li><a href="@{Application.usage()}">Start using Ceylon Herd</a></li>
+                                <li><a href="@{Application.publish()}">Publish your first module</a></li>
                                 #{if help}
                                     <li><a href="#" onclick="showHelp(); return false;">About this page</a></li>
                                 #{/if}

@@ -1,11 +1,12 @@
 #{extends 'main.html' /}
 #{set title:'Home to the Herd' /}
 
-<div class="hero-unit">
+<div class="hero-unit" style="min-height: 300px;">
   <h1>Welcome to the Ceylon Herd</h1>
   <img class="pull-left" src="@{'/public/images/herd-200.png'}"/> 
   <p>The biggest elephantest Ceylon module repository of the world in the whole universe!</p>
   <p>Every Ceylon module is published here.</p>
-  <p>You can access this repository from your Ceylon tools at the following address: 
-    <a href="@{Repo.viewFile('')}">@@{Repo.viewFile('')}</a>.</p>
+  <p>
+    <a href="@{Application.usage()}">Start using Ceylon Herd today</a>.
+  </p>
 </div>
