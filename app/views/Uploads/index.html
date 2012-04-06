@@ -13,7 +13,7 @@
             #{list items:uploadInfos, as:'uploadInfo'}
                 <tr>
                     <td><a href="@{Uploads.view(uploadInfo.upload.id)}" title="View this upload">View upload</a></td>
-                    <td>Created on ${uploadInfo.upload.created.format('HH:mm dd MMM yyyy')}</td>
+                    <td>Created on ${uploadInfo.upload.created.formatInUserTZ('HH:mm dd MMM yyyy')}</td>
                     <td>${uploadInfo.upload.size.formatSize()}</td>
                     <td>
                         %{ count = uploadInfo.upload.fileCount}%

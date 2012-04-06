@@ -11,6 +11,13 @@
         <script src="@{'/public/javascripts/jquery-1.7.1.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/bootstrap/js/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/bootstrap/js/bootstrap-tab.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/jstz.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script type="text/javascript">
+// save the user time zone in a cookie so the server can access it
+var timezone = jstz.determine_timezone();
+var name = timezone.name();
+document.cookie = "user_tz="+name;
+        </script>
         #{get 'moreScripts' /}
         <link href="@{Feed.repo()}" type="application/atom+xml" rel="alternate" title="Repository Atom Feed" />
     </head>

@@ -12,6 +12,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import markdown.Markdown;
 import models.Upload;
+import play.Logger;
+import play.i18n.Lang;
+import play.mvc.Http.Cookie;
+import play.mvc.Http.Request;
 import play.templates.BaseTemplate;
 import play.utils.HTML;
 
@@ -97,4 +101,14 @@ public class JavaExtensions extends play.templates.JavaExtensions {
                         .newXMLGregorianCalendar(calendar);
         return xmlCalendar.toXMLFormat();
 	}
+
+    public static String formatInUserTZ(Date date, String pattern) {
+        Cookie tz = Request.current().cookies.get("user_tz");
+        if(tz != null){
+            String name = tz.value;
+            Logger.debug("Using user time zone: %s", name);
+            return format(date, pattern, Lang.get(), name);
+        }
+        return format(date, pattern, Lang.get());
+    }
 }
