@@ -34,7 +34,7 @@ POST    /admin/projects/{id}/accept                        Projects.accept
 POST    /admin/projects/{id}/reject                        Projects.reject
                                                            
 GET     /uploads                                           Uploads.index
-GET     /uploads/new                                       Uploads.newUpload
+POST    /uploads/new                                       Uploads.newUpload
 GET     /uploads/{id}                                      Uploads.view
 GET     /uploads/{id}/doc/{moduleName}/{version}           Uploads.viewDoc
 GET     /uploads/{id}/upload                               Uploads.uploadRepoForm

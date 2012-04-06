@@ -59,5 +59,7 @@
     </table>
 #{/else}
 
-<a class="btn btn-primary" href="@{Uploads.newUpload()}" 
-    title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> New Upload</a>
+#{form @Uploads.newUpload()}
+    <button type="submit" class="btn btn-primary" 
+        title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> New Upload</button>
+#{/form}
