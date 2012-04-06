@@ -1,6 +1,31 @@
 #{extends 'main.html' /}
 #{set title:'List of uploads' /}
 
+#{set 'help'}
+    <p>
+        This is the <em>uploads</em> page, where you create private repositories in which you will upload your
+        modules, before we verify them together and you eventually publish them.
+    </p>
+    #{if uploadInfos.empty}
+        #{form @Uploads.newUpload()}
+            Your first step is to
+            <button type="submit" class="btn btn-primary" 
+                title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> Create a new Upload.</button>
+        #{/form}
+    #{/if}
+    #{else}
+        <p>
+            I see you already have uploads created, that´s good! We will keep them open until you´ve uploaded
+            your modules and they´re ready to be published.
+        </p>
+        <p>
+            If you´re not happy with the contents of an upload, feel free to 
+            <span class="action-tip"><i class="icon-trash"></i> delete</span>
+            it: no harm done and let´s try again.
+        </p>
+    #{/else}
+#{/set}
+
 #{if uploadInfos.empty}
     <div class="alert alert-info">
         No open uploads.

@@ -12,6 +12,26 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 #{/set}
 #{/if}
 
+#{if module.canEdit(user)}
+#{set 'help'}
+    <p>
+        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
+        <b>issue tracker</b> URLs, as
+        well as <b>grant administration permissions</b> on this module for your colleagues,
+        or even <b>transfer it</b> to an other user,
+        go to the <a href="@{LoggedInRepo.editForm(module.name)}" class="btn btn-mini"
+        title="Edit this module"><i class="icon-edit"></i> edit</a> page.
+    </p>
+    <p>
+        The <b>module name</b> and <b>version</b> are taken from the module descriptor. 
+    </p>
+    <p>
+        If your <b>code URL</b> points to a <a href="http://github.com">Github</a> project, we will extract
+        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it. 
+    </p>
+#{/set}
+#{/if}
+
 <table class="table table-bordered">
     <caption>Module info</caption>
     <tbody>

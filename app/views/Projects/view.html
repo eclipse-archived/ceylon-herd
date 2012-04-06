@@ -1,6 +1,39 @@
 #{extends 'main.html' /}
 #{set title:'View project claim' /}
 
+#{set 'help'}
+    <p>
+        This is the <em>project claim details</em> page, where you can review the state of your project claim.
+    </p>
+    <p>
+        Your claim will start as #{projectStatus models.ProjectStatus.CLAIMED/}, and once we review it, we will
+        either move it on to #{projectStatus models.ProjectStatus.CONFIRMED/} or 
+        #{projectStatus models.ProjectStatus.REJECTED/}. We may ask you questions during the review process,
+        in which case you will receive an email notification asking you to come here and reply by
+        <span class="action-tip"><i class="icon-comment"></i> adding a comment</span>. 
+    </p>
+    <p>
+        If your project claim is #{projectStatus models.ProjectStatus.REJECTED/}, don´t worry! You can always
+        <span class="action-tip"><i class="icon-plus"></i> reclaim it</span> if you feel we were wrong, but make
+        sure you provide a good case.
+    </p>
+    <p>
+        If you want to add some information to your claim, feel free to 
+        <span class="action-tip"><i class="icon-comment"></i> add a comment</span>
+        (keep in mind you can 
+        <span class="action-tip"><i class="icon-edit"></i> edit</span> or
+        <span class="action-tip"><i class="icon-trash"></i> delete</span> them too).
+    </p>
+    <p>
+        If you´d like to give up a claim, for whatever reason, feel free to 
+        <span class="action-tip"><i class="icon-trash"></i> delete</span>
+        it. If you´ve already published modules for this project, you will need to 
+        <span class="action-tip"><i class="icon-share"></i> transfer</span>
+        it first.
+    </p>
+#{/set}
+
+
 #{if !otherOwners.isEmpty()}
     <div class="alert">
         Project ${project.status == models.ProjectStatus.CONFIRMED ? 'also' : 'already'} owned by:

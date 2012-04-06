@@ -17,6 +17,16 @@
 var timezone = jstz.determine_timezone();
 var name = timezone.name();
 document.cookie = "user_tz="+name;
+
+function showHelp(){
+	jQuery("#help").show();
+}
+function hideHelp(){
+    jQuery("#help").hide();
+}
+function toggleHelp(){
+    jQuery("#help").toggle();
+}
         </script>
         #{get 'moreScripts' /}
         <link href="@{Feed.repo()}" type="application/atom+xml" rel="alternate" title="Repository Atom Feed" />
@@ -58,6 +68,15 @@ document.cookie = "user_tz="+name;
                             <li><a href="@{Register.index()}">Register</a>
                             <li><a href="@{Secure.login()}">Log in</a>
                         #{/if}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="@{Application.getStarted()}">Get started</a></li>
+                                #{if help}
+                                    <li><a href="#" onclick="showHelp(); return false;">About this page</a></li>
+                                #{/if}
+                            </ul>
+                        </li>
                         <li><a href="@{Feed.repo()}" title="Subscribe to the repository feed"><img src="@{'/public/images/feed.png'}"/></a></li>
                     </ul>
                     <form class="navbar-search pull-right" action="@{Repo.search}">
@@ -90,6 +109,14 @@ document.cookie = "user_tz="+name;
                     </div>
                 #{/if}
             #{/ifErrors}
+            #{if help}
+                <div id="help-button"><a href="#" onclick="toggleHelp(); return false;">Help!</a></div>
+                <div class="alert alert-block alert-info" id="help">
+                    <a href="#" class="close" title="Enough with helping, let´s DO THIS!" onclick="hideHelp(); return false;">×</a>
+                    <h4 class="alert-heading">Help!</h4>
+                    #{get 'help'/}
+                </div>
+            #{/if}
             #{doLayout /}
         </div>
             <div class="push"></div>

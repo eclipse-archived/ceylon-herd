@@ -21,4 +21,9 @@ public class Application extends Controller {
     public static void about() {
         render();
     }
+
+    public static void getStarted() {
+        render();
+    }
+
 }

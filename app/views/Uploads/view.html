@@ -1,10 +1,30 @@
 #{extends 'main.html' /}
 #{set title:'View upload' /}
 
+#{set 'help'}
+    <p>
+        This is the <em>upload detail</em> page, where you can review your current upload, and fix any eventual
+        issue that gets in the way of you publishing it.
+    </p>
+    <p>
+        From here, you can check the status of every module you´ve uploaded, <i class="icon-trash"></i> <b>delete</b>
+        problematic files or modules, get information on how to upload your module using the Ceylon tools, or even
+        <a class="btn" href="@{Uploads.uploadRepoForm(upload.id)}" 
+                title="Upload a repository as a zip file"><i class="icon-upload"></i> upload a repo archive</a>
+        from the comfort of this page. 
+    </p>
+    <p>
+        If you´re not happy with the contents of this upload, feel free to 
+        <span class="action-tip"><i class="icon-trash"></i> delete</span>
+        it: no harm done and let´s try again.
+    </p>
+#{/set}
+
 <div class="alert alert-${uploadInfo.status}">
     #{if uploadInfo.status == "success"}
         <h4 class="alert-heading">Congratulations</h4>
-        This upload is ready to be published.
+        This upload is ready to be published, but remember: once a module is published, it can´t be unpublished.
+        You´ve been warned :)
     #{/if}
     #{if uploadInfo.status == "warning"}
         <h4 class="alert-heading">Beware</h4>
@@ -27,8 +47,30 @@
             </td>
         </tr>
         <tr>
-            <th>Repo path</th>
-            <td><a href="@{UploadAPI.viewFile(upload.id, '')}" title="Browse uploaded files">@{UploadAPI.viewFile(upload.id, "")}</a></td>
+            <th>Repo URL</th>
+            <td>
+                <p>
+                    <a href="@{UploadAPI.viewFile(upload.id, '')}" title="Browse uploaded files">@{UploadAPI.viewFile(upload.id, "")}</a>
+                </p>
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="input-prepend">
+                            <span class="add-on"
+                                title="Copy this URL to use it as an output repo"
+                                ><i class="icon-bookmark"></i></span
+                            ><input value="@@{UploadAPI.viewFile(upload.id, '')}" class="input-xxlarge"
+                                onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
+                                title="Copy this URL to use it as an output repo"
+                                type="text" readonly/>
+                        </div>
+                    </fieldset>
+                </form>
+                <p>
+                    Access this upload directly from your Ceylon tools:
+                </p>
+                <pre>$ ceylonc -out @@{UploadAPI.viewFile(upload.id, '')} -user XXX -pass YYY com.acme.module
+$ ceylond -out @@{UploadAPI.viewFile(upload.id, '')} -user XXX -pass YYY com.acme.module</pre>
+            </td>
         </tr>
         <tr>
             <th>Size</th>
@@ -36,7 +78,7 @@
         </tr>
         <tr>
             <th>Created on</th>
-            <td>${upload.created.format("HH:mm dd MMM yyyy")}</td>
+            <td>${upload.created.formatInUserTZ("HH:mm dd MMM yyyy")}</td>
         </tr>
         <tr>
             <th></th>

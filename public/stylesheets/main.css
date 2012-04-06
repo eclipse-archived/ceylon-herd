@@ -175,3 +175,42 @@ form.form-no-margin {
 form.inline {
 	display: inline;
 }
+
+#help {
+    display: none;
+}
+
+.action-tip {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+#help-button {
+    position: absolute;
+    right: 0;
+    top: 100px;
+    border-left: 1px solid #DDD;
+    border-top: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+    background: whiteSmoke;
+
+   -webkit-transition: background-color 0.2s ease-in;  
+   -moz-transition: background-color 0.2s ease-in;  
+   -o-transition: background-color 0.2s ease-in;  
+   transition: background-color 0.2s ease-in;  
+}
+
+#help-button:hover {
+    background: #BBB;
+}
+
+#help-button a {
+    text-decoration: none; 
+    color: black;
+}
+
+#help-button:hover a {
+    color: white;
+}
