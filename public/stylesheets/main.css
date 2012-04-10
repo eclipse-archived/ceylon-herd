@@ -214,3 +214,8 @@ form.inline {
 #help-button:hover a {
     color: white;
 }
+
+/* Fix the alignment for bootstrap labels: it's better aligned without this */
+.label {
+    vertical-align: baseline;
+}
