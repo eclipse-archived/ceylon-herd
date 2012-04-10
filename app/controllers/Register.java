@@ -8,6 +8,8 @@ import notifiers.Emails;
 
 import org.apache.commons.lang.StringUtils;
 
+import play.data.validation.Email;
+import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.Codec;
@@ -20,7 +22,7 @@ public class Register extends MyController {
         render();
     }
 
-    public static void register(@Required String email) {
+    public static void register(@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email) {
         badRequest();
         
     	if(validationFailed())
@@ -65,13 +67,21 @@ public class Register extends MyController {
     		String lastName) {
 		User user = checkConfirmationCode(confirmationCode);
 		validation.required(userName);
+		validation.maxSize(userName, Util.VARCHAR_SIZE);
 		validation.required(password);
+        validation.maxSize(password, Util.VARCHAR_SIZE);
 		validation.required(password2);
+        validation.maxSize(password2, Util.VARCHAR_SIZE);
 		validation.required(firstName);
+        validation.maxSize(firstName, Util.VARCHAR_SIZE);
 		validation.required(lastName);
-		if(validationFailed())
+        validation.maxSize(lastName, Util.VARCHAR_SIZE);
+        
+        if(validationFailed())
 			confirm(confirmationCode);
-		validation.equals(password, password2);
+		
+        validation.equals(password, password2);
+        
 		if(User.findByUserName(userName) != null)
 			Validation.addError("userName", "User name already taken");
 		if(validationFailed())

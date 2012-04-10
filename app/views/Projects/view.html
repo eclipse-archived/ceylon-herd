@@ -142,7 +142,7 @@
             </div>
             <div class="text" id="comment-${comment.id}-edit" style="display:none;">
                 #{form @Projects.editComment(project.id, comment.id)}
-                    <textarea name="text" rows="5">${comment.text}</textarea>
+                    <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}">${comment.text}</textarea>
                     <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
                        class="btn" title="Abort!">Cancel</a>
                     <button class="btn btn-primary" type="submit"
@@ -162,7 +162,7 @@
                 <span class="author"><i class="icon-comment"></i> Comment on this claim</span>
             </div>
             <div class="text">
-                <textarea name="text" rows="5"></textarea>
+                <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>
             </div>
         </div>
     </div>

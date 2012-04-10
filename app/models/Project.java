@@ -32,7 +32,11 @@ public class Project extends Model {
 	
 	public String license;
 	public String role;
+	// Hibernate would map @Lob to a CLOB instead of TEXT
+	@Column(columnDefinition = "TEXT")
 	public String description;
+    // Hibernate would map @Lob to a CLOB instead of TEXT
+    @Column(columnDefinition = "TEXT")
 	public String motivation;
 	public String url;
 	

@@ -20,7 +20,7 @@
     <div class="control-group #{errorClassBootstrap 'module'/}">
         <label class="control-label" for="module">Module name</label>
         <div class="controls">
-            <input name="module" value="${module ?: flash.module}"/>
+            <input name="module" value="${module ?: flash.module}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'module'/}</span>
             <p class="help-block">This is the fully-qualified name of your module</p>
         </div>
@@ -28,7 +28,7 @@
     <div class="control-group #{errorClassBootstrap 'license'/}">
         <label class="control-label" for="license">License</label>
         <div class="controls">
-            <input name="license" value="${flash.license}"/>
+            <input name="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'license'/}</span>
             <p class="help-block">Keep in mind we only accept <a href="http://www.opensource.org">open-source</a> modules</p>
         </div>
@@ -36,7 +36,7 @@
     <div class="control-group #{errorClassBootstrap 'url'/}">
         <label class="control-label" for="url">URL</label>
         <div class="controls">
-            <input name="url" value="${flash.url}"/>
+            <input name="url" value="${flash.url}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'url'/}</span>
             <p class="help-block">Your project´s home page</p>
         </div>
@@ -44,7 +44,7 @@
     <div class="control-group #{errorClassBootstrap 'role'/}">
         <label class="control-label" for="role">Your role in the project</label>
         <div class="controls">
-            <input name="role" value="${flash.role}"/>
+            <input name="role" value="${flash.role}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'role'/}</span>
             <p class="help-block">We need to know what your relation is to the project</p>
         </div>
@@ -52,7 +52,7 @@
     <div class="control-group #{errorClassBootstrap 'description'/}">
         <label class="control-label" for="description">Project description</label>
         <div class="controls">
-            <textarea name="description" class="input-xxlarge" rows="10">${flash.description}</textarea>
+            <textarea name="description" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.description}</textarea>
             <span class="help-inline">​#{error 'description'/}</span>
             <p class="help-block">Tell us what this project does, we may have not yet heard about it</p>
         </div>
@@ -60,7 +60,7 @@
     <div class="control-group #{errorClassBootstrap 'motivation'/}">
         <label class="control-label" for="motivation">Motivation</label>
         <div class="controls">
-            <textarea name="motivation" class="input-xxlarge" rows="10">${flash.motivation}</textarea>
+            <textarea name="motivation" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.motivation}</textarea>
             <span class="help-inline">​#{error 'motivation'/}</span>
             <p class="help-block">Why should this be in Ceylon Herd?</p>
         </div>

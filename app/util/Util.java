@@ -6,6 +6,12 @@ import play.Logger;
 import play.mvc.Http.Request;
 
 public class Util {
+    
+    // postgres default limit for varchar
+    public static final int VARCHAR_SIZE = 255;
+    // artificial limit, since for @Lob String, there's no limit (text in DB)
+    public static final int TEXT_SIZE = 8192;
+    
 	public static File getUploadDir(Long id) {
 		return new File("uploads"+File.separator+id);
 	}

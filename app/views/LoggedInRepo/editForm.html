@@ -19,28 +19,28 @@
     <div class="control-group #{errorClassBootstrap 'friendlyName'/}">
         <label class="control-label" for="friendlyName">Friendly name</label>
         <div class="controls">
-            <input name="friendlyName" value="${flash.friendlyName ?: module.friendlyName}"/>
+            <input name="friendlyName" value="${flash.friendlyName ?: module.friendlyName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'friendlyName'/}</span>
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'url'/}">
         <label class="control-label" for="url">Home page</label>
         <div class="controls">
-            <input name="url" value="${flash.url ?: module.homeURL}"/>
+            <input name="url" value="${flash.url ?: module.homeURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'url'/}</span>
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'code'/}">
         <label class="control-label" for="code">Code URL</label>
         <div class="controls">
-            <input name="code" value="${flash.code ?: module.codeURL}"/>
+            <input name="code" value="${flash.code ?: module.codeURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'code'/}</span>
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'issues'/}">
         <label class="control-label" for="issues">Issue tracker URL</label>
         <div class="controls">
-            <input name="issues" value="${flash.issues ?: module.issueTrackerURL}"/>
+            <input name="issues" value="${flash.issues ?: module.issueTrackerURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'issues'/}</span>
         </div>
     </div>

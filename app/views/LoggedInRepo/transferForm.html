@@ -31,7 +31,7 @@
 <div class="control-group #{errorClassBootstrap 'userName'/}">
         <label class="control-label" for="userName">User name</label>
         <input name="userName" id="new-user" placeholder="New owner" 
-                    value="${flash.userName ?: ''}"/>
+                    value="${flash.userName ?: ''}" maxlength="${util.Util.VARCHAR_SIZE}"/>
         <span class="help-inline">​#{error 'userName'/}</span>
         <button type="submit" class="btn btn-danger" title="Transfer ownership"><i class="icon-gift icon-white"></i> Transfer ownership</button>
 </div>

@@ -2,10 +2,10 @@ package models;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
 import play.db.jpa.Model;
@@ -19,7 +19,8 @@ public class Comment extends Model {
 	@ManyToOne
 	public Project project;
 
-	@Lob
+    // Hibernate would map @Lob to a CLOB instead of TEXT
+    @Column(columnDefinition = "TEXT")
 	public String text;
 	
 	@Enumerated(EnumType.STRING)

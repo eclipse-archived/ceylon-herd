@@ -8,12 +8,15 @@ import java.util.List;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
+import net.sf.oval.constraint.MaxLength;
 import notifiers.Emails;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
+import play.data.validation.MaxSize;
 import play.data.validation.Required;
+import play.data.validation.URL;
 import play.data.validation.Validation;
 import util.Util;
 
@@ -59,8 +62,16 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 
-	public static void edit(@Required String moduleName, String url, String issues, String code, String friendlyName){
+	public static void edit(@Required String moduleName, 
+	        @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
+	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
+	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
+	        @MaxSize(Util.VARCHAR_SIZE) String friendlyName){
 		Module module = getModule(moduleName);
+		
+		if(validationFailed()){
+		    editForm(moduleName);
+		}
 		
 		module.codeURL = code;
 		module.homeURL = url;

@@ -46,7 +46,7 @@
         <div class="control-group #{errorClassBootstrap 'userName'/}">
                 <label class="control-label" for="userName">User name</label>
                 <input name="userName" id="new-user" placeholder="Add admin" 
-                            value="${flash.userName ?: ''}"/>
+                            value="${flash.userName ?: ''}" maxlength="${util.Util.VARCHAR_SIZE}"/>
                 <span class="help-inline">​#{error 'userName'/}</span>
                 <button type="submit" class="btn btn-primary" title="Grant administration rights"><i class="icon-plus icon-white"></i> Add admin</button>
         </div>

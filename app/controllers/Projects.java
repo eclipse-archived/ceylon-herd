@@ -11,9 +11,12 @@ import notifiers.Emails;
 import org.apache.commons.lang.StringUtils;
 
 import play.Logger;
+import play.data.validation.MaxSize;
 import play.data.validation.Required;
+import play.data.validation.URL;
 import play.data.validation.Validation;
 import util.MyCache;
+import util.Util;
 
 import models.Comment;
 import models.Module;
@@ -39,12 +42,12 @@ public class Projects extends LoggedInController {
 		render(module);
 	}
 	
-	public static void claim(@Required String module, 
-			@Required String url, 
-			@Required String license, 
-			@Required String role, 
-			@Required String motivation, 
-			@Required String description) {
+	public static void claim(@Required @MaxSize(Util.VARCHAR_SIZE) String module, 
+			@Required @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
+			@Required @MaxSize(Util.VARCHAR_SIZE) String license, 
+			@Required @MaxSize(Util.VARCHAR_SIZE) String role, 
+			@Required @MaxSize(Util.TEXT_SIZE) String motivation, 
+			@Required @MaxSize(Util.TEXT_SIZE) String description) {
 		if(validationFailed())
 			claimForm(null);
 		models.Project project = models.Project.find("moduleName = ?", module).first();
@@ -131,8 +134,6 @@ public class Projects extends LoggedInController {
 	}
 	
 	private static models.Project getProject(Long id) {
-		if(validationFailed())
-			index();
 		if(id == null){
 			Validation.addError(null, "Missing project id");
 			prepareForErrorRedirect();
@@ -197,7 +198,12 @@ public class Projects extends LoggedInController {
 			flash("warning", "Empty comment");
 			view(id);
 		}
-
+		Validation.maxSize("text", text, Util.TEXT_SIZE);
+		if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+            view(id);
+		}
+		
 		User user = getUser();
 		
 		Logger.info("action: %s", projectAction);
@@ -263,6 +269,11 @@ public class Projects extends LoggedInController {
 			flash("warning", "Empty comment");
 			view(projectId);
 		}
+        Validation.maxSize("text", text, Util.TEXT_SIZE);
+        if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+            view(projectId);
+        }
 
 		comment.text = text;
 		comment.save();
