@@ -42,7 +42,7 @@
         id int8 not null,
         date timestamp,
         status varchar(255),
-        text text,
+        text TEXT,
         owner_id int8,
         project_id int8,
         primary key (id)
@@ -74,10 +74,10 @@
 
     create table Project (
         id int8 not null,
-        description varchar(255),
+        description TEXT,
         license varchar(255),
         moduleName varchar(255) not null,
-        motivation varchar(255),
+        motivation TEXT,
         role varchar(255),
         status varchar(255),
         url varchar(255),
