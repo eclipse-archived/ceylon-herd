@@ -79,6 +79,17 @@ public class ModuleChecker {
 
 	public static void checkModule(File uploadsDir,
 			Map<String, File> fileByPath, Module m, User user, List<Module> modules) {
+
+	    // check the path first (we always start and end with a separator)
+	    String expectedPath =
+	            File.separatorChar
+	            + m.name.replace('.', File.separatorChar)
+	            + File.separatorChar + m.version
+	            + File.separatorChar;
+	    if(!expectedPath.equals(m.path)){
+	        m.diagnostics.add(new Diagnostic("error", "Module is not in the right path: "+m.path+" (expecting "+expectedPath+")"));
+	    }
+	    
 		models.Project project = models.Project.findOwner(m.name);
 		if(project == null){
             // nobody owns it, but perhaps we already have a claim for it
