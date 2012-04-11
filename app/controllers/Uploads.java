@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import util.ModuleChecker;
+import util.ModuleChecker.Import;
 import util.MyCache;
 import util.ModuleChecker.Diagnostic;
 import util.ModuleChecker.Module;
@@ -171,7 +172,11 @@ public class Uploads extends LoggedInController {
 			modVersion.isSourcePresent = module.hasSource;
 			modVersion.isAPIPresent = module.hasDocs;
 			modVersion.published = new Date();
+			
 			modVersion.create();
+
+			for(Import imp : module.dependencies)
+			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export);
 		}
 		
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);

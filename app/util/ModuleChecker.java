@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -259,21 +260,20 @@ public class ModuleChecker {
 		}
 		
 		MemberValue optionalValue = dependency.getMemberValue("optional");
-		if(optionalValue == null){
-			m.diagnostics.add(new Diagnostic("error", "Invalid @Import annotation: missing 'optional' value"));
-			return;
-		}
-		if(!(optionalValue instanceof BooleanMemberValue)){
-			m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'optional' value (expecting boolean)"));
-			return;
-		}
-		boolean optional = ((BooleanMemberValue)optionalValue).getValue();
-		if(optional){
-			m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is optional"));
-			return;
+		if(optionalValue != null){
+		    if(!(optionalValue instanceof BooleanMemberValue)){
+		        m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'optional' value (expecting boolean)"));
+		        return;
+		    }
+		    boolean optional = ((BooleanMemberValue)optionalValue).getValue();
+		    if(optional){
+		        m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is optional"));
+		        return;
+		    }
 		}
 		// must make sure it exists
 		checkDependencyExists(name, version, m, modules);
+		m.addDependency(name, version);
 	}
 
 	private static void checkDependencyExists(String name, String version,
@@ -365,6 +365,18 @@ public class ModuleChecker {
 		}
 	}
 
+	public static class Import {
+        public String name;
+        public String version;
+        public boolean export;
+        public boolean optional;
+        
+        Import(String name, String version){
+            this.name = name;
+            this.version = version;
+        }
+	}
+	
 	public static class Module {
 		public List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		public String name;
@@ -377,6 +389,7 @@ public class ModuleChecker {
 		public boolean hasSourceChecksum;
 		public boolean sourceChecksumValid;
 		public boolean hasDocs;
+		public List<Import> dependencies = new LinkedList<Import>();
 		
 		Module(String name, String version, String path, File file){
 			this.name = name;
@@ -385,7 +398,11 @@ public class ModuleChecker {
 			this.file = file;
 		}
 		
-		public String getType(){
+		public void addDependency(String name, String version) {
+		    dependencies.add(new Import(name, version));
+        }
+
+        public String getType(){
 			String worse = "success";
 			for(Diagnostic d : diagnostics){
 				if(d.type.equals("error"))

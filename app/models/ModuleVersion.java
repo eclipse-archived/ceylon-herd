@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -34,6 +37,10 @@ public class ModuleVersion extends Model {
 	public long downloads;
 	public long sourceDownloads;
 
+	@OrderBy("name,version")
+	@OneToMany(mappedBy = "moduleVersion")
+    private List<Dependency> dependencies = new ArrayList<Dependency>();
+
 	@Transient
 	public String getPath(){
 		return module.name.replace('.', '/')+"/"+version;
@@ -53,6 +60,12 @@ public class ModuleVersion extends Model {
 	public String getSourcePath(){
 		return getPath() + "/" + module.name + "-" + version + ".src";
 	}
+
+    public void addDependency(String name, String version, boolean optional, boolean export) {
+        Dependency dep = new Dependency(this, name, version, optional, export);
+        dep.create();
+        dependencies.add(dep);
+    }
 
 	//
 	// Static helpers

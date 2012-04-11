@@ -70,6 +70,16 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <td>${moduleVersion.published.since(true)}</td>
         </tr>
         <tr>
+            <th>Dependencies</th>
+            <td>
+                #{list moduleVersion.dependencies, as:'dep'}
+                    <div>
+                        <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+                    </div>
+                #{/list}
+            </td>
+        </tr>
+        <tr>
             <th>Stats</th>
             <td>
                 <b>Downloads:</b> ${moduleVersion.downloads}<br/>
