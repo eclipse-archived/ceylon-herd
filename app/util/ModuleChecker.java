@@ -286,7 +286,7 @@ public class ModuleChecker {
 			}
 		}
 		// try to find it in the repo
-		models.ModuleVersion dep = models.ModuleVersion.find("name = ? AND version = ?", name, version).first();
+		models.ModuleVersion dep = models.ModuleVersion.findByVersion(name, version);
 		if(dep == null){
 			m.diagnostics.add(new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo"));
 		}else{
