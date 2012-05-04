@@ -11,7 +11,22 @@
 1. Run the application
     1. play run
 
-# How to make your user admin
+# How to make your user (if registration is disabled, which is the default for now)
+
+This can only be done by hand for now:
+
+1. Pick a password
+1. Generate a UUID, which we'll use as password salt
+    1. You can [make one online](http://www.famkruithof.net/uuid/uuidgen): select `Version 4 (random)`
+1. In a shell, generate your salted SHA1 password by concatenating your UUID (the salt) with your password
+    1. `echo -n YOUR_UUIDYOUR_PASSWORD | sha1sum | awk '{print $1}'` (no space between the salt and password)
+    1. Copy the resulting SHA signature
+1. Open a `psql` console to your database:
+    1. `psql -h localhost -U ceylon-herd`
+1. Add your user (as admin)
+    1. `INSERT INTO user_table  (id, email, firstname, admin, lastname, salt, password, status, username) VALUES ((select nextval('hibernate_sequence')), 'email@example.org', 'FirstName', true, 'LastName', 'YOUR_SALT', 'YOUR_SHA1', 'REGISTERED', 'UserName');`
+
+# How to make your user admin (if registration is enabled)
 
 This can only be done by hand for now:
 
