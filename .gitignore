@@ -6,4 +6,9 @@ repo
 .project
 .settings
 debian/files
+*.iws
+*.ipr
+*.iml
+conf/*.cert
+conf/*.key
 modules
