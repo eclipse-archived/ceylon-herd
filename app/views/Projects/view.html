@@ -122,7 +122,7 @@
     #{else}
     <div class="comment" id="comment-${comment.id}">
         <a href="@{Users.view(comment.owner.userName)}" title="View ${comment.owner.userName}´s profile">
-            #{gravatar.img comment.owner.email, size:50, default:'mm' /}
+            #{gravatar.img comment.owner.email, size:50, default:'mm', secure:request.secure/}
         </a>
         <div class="data">
             <div class="header">
@@ -156,7 +156,7 @@
 
 #{form @Projects.addComment(project.id)}
     <div class="comment" id="comment-add">
-        #{gravatar.img user.email, size:50, default:'mm' /}
+        #{gravatar.img user.email, size:50, default:'mm', secure:request.secure /}
         <div class="data">
             <div class="header">
                 <span class="author"><i class="icon-comment"></i> Comment on this claim</span>
