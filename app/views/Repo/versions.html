@@ -59,7 +59,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
         </tr>
         <tr>
             <th>Last Published</th>
-            <td>${module.lastPublished?.since(true)}</td>
+            <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
         </tr>
         <tr>
             <th>Stats</th>

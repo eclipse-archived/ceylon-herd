@@ -1,25 +1,22 @@
 package controllers;
 
+import models.User;
+import org.apache.commons.io.FileUtils;
+import play.data.validation.Required;
+import play.data.validation.Validation;
+import util.ModuleChecker;
+import util.ModuleChecker.Diagnostic;
+import util.ModuleChecker.Import;
+import util.ModuleChecker.Module;
+import util.ModuleChecker.UploadInfo;
+import util.MyCache;
+import util.Util;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
-import models.User;
-
-import org.apache.commons.io.FileUtils;
-
-import play.data.validation.Required;
-import play.data.validation.Validation;
-import util.ModuleChecker;
-import util.ModuleChecker.Import;
-import util.MyCache;
-import util.ModuleChecker.Diagnostic;
-import util.ModuleChecker.Module;
-import util.ModuleChecker.UploadInfo;
-import util.Util;
 
 public class Uploads extends LoggedInController {
 
@@ -65,7 +62,7 @@ public class Uploads extends LoggedInController {
 	public static void newUpload() throws IOException {
 		models.Upload upload = new models.Upload();
 		upload.owner = getUser();
-		upload.created = new Date();
+		upload.created = Util.currentTimeInUTC();
 		upload.create();
 		File uploadDir = Util.getUploadDir(upload.id);
 		if(!uploadDir.mkdirs())
@@ -171,7 +168,7 @@ public class Uploads extends LoggedInController {
 			modVersion.version = module.version;
 			modVersion.isSourcePresent = module.hasSource;
 			modVersion.isAPIPresent = module.hasDocs;
-			modVersion.published = new Date();
+			modVersion.published = Util.currentTimeInUTC();
 			
 			modVersion.create();
 

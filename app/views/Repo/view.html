@@ -67,7 +67,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
         </tr>
         <tr>
             <th>Published</th>
-            <td>${moduleVersion.published.since(true)}</td>
+            <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
         </tr>
         <tr>
             <th>Dependencies</th>

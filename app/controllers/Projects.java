@@ -1,15 +1,8 @@
 package controllers;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import models.*;
 import notifiers.Emails;
-
 import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
@@ -18,11 +11,10 @@ import play.data.validation.Validation;
 import util.MyCache;
 import util.Util;
 
-import models.Comment;
-import models.Module;
-import models.ModuleVersion;
-import models.ProjectStatus;
-import models.User;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Projects extends LoggedInController {
 
@@ -234,7 +226,7 @@ public class Projects extends LoggedInController {
 			Comment comment = new Comment();
 			comment.text = text;
 			comment.owner = user;
-			comment.date = new Date();
+			comment.date = Util.currentTimeInUTC();
 			comment.project = project;
 			comment.create();
 
@@ -254,7 +246,7 @@ public class Projects extends LoggedInController {
 		Comment comment = new Comment();
 		comment.status = status;
 		comment.owner = user;
-		comment.date = new Date();
+		comment.date = Util.currentTimeInUTC();
 		comment.project = project;
 		comment.create();
 

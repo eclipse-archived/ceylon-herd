@@ -116,7 +116,7 @@
     <div class="comment-status">
         #{projectStatus comment.status /}
         #{user comment.owner, img: true, size:30 /}
-        ${comment.status.name().toLowerCase()} this project ${comment.date.since(true)}
+        ${comment.status.name().toLowerCase()} this project ${comment.date.sinceInUserTZ(true)}
     </div>
     #{/if}
     #{else}
@@ -127,7 +127,7 @@
         <div class="data">
             <div class="header">
                 <span class="author"><i class="icon-comment"></i> #{user comment.owner /} <span class="small">commented</span></span>
-                <span class="date"><a href="#comment-${comment.id}">${comment.date.since(true)}</a></span>
+                <span class="date"><a href="#comment-${comment.id}">${comment.date.sinceInUserTZ(true)}</a></span>
             </div>
             <div class="text" id="comment-${comment.id}-view">
                 #{if user.isAdmin || comment.owner == user}
