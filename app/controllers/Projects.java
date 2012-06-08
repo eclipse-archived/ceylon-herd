@@ -1,15 +1,8 @@
 package controllers;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import models.*;
 import notifiers.Emails;
-
 import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
@@ -18,11 +11,10 @@ import play.data.validation.Validation;
 import util.MyCache;
 import util.Util;
 
-import models.Comment;
-import models.Module;
-import models.ModuleVersion;
-import models.ProjectStatus;
-import models.User;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Projects extends LoggedInController {
 
@@ -195,7 +187,7 @@ public class Projects extends LoggedInController {
 	public static void addComment(Long id, String text, String projectAction){
 		models.Project project = getProject(id);
 		if(StringUtils.isEmpty(text) && StringUtils.isEmpty(projectAction)){
-			flash("warning", "Empty comment");
+			flash("commentWarning", "Empty comment");
 			view(id);
 		}
 		Validation.maxSize("text", text, Util.TEXT_SIZE);
@@ -216,7 +208,7 @@ public class Projects extends LoggedInController {
 			checkBeforeAccept(project);
 			
 			newStatus(project, ProjectStatus.CONFIRMED, user);
-			flash("message2", "Project confirmed");
+			flash("commentMessage", "Project confirmed");
 		}else if("reject".equals(projectAction)){
 			if(!user.isAdmin){
 				Validation.addError(null, "Unauthorized");
@@ -224,22 +216,22 @@ public class Projects extends LoggedInController {
 				view(id);
 			}
 			newStatus(project, ProjectStatus.REJECTED, user);
-			flash("message2", "Project rejected");
+			flash("commentMessage", "Project rejected");
 		}else if("claim".equals(projectAction)){
 			newStatus(project, ProjectStatus.CLAIMED, user);
-			flash("message2", "Project reclaimed");
+			flash("commentMessage", "Project reclaimed");
 		}
 
 		if(!StringUtils.isEmpty(text)){
 			Comment comment = new Comment();
 			comment.text = text;
 			comment.owner = user;
-			comment.date = new Date();
+			comment.date = Util.currentTimeInUTC();
 			comment.project = project;
 			comment.create();
 
 			Emails.commentNotification(comment, user);
-			flash("message", "Comment added");
+			flash("commentMessage2", "Comment added");
 		}
 
 		view(id);
@@ -254,7 +246,7 @@ public class Projects extends LoggedInController {
 		Comment comment = new Comment();
 		comment.status = status;
 		comment.owner = user;
-		comment.date = new Date();
+		comment.date = Util.currentTimeInUTC();
 		comment.project = project;
 		comment.create();
 
@@ -266,7 +258,8 @@ public class Projects extends LoggedInController {
 		models.Comment comment = getComment(projectId, commentId);
 		
 		if(StringUtils.isEmpty(text)){
-			flash("warning", "Empty comment");
+			flash("commentWarning", "Empty comment");
+			flash("commentId", comment.id);
 			view(projectId);
 		}
         Validation.maxSize("text", text, Util.TEXT_SIZE);
@@ -278,7 +271,8 @@ public class Projects extends LoggedInController {
 		comment.text = text;
 		comment.save();
 
-		flash("message", "Comment edited");
+		flash("commentMessage", "Comment edited");
+		flash("commentId",comment.id);
 
 		view(projectId);
 	}

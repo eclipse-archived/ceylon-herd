@@ -50,7 +50,7 @@
 		                ${module.friendlyName}
 		            #{/if}
                     #{if module && module.lastPublished}
-		                <div class="published">Last published ${module.lastPublished.since(true)}</div>
+		                <div class="published">Last published ${module.lastPublished.sinceInUserTZ(true)}</div>
 		            #{/if}
 		            #{else}
 		                <div class="published">Not published yet.</div>
@@ -64,7 +64,7 @@
         
         #{list items:user.lastPublishedModuleVersions, as:'moduleVersion'}
             <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" title="View module version">${moduleVersion.module.name}/${moduleVersion.version}</a> 
-            was published ${moduleVersion.published.since(true)}
+            was published ${moduleVersion.published.sinceInUserTZ(true)}
             <hr/>
         #{/list}
     </div>
