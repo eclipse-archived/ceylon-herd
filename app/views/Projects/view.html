@@ -121,6 +121,9 @@
     #{/if}
     #{else}
     <div class="comment" id="comment-${comment.id}">
+        #{if flash.commentId !=null && comment.id.compareTo(new java.lang.Long(flash.commentId)) == 0}
+            #{include 'Projects/commentMessagesBlock.html'/}
+        #{/if}
         <a href="@{Users.view(comment.owner.userName)}" title="View ${comment.owner.userName}´s profile">
             #{gravatar.img comment.owner.email, size:50, default:'mm', secure:request.secure/}
         </a>
@@ -155,6 +158,9 @@
 #{/list}
 
 #{form @Projects.addComment(project.id)}
+    #{if flash.commentId ==null}
+        #{include 'Projects/commentMessagesBlock.html'/}
+    #{/if}
     <div class="comment" id="comment-add">
         #{gravatar.img user.email, size:50, default:'mm', secure:request.secure /}
         <div class="data">

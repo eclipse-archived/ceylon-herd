@@ -1,0 +1,13 @@
+<div class="container">
+#{if flash.commentMessage || flash.commentMessage2}
+    <div class="alert alert-success">
+        #{if flash.commentMessage}<li>${flash.commentMessage}</li>#{/if}
+        #{if flash.commentMessage2}<li>${flash.commentMessage2}</li>#{/if}
+    </div>
+#{/if}
+#{if flash.commentWarning}
+    <div class="alert">
+    ${flash.commentWarning}
+    </div>
+#{/if}
+</div>
