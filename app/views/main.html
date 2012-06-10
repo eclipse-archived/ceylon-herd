@@ -62,7 +62,6 @@ function toggleHelp(){
                                     </ul>
                                 </li>
                             #{/if}
-                            <li><a href="@{Secure.logout()}">Logout</a></li>
                         #{/if}
                         #{if session.username == null}
                             <li><a href="@{Register.index()}">Register</a>
@@ -79,6 +78,9 @@ function toggleHelp(){
                             </ul>
                         </li>
                         <li><a href="@{Feed.repo()}" title="Subscribe to the repository feed"><img src="@{'/public/images/feed.png'}"/></a></li>
+                        #{if session.username !=null && user}
+                            <li><a href="@{Secure.logout()}">Logout</a></li>
+                        #{/if}
                     </ul>
                     <form class="navbar-search pull-right" action="@{Repo.search}">
                         <input name="q" type="text" class="search-query" placeholder="Search module">
