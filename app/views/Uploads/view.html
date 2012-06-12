@@ -26,6 +26,10 @@
         This upload is ready to be published, but remember: once a module is published, it can´t be unpublished.
         You´ve been warned :)
     #{/if}
+    #{if uploadInfo.status == "empty"}
+        <h4 class="alert-heading">Empty upload</h4>
+        You can now upload files
+    #{/if}
     #{if uploadInfo.status == "warning"}
         <h4 class="alert-heading">Beware</h4>
         This upload contains warnings, that we encourage you to fix, but you can still
@@ -33,7 +37,7 @@
     #{/if}
     #{if uploadInfo.status == "error"}
         <h4 class="alert-heading">Ouch</h4>
-        This upload contains error. You must resolve them before you can publish it.
+        This upload contains errors. You must resolve them before you can publish it.
     #{/if}
 </div>
 

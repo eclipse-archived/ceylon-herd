@@ -1,31 +1,16 @@
 package util;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.AnnotationMemberValue;
-import javassist.bytecode.annotation.ArrayMemberValue;
-import javassist.bytecode.annotation.BooleanMemberValue;
-import javassist.bytecode.annotation.MemberValue;
-import javassist.bytecode.annotation.StringMemberValue;
+import javassist.bytecode.annotation.*;
 import models.User;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+
+import java.io.*;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class ModuleChecker {
 
@@ -33,43 +18,46 @@ public class ModuleChecker {
 			List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		Map<String, File> fileByPath = new HashMap<String, File>();
-		
-		for(File f : uploadedFiles){
-			String name = f.getName();
-			String path = getPathRelativeTo(uploadsDir, f);
-			fileByPath.put(path, f);
-			if(name.endsWith(".car")){
-				int sep = name.indexOf('-');
-				if(sep == -1){
-					if(name.equals("default.car"))
-						diagnostics.add(new Diagnostic("error", "Default module not allowed."));
-					else
-						diagnostics.add(new Diagnostic("error", "Module car has no version: "+name));
-					continue;
+		if (uploadedFiles.isEmpty() && modules.isEmpty()) {
+			    diagnostics.add(new Diagnostic("empty","Empty upload"));
+		} else {
+			for(File f : uploadedFiles){
+				String name = f.getName();
+				String path = getPathRelativeTo(uploadsDir, f);
+				fileByPath.put(path, f);
+				if(name.endsWith(".car")){
+					int sep = name.indexOf('-');
+					if(sep == -1){
+						if(name.equals("default.car"))
+							diagnostics.add(new Diagnostic("error", "Default module not allowed."));
+						else
+							diagnostics.add(new Diagnostic("error", "Module car has no version: "+name));
+						continue;
+					}
+					int dot = name.lastIndexOf('.');
+					String module = name.substring(0, sep);
+					if(module.isEmpty()){
+						diagnostics.add(new Diagnostic("error", "Empty module name not allowed: "+name));
+						continue;
+					}
+					if(module.equals("default")){
+						diagnostics.add(new Diagnostic("error", "Default module not allowed: "+name));
+						continue;
+					}
+					String version = name.substring(sep+1, dot);
+					if(version.isEmpty()){
+						diagnostics.add(new Diagnostic("error", "Empty version number not allowed: "+name));
+						continue;
+					}
+					modules.add(new Module(module, version, path.substring(0, path.length()-name.length()), f));
 				}
-				int dot = name.lastIndexOf('.');
-				String module = name.substring(0, sep);
-				if(module.isEmpty()){
-					diagnostics.add(new Diagnostic("error", "Empty module name not allowed: "+name));
-					continue;
-				}
-				if(module.equals("default")){
-					diagnostics.add(new Diagnostic("error", "Default module not allowed: "+name));
-					continue;
-				}
-				String version = name.substring(sep+1, dot);
-				if(version.isEmpty()){
-					diagnostics.add(new Diagnostic("error", "Empty version number not allowed: "+name));
-					continue;
-				}
-				modules.add(new Module(module, version, path.substring(0, path.length()-name.length()), f));
 			}
+			for(Module m : modules){
+				checkModule(uploadsDir, fileByPath, m, user, modules);
+			}
+			if(modules.isEmpty())
+				diagnostics.add(new Diagnostic("error", "No module defined"));
 		}
-		for(Module m : modules){
-			checkModule(uploadsDir, fileByPath, m, user, modules);
-		}
-		if(modules.isEmpty())
-			diagnostics.add(new Diagnostic("error", "No module defined"));
 		if(!fileByPath.isEmpty()){
 			for(String key : fileByPath.keySet())
 				diagnostics.add(new Diagnostic("error", "Unknown file: "+key, key.substring(1)));
@@ -440,8 +428,13 @@ public class ModuleChecker {
 					status = d.type;
 					return;
 				}
-				if(d.type.equals("warning"))
+				if(d.type.equals("warning")) {
 					status = d.type;
+					return;
+				}
+				if(d.type.equals("empty"))
+					status =d.type;
+
 			}
 			for(Module m : modules){
 				String type = m.getType();
