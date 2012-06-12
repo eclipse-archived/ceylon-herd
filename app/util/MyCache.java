@@ -1,5 +1,6 @@
 package util;
 
+import models.Module;
 import models.Project;
 import models.Upload;
 import models.User;
@@ -57,4 +58,14 @@ public class MyCache {
     public static void evictClaims() {
         Cache.delete("claims");
     }
+
+	public static long getModulesForOwner(User owner){
+		String key = getUserKey("modules");
+		Long n = Cache.get(key, Long.class);
+		if(n == null){
+			n = Module.count();
+			Cache.add(key, n, UserPropertiesDuration);
+		}
+		return n;
+	}
 }

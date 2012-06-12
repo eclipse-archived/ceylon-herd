@@ -49,6 +49,7 @@ GET     /uploads/{id}/repo/{<.*>path}                      UploadAPI.viewFile
 PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
 *       /uploads/{id}/repo/{<.*>path}                      UploadAPI.dispatch
 
+GET     /modules/myModules                                 Repo.myModules
 GET     /modules                                           Repo.index
 GET     /modules/{moduleName}                              Repo.versions
 GET     /modules/{moduleName}/feed.atom                    Feed.module
@@ -64,6 +65,7 @@ GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.remove1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.remove2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.remove3
+
                                                            
 GET     /search                                            Repo.search
                                                            
