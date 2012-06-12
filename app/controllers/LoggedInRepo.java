@@ -1,24 +1,21 @@
 package controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-
 import models.Module;
 import models.ModuleVersion;
 import models.User;
-import net.sf.oval.constraint.MaxLength;
 import notifiers.Emails;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.URL;
 import play.data.validation.Validation;
 import util.Util;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class LoggedInRepo extends LoggedInController {
 
@@ -221,6 +218,13 @@ public class LoggedInRepo extends LoggedInController {
 		moduleVersion.delete();
 		
 		Repo.index();
+	}
+
+	public static void myModules(@Required String username){
+		User user = User.find("byUserName", username).first();
+		List<models.Module> modules = models.Module.findByOwner(user);
+		flash.put("myModules", true);
+		render(modules);
 	}
 
 }

@@ -12,11 +12,6 @@
 #{/if}
 #{else}
     <table class="table table-striped">
-    <caption>
-        #{if flash.myModule} List of my own modules#{/if}
-        #{else }List of modules#{/else}
-    </caption>
-
         <tbody>
             #{list items:modules, as:'module'}
                 <tr>
