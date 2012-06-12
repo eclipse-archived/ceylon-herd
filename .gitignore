@@ -1,6 +1,6 @@
 bin
 tmp
-uploads
+/uploads
 repo
 .classpath
 .project
