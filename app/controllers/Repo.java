@@ -1,15 +1,9 @@
 package controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import models.Module;
 import models.ModuleVersion;
 import models.User;
-
 import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -17,6 +11,10 @@ import play.libs.MimeTypes;
 import play.mvc.Before;
 import util.JavaExtensions;
 import util.Util;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class Repo extends MyController {
 
@@ -207,5 +205,13 @@ public class Repo extends MyController {
 		String filePath = file.getCanonicalPath();
 		if(!filePath.startsWith(repoPath))
 			forbidden("Path is not valid");
+	}
+
+	public static void myModules(){
+		User user = User.find("byUserName", Security.connected()).first();
+		List<models.Module> modules = models.Module.findByOwner(user);
+		boolean myModule =true;
+		flash.put("myModule", true);
+		index();
 	}
 }
