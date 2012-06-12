@@ -1,21 +1,13 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.apache.commons.lang.StringUtils;
-
 import play.db.jpa.Model;
 import play.libs.Codec;
 import util.MyCache;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @Entity
@@ -67,6 +59,11 @@ public class User extends Model {
 	@Transient
 	public long getUploadsCached(){
 	    return MyCache.getUploadsForOwner(this);
+	}
+
+	@Transient
+	public long getModulesCached(){
+		return MyCache.getModulesForOwner(this);
 	}
 
 	public static User connect(String username, String password) {

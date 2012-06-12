@@ -64,7 +64,7 @@ GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.remove1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.remove2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.remove3
-                                                           
+
 GET     /search                                            Repo.search
                                                            
 GET     /test/{<.*>path}                                   Repo.viewFile
@@ -74,6 +74,7 @@ GET     /repo/{<.*>path}                                   404
 GET     /users/{username}                                  Users.view
 GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
+GET     /users/{username}/myModules                        LoggedInRepo.myModules
                                                            
 # Ignore favicon requests                                  
 GET     /favicon.ico                                       404

@@ -1,10 +1,7 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import play.db.jpa.Model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,9 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import org.apache.commons.lang.StringUtils;
-
-import play.db.jpa.Model;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Entity
 @SuppressWarnings("serial")
@@ -125,4 +124,12 @@ public class Module extends Model {
     public static List<Module> searchByName(String q) {
         return find("LOCATE(?, name) <> 0", q).fetch();
     }
+
+	public static List<Module> findByOwner(User owner) {
+		return find("owner = ? ORDER BY name", owner).fetch();
+	}
+
+	public static long countForOwner(User owner) {
+		return count("owner = ?", owner);
+	}
 }
