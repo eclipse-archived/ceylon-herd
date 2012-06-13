@@ -196,4 +196,12 @@ public class Repo extends MyController {
 		if(!filePath.startsWith(repoPath))
 			forbidden("Path is not valid");
 	}
+
+	public static void myModules(){
+		User user = User.find("byUserName", Security.connected()).first();
+		List<models.Module> modules = models.Module.findByOwner(user);
+		boolean myModule =true;
+		flash.put("myModule", true);
+		index();
+	}
 }
