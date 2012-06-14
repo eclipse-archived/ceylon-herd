@@ -98,6 +98,10 @@ GET     /users/{username}                                  Users.view
 GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
 GET     /users/{username}/modules                          LoggedInRepo.myModules
+GET     /users/{username}/edit                             Users.editForm
+POST    /users/{username}/edit                             Users.edit
+GET     /users/{username}/password/edit                    Users.passwordForm
+POST    /users/{username}/password/edit                    Users.passwordEdit
                                                            
 # Ignore favicon requests                                  
 GET     /favicon.ico                                       404
