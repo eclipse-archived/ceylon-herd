@@ -74,10 +74,10 @@ GET     /repo/{<.*>path}                                   404
 GET     /users/{username}                                  Users.view
 GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
-GET     /users/{username}/edit                             Users.editForm
-POST    /users/{username}/edit                             Users.edit
-GET     /users/{username}/password/edit                    Users.passwordForm
-POST    /users/{username}/password/edit                    Users.passwordEdit
+GET     /users/{username}/edit                             LoggedInUsers.editForm
+POST    /users/{username}/edit                             LoggedInUsers.edit
+GET     /users/{username}/password/edit                    LoggedInUsers.passwordForm
+POST    /users/{username}/password/edit                    LoggedInUsers.passwordEdit
                                                            
 # Ignore favicon requests                                  
 GET     /favicon.ico                                       404

@@ -2,14 +2,14 @@
 #{set title:'Edit your profile' /}
 #{set hasForm: true /}
 
-<h1>Edit profil of #{user user/} </h1>
+<h1>Edit profile of #{user user/} </h1>
 
 <ul class="nav nav-tabs">
     <li class="active"><a href="#" onclick="return false;" title="General Information">Information</a></li>
-    <li><a href="@{Users.passwordForm(user.userName)}" title="Change password">Change password</a></li>
+    <li><a href="@{LoggedInUsers.passwordForm(user.userName)}" title="Change password">Change password</a></li>
 </ul>
 
-#{form action: @Users.edit(user.userName), class: "form-horizontal"}
+#{form action: @LoggedInUsers.edit(user.userName), class: "form-horizontal"}
 
 <fieldset>
     <legend>Edit user</legend>
@@ -35,8 +35,8 @@
         </div>
     </div>
     <div class="form-actions">
-        <a href="@{Users.view(user.userName)}" class="btn" title="Go back to profil">Cancel</a>​
-        <input type="submit" class="btn btn-primary" value="Save profil" title="Save profil"/>
+        <a href="@{Users.view(user.userName)}" class="btn" title="Go back to profile">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save profile" title="Save profile"/>
     </div>
 </fieldset>
 
