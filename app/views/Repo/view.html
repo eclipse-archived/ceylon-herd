@@ -71,6 +71,14 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{moduleBackends moduleVersion/}
             </td>
         </tr>
+        #{if moduleVersion.isCarPresent}
+        <tr>
+            <th>Compatible Ceylon release</th>
+            <td>
+                #{moduleCeylonCompatibility moduleVersion/}
+            </td>
+        </tr>
+        #{/if}
         <tr>
             <th>Published</th>
             <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
