@@ -192,5 +192,4 @@ public class Uploads extends LoggedInController {
 		models.Upload upload = Uploads.getUpload(id);
 		render(upload);
 	}
-	
 }

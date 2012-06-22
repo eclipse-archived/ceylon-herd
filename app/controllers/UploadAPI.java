@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import play.Logger;
 import play.data.validation.Required;
+import play.data.validation.Validation;
 import play.mvc.Before;
 import util.JavaExtensions;
 import util.ModuleChecker;
@@ -221,7 +222,7 @@ public class UploadAPI extends LoggedInController {
 			Uploads.view(id);
 	}
 
-	public static void uploadRepo(Long id, @Required File repo) throws ZipException, IOException{
+	public static void uploadRepo(Long id, @Required File repo, String module, String version) throws ZipException, IOException{
 		models.Upload upload = Uploads.getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);
 
@@ -229,14 +230,15 @@ public class UploadAPI extends LoggedInController {
 			Uploads.uploadRepoForm(id);
 		}
 		
-		String name = repo.getName();
+		String name = repo.getName().toLowerCase();
+		
 		if(name.endsWith(".zip"))
 		    uploadZip(repo, uploadsDir);
 		else{
 		    boolean found = false;
 		    for(String postfix : SupportedExtensions){
 		        if(name.endsWith(postfix)){
-		            uploadArchive(repo, postfix, uploadsDir);
+		            uploadArchive(repo, postfix, uploadsDir, module, version, id);
 		            found = true;
 		            break;
 		        }
@@ -249,15 +251,28 @@ public class UploadAPI extends LoggedInController {
 		Uploads.view(id);
 	}
 
-    private static void uploadArchive(File file, String postfix, File uploadsDir) throws IOException {
+    private static void uploadArchive(File file, String postfix, File uploadsDir, String module, String version, Long uploadId) throws IOException {
         try{
-            // parse
-            ModuleSpec spec = ModuleSpec.parse(file.getName(), postfix);
+            // parse unless it's a jar and we have alternate info
+            ModuleSpec spec;
+            Logger.info("postfix: %s, module: %s, version: %s", postfix, module, version);
+            if(postfix.equals(".jar") && (!StringUtils.isEmpty(module) || !StringUtils.isEmpty(version))){
+                Validation.required("module", module);
+                if("default".equals(module))
+                    Validation.addError("module", "Default module not allowed");
+                Validation.required("version", version);
+                if(validationFailed()){
+                    Uploads.uploadRepoForm(uploadId);
+                }
+                spec = new ModuleSpec(module, version);
+            }else{
+                spec = ModuleSpec.parse(file.getName(), postfix);
+            }
             
             // build dest file
             String path = spec.name.replace('.', File.separatorChar) 
                     + File.separatorChar + spec.version 
-                    + File.separatorChar + file.getName();
+                    + File.separatorChar + spec.name + '-' + spec.version + postfix;
             File destFile = new File(uploadsDir, path);
             
             // check
