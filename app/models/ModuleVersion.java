@@ -31,6 +31,8 @@ public class ModuleVersion extends Model {
 	@Column(nullable = false)
 	public Date published;
 
+    public boolean isCarPresent;
+    public boolean isJsPresent;
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
 	
@@ -51,10 +53,15 @@ public class ModuleVersion extends Model {
 		return getPath() + "/module-doc/index.html";
 	}
 
-	@Transient
-	public String getCarPath(){
-		return getPath() + "/" + module.name + "-" + version + ".car";
-	}
+    @Transient
+    public String getCarPath(){
+        return getPath() + "/" + module.name + "-" + version + ".car";
+    }
+
+    @Transient
+    public String getJsPath(){
+        return getPath() + "/" + module.name + "-" + version + ".js";
+    }
 
 	@Transient
 	public String getSourcePath(){
