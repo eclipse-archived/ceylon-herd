@@ -84,8 +84,48 @@
                 <p>
                     Upload your modules directly from your Ceylon tools:
                 </p>
-                <pre>$ ceylonc -out @@{UploadAPI.viewFile(upload.id, '')} -user ${user.userName} -pass YYY com.acme.module
-$ ceylond -out @@{UploadAPI.viewFile(upload.id, '')} -user ${user.userName} -pass YYY com.acme.module</pre>
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
+                        <li><a href="#tab2" data-toggle="tab">JavaScript backend</a></li>
+                        <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre>$ <span class="xml-tag">ceylonc</span> <span class="xml-attr">-out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">-user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">-pass</span> <span class="xml-val">XXX</span> <span class="xml-tag">com.acme.module</span>
+$ <span class="xml-tag">ceylond</span> <span class="xml-attr">-out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">-user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">-pass</span> <span class="xml-val">XXX</span> <span class="xml-tag">com.acme.module</span></pre>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre>$ <span class="xml-tag">ceylonc-js</span> <span class="xml-attr">-out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">-user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">-pass</span> <span class="xml-val">XXX</span> <span class="xml-tag">com.acme.module</span>
+$ <span class="xml-tag">ceylond</span> <span class="xml-attr">-out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">-user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">-pass</span> <span class="xml-val">XXX</span> <span class="xml-tag">com.acme.module</span></pre>
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
+  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.3/com.redhat.ceylon.ant-0.3.jar"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">location</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;/path&gt;</span>
+  <span class="xml-tag">&lt;taskdef</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylonc"</span>
+    <span class="xml-attr">classname</span>=<span class="xml-val">"com.redhat.ceylon.ant.Ceylonc"</span>
+    <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;taskdef</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylond"</span>
+    <span class="xml-attr">classname</span>=<span class="xml-val">"com.redhat.ceylon.ant.Ceylond"</span>
+    <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;ceylonc</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"com.acme.module"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;/ceylonc&gt;</span>
+  <span class="xml-tag">&lt;ceylond</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"com.acme.module"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-tag">&lt;/ceylond&gt;</span>
+<span class="xml-tag">&lt;/target&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
             </td>
         </tr>
         <tr>

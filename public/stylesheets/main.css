@@ -219,3 +219,16 @@ form.inline {
 .label {
     vertical-align: baseline;
 }
+
+/* xml syntax highlighting */
+.xml-tag {
+    color: purple;
+}
+
+.xml-attr {
+    color: red;
+}
+
+.xml-val {
+    color: blue;
+}
