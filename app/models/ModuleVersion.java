@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -41,6 +42,13 @@ public class ModuleVersion extends Model {
     public long jsdownloads;
 	public long sourceDownloads;
 
+    // Hibernate would map @Lob to a CLOB instead of TEXT
+    @Column(columnDefinition = "TEXT")
+	public String doc;
+    // Hibernate would map @Lob to a CLOB instead of TEXT
+    @Column(columnDefinition = "TEXT")
+	public String license;
+	
     public int ceylonMajor;
     public int ceylonMinor;
 
@@ -48,7 +56,11 @@ public class ModuleVersion extends Model {
 	@OneToMany(mappedBy = "moduleVersion")
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
-	@Transient
+    @OrderBy("name")
+    @ManyToMany
+    public List<Author> authors = new ArrayList<Author>();
+
+    @Transient
 	public String getPath(){
 		return module.name.replace('.', '/')+"/"+version;
 	}

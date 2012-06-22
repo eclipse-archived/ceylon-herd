@@ -1,5 +1,6 @@
 package controllers;
 
+import models.Author;
 import models.User;
 import org.apache.commons.io.FileUtils;
 import play.data.validation.Required;
@@ -174,7 +175,13 @@ public class Uploads extends LoggedInController {
 			modVersion.ceylonMajor = module.ceylonMajor;
             modVersion.ceylonMinor = module.ceylonMinor;
 			modVersion.published = Util.currentTimeInUTC();
-			
+			modVersion.doc = module.doc;
+			modVersion.license = module.license;
+			if(module.authors != null){
+			    for(String author : module.authors){
+			        modVersion.authors.add(Author.findOrCreate(author));
+			    }
+			}
 			modVersion.create();
 
 			for(Import imp : module.dependencies)

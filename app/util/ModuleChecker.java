@@ -320,8 +320,8 @@ public class ModuleChecker {
                 }
                 m.diagnostics.add(new Diagnostic("success", ".car file module descriptor has @Module annotation"));
 
-                String name = getString(moduleAnnotation, "name", m);
-                String version = getString(moduleAnnotation, "version", m);
+                String name = getString(moduleAnnotation, "name", m, false);
+                String version = getString(moduleAnnotation, "version", m, false);
                 if(name == null || version == null)
                     return;
                 if(!name.equals(m.name)){
@@ -334,6 +334,19 @@ public class ModuleChecker {
                 }
                 m.diagnostics.add(new Diagnostic("success", ".car file module descriptor has valid name/version"));
 
+                // metadata
+                m.license = getString(moduleAnnotation, "license", m, true);
+                if(m.license != null)
+                    m.diagnostics.add(new Diagnostic("success", "License: "+m.license));
+                m.doc = getString(moduleAnnotation, "doc", m, true);
+                if(m.doc != null)
+                    m.diagnostics.add(new Diagnostic("success", "Has doc string"));
+                m.authors = getStringArray(moduleAnnotation, "by", m, true);
+                if(m.authors != null && m.authors.length != 0)
+                    m.diagnostics.add(new Diagnostic("success", "Has authors"));
+                
+                // dependencies
+                
                 MemberValue dependencies = moduleAnnotation.getMemberValue("dependencies");
                 if(dependencies == null){
                     m.diagnostics.add(new Diagnostic("success", "Module has no dependencies"));
@@ -370,8 +383,8 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("error", "Invalid 'dependency' value (expecting @Import)"));
             return;
         }
-        String name = getString(dependency, "name", m);
-        String version = getString(dependency, "version", m);
+        String name = getString(dependency, "name", m, false);
+        String version = getString(dependency, "version", m, false);
         if(name == null || version == null)
             return;
         if(name.isEmpty()){
@@ -420,10 +433,11 @@ public class ModuleChecker {
     }
 
     private static String getString(Annotation annotation,
-            String field, Module m) {
+            String field, Module m, boolean missingOK) {
         MemberValue value = annotation.getMemberValue(field);
         if(value == null){
-            m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            if(!missingOK)
+                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
             return null;
         }
         if(!(value instanceof StringMemberValue)){
@@ -431,6 +445,36 @@ public class ModuleChecker {
             return null;
         }
         return ((StringMemberValue)value).getValue();
+    }
+
+    private static String[] getStringArray(Annotation annotation,
+            String field, Module m, boolean missingOK) {
+        MemberValue value = annotation.getMemberValue(field);
+        if(value == null){
+            if(!missingOK)
+                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            return null;
+        }
+        if(!(value instanceof ArrayMemberValue)){
+            m.diagnostics.add(new Diagnostic("error", "Invalid '"+field+"' annotation value (expecting String[])"));
+            return null;
+        }
+        MemberValue[] arrayValue = ((ArrayMemberValue)value).getValue();
+        if(arrayValue == null){
+            if(!missingOK)
+                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            return null;
+        }
+        String[] ret = new String[arrayValue.length];
+        int i=0;
+        for(MemberValue val : arrayValue){
+            if(!(val instanceof StringMemberValue)){
+                m.diagnostics.add(new Diagnostic("error", "Invalid '"+field+"' annotation value (expecting String[])"));
+                return null;
+            }
+            ret[i++] = ((StringMemberValue)val).getValue();
+        }
+        return ret;
     }
 
     private static Integer getOptionalInt(Annotation annotation, String field, int defaultValue,
@@ -525,6 +569,9 @@ public class ModuleChecker {
     }
 
     public static class Module {
+        public String[] authors;
+        public String doc;
+        public String license;
         public boolean jarChecksumValid;
         public boolean hasJarChecksum;
         public boolean hasJar;

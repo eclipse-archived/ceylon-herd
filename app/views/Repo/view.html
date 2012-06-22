@@ -62,8 +62,25 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <td>#{user module.owner, img:true /}</td>
         </tr>
         <tr>
+            <th>Authors</th>
+            <td>
+                #{list moduleVersion.authors}
+                    ${_.name}<br/>
+                #{/list}
+            </td>
+        </tr>
+        <tr>
+            <th>License</th>
+            <td>${moduleVersion.license}</td>
+        </tr>
+        <tr>
             <th>Description</th>
-            <td id="description"></td>
+            <td>
+                <div>
+                    ${moduleVersion.doc.md()}
+                </div>
+                <div id="description"></div>
+            </td>
         </tr>
         <tr>
             <th>Backends</th>
