@@ -1,16 +1,33 @@
 package util;
 
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.annotation.*;
-import models.User;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-
-import java.io.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.BooleanMemberValue;
+import javassist.bytecode.annotation.MemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
+import models.User;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
 
 public class ModuleChecker {
 
@@ -18,6 +35,7 @@ public class ModuleChecker {
 			List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user) {
 		List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
 		Map<String, File> fileByPath = new HashMap<String, File>();
+		Set<String> alreadyTreatedArchives = new HashSet<String>(); 
 		if (uploadedFiles.isEmpty() && modules.isEmpty()) {
 			    diagnostics.add(new Diagnostic("empty","Empty upload"));
 		} else {
@@ -25,10 +43,16 @@ public class ModuleChecker {
 				String name = f.getName();
 				String path = getPathRelativeTo(uploadsDir, f);
 				fileByPath.put(path, f);
-				if(name.endsWith(".car")){
+				if(name.endsWith(".car") 
+				        // don't even try to match js files if they are in module-doc folders
+				        || (name.endsWith(".js") && !path.contains("module-doc"))){
+                    String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
+                    // don't add a module for both the car and js file
+                    if(!alreadyTreatedArchives.add(pathBeforeDot))
+                        continue;
 					int sep = name.indexOf('-');
 					if(sep == -1){
-						if(name.equals("default.car"))
+						if(name.equals("default.car") || name.equals("default.js"))
 							diagnostics.add(new Diagnostic("error", "Default module not allowed."));
 						else
 							diagnostics.add(new Diagnostic("error", "Module car has no version: "+name));
@@ -49,7 +73,7 @@ public class ModuleChecker {
 						diagnostics.add(new Diagnostic("error", "Empty version number not allowed: "+name));
 						continue;
 					}
-					modules.add(new Module(module, version, path.substring(0, path.length()-name.length()), f));
+					modules.add(new Module(module, version, path.substring(0, path.length()-name.length())));
 				}
 			}
 			for(Module m : modules){
@@ -104,25 +128,52 @@ public class ModuleChecker {
 		if(publishedModule != null)
 			m.diagnostics.add(new Diagnostic("error", "Module already published"));
 		
+		// car check
+		
 		String carName = m.name + "-" + m.version + ".car";
-		fileByPath.remove(m.path + carName); // car
+		String carPath = m.path + carName;
+		m.hasCar = fileByPath.containsKey(carPath);
+		if(m.hasCar){
+		    fileByPath.remove(carPath); // car
 
-		m.diagnostics.add(new Diagnostic("success", "Has car: "+carName));
+		    m.diagnostics.add(new Diagnostic("success", "Has car: "+carName));
 
-		String checksumPath = m.path + carName + ".sha1";
-		m.hasChecksum = fileByPath.containsKey(checksumPath);
-		if(m.hasChecksum){
-			fileByPath.remove(checksumPath); // car checksum
-			m.checksumValid = checkChecksum(uploadsDir, checksumPath, m.file);
-			if(m.checksumValid)
-				m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
-			else
-				m.diagnostics.add(new Diagnostic("error", "Invalid checksum"));
-		}else
-			m.diagnostics.add(new Diagnostic("error", "Missing checksum"));
+		    String checksumPath = m.path + carName + ".sha1";
+		    m.hasChecksum = fileByPath.containsKey(checksumPath);
+		    if(m.hasChecksum){
+		        fileByPath.remove(checksumPath); // car checksum
+		        File carFile = new File(uploadsDir, carPath);
+		        m.checksumValid = checkChecksum(uploadsDir, checksumPath, carFile);
+		        if(m.checksumValid)
+		            m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
+		        else
+		            m.diagnostics.add(new Diagnostic("error", "Invalid checksum"));
+		    }else
+		        m.diagnostics.add(new Diagnostic("error", "Missing checksum"));
 
-		loadModuleInfo(uploadsDir, m.path+carName, m, modules);
+		    loadModuleInfo(uploadsDir, m.path+carName, m, modules);
+		}else{
+		    m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
+		}
 
+		// js check
+		
+        String jsName = m.name + "-" + m.version + ".js";
+        String jsPath = m.path + jsName;
+        m.hasJs = fileByPath.containsKey(jsPath);
+        if(m.hasJs){
+            fileByPath.remove(jsPath); // js
+            m.diagnostics.add(new Diagnostic("success", "Has js: "+jsName));
+        }else{
+            m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
+        }
+        
+        // must have at least js or jar
+        if(!m.hasCar && !m.hasJs)
+            m.diagnostics.add(new Diagnostic("error", "Module must have at least a car or js archive"));
+        
+		// src check
+		
 		String srcName = m.name + "-" + m.version + ".src";
 		File srcFile = new File(uploadsDir, m.path + srcName);
 		if(srcFile.exists()){
@@ -143,6 +194,8 @@ public class ModuleChecker {
 		}else
 			m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
 
+		// doc check
+		
 		String docName = m.path + "module-doc" + File.separator + "index.html";
 		File docFile = new File(uploadsDir, docName);
 		if(docFile.exists()){
@@ -370,7 +423,8 @@ public class ModuleChecker {
 		public String name;
 		public String version;
 		public String path;
-		public File file;
+		public boolean hasCar;
+		public boolean hasJs;
 		public boolean hasChecksum;
 		public boolean checksumValid;
 		public boolean hasSource;
@@ -379,11 +433,10 @@ public class ModuleChecker {
 		public boolean hasDocs;
 		public List<Import> dependencies = new LinkedList<Import>();
 		
-		Module(String name, String version, String path, File file){
+		Module(String name, String version, String path){
 			this.name = name;
 			this.version = version;
 			this.path = path;
-			this.file = file;
 		}
 		
 		public void addDependency(String name, String version) {
