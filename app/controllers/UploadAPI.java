@@ -150,6 +150,15 @@ public class UploadAPI extends LoggedInController {
 			file.getParentFile().mkdirs();
 			FileUtils.copyInputStreamToFile(request.body, file);
 			request.body.close();
+			
+			// explode it if it's a module zip
+			if(file.getName().equals("module-doc.zip")){
+			    File moduleDoc = new File(file.getParentFile(), "module-doc");
+			    moduleDoc.mkdirs();
+			    uploadZip(file, moduleDoc);
+			    file.delete();
+			}
+			
 			created();
 		}
 		error(HttpURLConnection.HTTP_BAD_REQUEST, "Empty file");
