@@ -69,6 +69,11 @@
 </ul>
 
 #{form @Projects.transferOwnership2(project.id, newOwner.id), class:"pull-right"}
-    <a href="@{Repo.versions(module.name)}" class="btn" title="Go back to module">Cancel</a>
+    #{if module}
+        <a href="@{Repo.versions(module.name)}" class="btn" title="Go back to module">Cancel</a>
+    #{/if}
+    #{else}
+        <a href="@{Application.index()}" class="btn" title="Go back to the start">Cancel</a>
+    #{/else}
     <button class="btn btn-danger" title="Transfer ownership"><i class="icon-gift icon-white"></i> Transfer ownership to ${newOwner.userName}</button>
 #{/form}
