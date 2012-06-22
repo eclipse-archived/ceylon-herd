@@ -65,6 +65,7 @@ function toggleHelp(){
                                 <ul class="dropdown-menu">
                                     <li><a href="@{Projects.index()}">My project claims <span class="badge">${user.projectsCached}</span></a>
                                     <li><a href="@{Uploads.index()}">My uploads <span class="badge">${user.uploadsCached}</span></a></li>
+                                    <li><a href="@{LoggedInRepo.myModules(session.username)}"> My modules<span class="badge">${user.modulesCached}</span></a></li>
                                 </ul>
                             </li>
                             #{if user.isAdmin}
