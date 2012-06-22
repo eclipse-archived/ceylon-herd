@@ -145,6 +145,11 @@ public class Repo extends MyController {
 	        ModuleVersion.incrementDownloads(mv);
 	        return;
 	    }
+        mv = findModuleVersion(name, file, ".jar");
+        if(mv != null){
+            ModuleVersion.incrementDownloads(mv);
+            return;
+        }
         mv = findModuleVersion(name, file, ".js");
         if(mv != null){
             ModuleVersion.incrementJSDownloads(mv);

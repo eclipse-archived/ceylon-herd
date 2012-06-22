@@ -238,6 +238,10 @@ form.inline {
     background-color: inherit;
 }
 
+.label-jar {
+    background-color: #717171;
+}
+
 .label-jvm {
     background-color: #5C2400;
 }

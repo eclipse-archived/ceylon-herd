@@ -43,19 +43,22 @@ public class ModuleChecker {
                 String name = f.getName();
                 String path = getPathRelativeTo(uploadsDir, f);
                 fileByPath.put(path, f);
-                if(name.endsWith(".car") 
+                if(name.endsWith(".car")
+                        || name.endsWith(".jar")
                         // don't even try to match js files if they are in module-doc folders
                         || (name.endsWith(".js") && !path.contains("module-doc"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
-                    // don't add a module for both the car and js file
+                    // don't add a module for both the car, jar and js file
                     if(!alreadyTreatedArchives.add(pathBeforeDot))
                         continue;
                     int sep = name.indexOf('-');
                     if(sep == -1){
-                        if(name.equals("default.car") || name.equals("default.js"))
+                        if(name.equals("default.car") 
+                                || name.equals("default.js")
+                                || name.equals("default.jar"))
                             diagnostics.add(new Diagnostic("error", "Default module not allowed."));
                         else
-                            diagnostics.add(new Diagnostic("error", "Module car has no version: "+name));
+                            diagnostics.add(new Diagnostic("error", "Module artifact has no version: "+name));
                         continue;
                     }
                     int dot = name.lastIndexOf('.');
@@ -128,6 +131,27 @@ public class ModuleChecker {
         if(publishedModule != null)
             m.diagnostics.add(new Diagnostic("error", "Module already published"));
 
+        // jar check first
+
+        String jarName = m.name + "-" + m.version + ".jar";
+        String jarPath = m.path + jarName;
+        m.hasJar = fileByPath.containsKey(jarPath);
+        if(m.hasJar){
+            fileByPath.remove(jarPath); // jar
+            String checksumPath = m.path + jarName + ".sha1";
+            m.hasJarChecksum = fileByPath.containsKey(checksumPath);
+            if(m.hasJarChecksum){
+                fileByPath.remove(checksumPath); // jar checksum
+                File jarFile = new File(uploadsDir, jarPath);
+                m.jarChecksumValid = checkChecksum(uploadsDir, checksumPath, jarFile);
+                if(m.jarChecksumValid)
+                    m.diagnostics.add(new Diagnostic("success", "Jar checksum valid"));
+                else
+                    m.diagnostics.add(new Diagnostic("error", "Invalid Jar checksum"));
+            }else
+                m.diagnostics.add(new Diagnostic("error", "Missing Jar checksum"));
+        }
+
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
@@ -136,7 +160,10 @@ public class ModuleChecker {
         if(m.hasCar){
             fileByPath.remove(carPath); // car
 
-            m.diagnostics.add(new Diagnostic("success", "Has car: "+carName));
+            if(!m.hasJar)
+                m.diagnostics.add(new Diagnostic("success", "Has car: "+carName));
+            else
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
 
             String checksumPath = m.path + carName + ".sha1";
             m.hasChecksum = fileByPath.containsKey(checksumPath);
@@ -144,17 +171,17 @@ public class ModuleChecker {
                 fileByPath.remove(checksumPath); // car checksum
                 File carFile = new File(uploadsDir, carPath);
                 m.checksumValid = checkChecksum(uploadsDir, checksumPath, carFile);
-                if(m.checksumValid)
-                    m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
-                else
+                if(m.checksumValid){
+                    if(!m.hasJar)
+                        m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
+                }else
                     m.diagnostics.add(new Diagnostic("error", "Invalid checksum"));
-            }else
+            }else if(!m.hasJar)
                 m.diagnostics.add(new Diagnostic("error", "Missing checksum"));
 
             loadModuleInfo(uploadsDir, m.path+carName, m, modules);
-        }else{
+        }else if(!m.hasJar)
             m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
-        }
 
         // js check
 
@@ -163,14 +190,16 @@ public class ModuleChecker {
         m.hasJs = fileByPath.containsKey(jsPath);
         if(m.hasJs){
             fileByPath.remove(jsPath); // js
-            m.diagnostics.add(new Diagnostic("success", "Has js: "+jsName));
-        }else{
+            if(!m.hasJar)
+                m.diagnostics.add(new Diagnostic("success", "Has js: "+jsName));
+            else
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+        }else if(!m.hasJar)
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
-        }
 
-        // must have at least js or jar
-        if(!m.hasCar && !m.hasJs)
-            m.diagnostics.add(new Diagnostic("error", "Module must have at least a car or js archive"));
+        // must have at least js or car or jar
+        if(!m.hasCar && !m.hasJs && !m.hasJar)
+            m.diagnostics.add(new Diagnostic("error", "Module must have at least a car, jar or js archive"));
 
         // src check
 
@@ -178,20 +207,24 @@ public class ModuleChecker {
         File srcFile = new File(uploadsDir, m.path + srcName);
         if(srcFile.exists()){
             m.hasSource = true;
-            m.diagnostics.add(new Diagnostic("success", "Has source"));
+            if(!m.hasJar)
+                m.diagnostics.add(new Diagnostic("success", "Has source"));
+            else
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             fileByPath.remove(m.path + srcName); // source archive
             String srcChecksumPath = m.path + srcName + ".sha1";
             m.hasSourceChecksum = fileByPath.containsKey(srcChecksumPath);
             if(m.hasSourceChecksum){
                 fileByPath.remove(srcChecksumPath); // car checksum
                 m.sourceChecksumValid = checkChecksum(uploadsDir, srcChecksumPath, srcFile);
-                if(m.sourceChecksumValid)
-                    m.diagnostics.add(new Diagnostic("success", "Source checksum valid"));
-                else
+                if(m.sourceChecksumValid){
+                    if(!m.hasJar)
+                        m.diagnostics.add(new Diagnostic("success", "Source checksum valid"));
+                }else
                     m.diagnostics.add(new Diagnostic("error", "Invalid source checksum"));
-            }else
+            }else if(!m.hasJar)
                 m.diagnostics.add(new Diagnostic("error", "Missing source checksum"));
-        }else
+        }else if(!m.hasJar)
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
 
         // doc check
@@ -200,7 +233,10 @@ public class ModuleChecker {
         File docFile = new File(uploadsDir, docName);
         if(docFile.exists()){
             m.hasDocs = true;
-            m.diagnostics .add(new Diagnostic("success", "Has docs"));
+            if(!m.hasJar)
+                m.diagnostics.add(new Diagnostic("success", "Has docs"));
+            else
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             String prefix = m.path + "module-doc" + File.separator;
             Iterator<String> iterator = fileByPath.keySet().iterator();
             while(iterator.hasNext()){
@@ -209,8 +245,14 @@ public class ModuleChecker {
                 if(key.startsWith(prefix))
                     iterator.remove();
             }
-        }else
+        }else if(!m.hasJar)
             m.diagnostics.add(new Diagnostic("warning", "Missing docs"));
+        
+        // second jar check
+        
+        // if the jar is alone it's good. Otherwise an error was already added
+        if(m.hasJar && !m.hasJs && !m.hasCar && !m.hasChecksum && !m.hasDocs && !m.hasSource && !m.hasSourceChecksum)
+            m.diagnostics.add(new Diagnostic("success", "Has jar: "+jarName));
     }
 
     private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules) {
@@ -419,6 +461,9 @@ public class ModuleChecker {
     }
 
     public static class Module {
+        public boolean jarChecksumValid;
+        public boolean hasJarChecksum;
+        public boolean hasJar;
         public List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
         public String name;
         public String version;
