@@ -20,6 +20,8 @@
             #{list items:modules, as:'module'}
                 <tr>
                     <td><a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a></td>
+                    <td>${module.friendlyName}</td>
+                    <td>#{user module.owner, img:true /}</td>
                     <td>
                         #{if module.canEdit(user)}
                             <a href="@{LoggedInRepo.editForm(module.name)}" 
