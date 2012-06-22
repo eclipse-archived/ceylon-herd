@@ -105,6 +105,9 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 <tr>
                     <td><a href="@{Repo.view(module.name, version.version)}" title="View module">${version.version}</a></td>
                     <td>
+                        #{moduleBackends version/}
+                    </td>
+                    <td>
                         <a href="@{Repo.viewFile(version.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
                     </td>
                     <td>

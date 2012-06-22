@@ -237,3 +237,11 @@ form.inline {
 .table-no-hover tbody tr:hover th {
     background-color: inherit;
 }
+
+.label-jvm {
+    background-color: #5C2400;
+}
+
+.label-js {
+    background-color: #00995F;
+}

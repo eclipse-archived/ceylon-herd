@@ -66,6 +66,12 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <td id="description"></td>
         </tr>
         <tr>
+            <th>Backends</th>
+            <td>
+                #{moduleBackends moduleVersion/}
+            </td>
+        </tr>
+        <tr>
             <th>Published</th>
             <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
         </tr>
