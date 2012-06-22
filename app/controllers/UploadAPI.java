@@ -9,6 +9,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import models.Upload;
+import models.User;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -16,6 +19,7 @@ import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.mvc.Before;
+import play.mvc.Http.Header;
 import util.JavaExtensions;
 import util.ModuleChecker;
 import util.ModuleSpec;
@@ -140,7 +144,7 @@ public class UploadAPI extends LoggedInController {
 
 
 	public static void addFile(Long id, String path) throws IOException{
-		models.Upload upload = Uploads.getUpload(id);
+		models.Upload upload = getUpload(id);
 		if(request.body.available() > 0){
 			File uploadsDir = Util.getUploadDir(upload.id);
 			File file = new File(uploadsDir, path);
@@ -165,8 +169,43 @@ public class UploadAPI extends LoggedInController {
 		error(HttpURLConnection.HTTP_BAD_REQUEST, "Empty file");
 	}
 
-	public static void viewFile(Long id, String path) throws IOException{
-		models.Upload upload = Uploads.getUpload(id);
+	private static Upload getUpload(Long id) {
+	    if(isInteractive())
+	        return Uploads.getUpload(id);
+	    if(id == null){
+	        Logger.info("Missing upload id");
+	        badRequest("Missing upload id");
+	    }
+	    models.Upload upload = models.Upload.findById(id);
+	    if(upload == null){
+            Logger.info("Invalid upload id");
+	        notFound("Invalid upload id");
+	    }
+	    User user = getUser();
+	    if(upload.owner != user && !user.isAdmin){
+            Logger.info("Not authorised");
+	        badRequest("You are not authorised to view this upload");
+	    }
+	    return upload;
+    }
+
+    private static boolean isInteractive() {
+        Header userAgent = request.headers.get("user-agent");
+        if(userAgent == null || userAgent.values.isEmpty()){
+            Logger.info("No UA 1: interactive");
+            return true;
+        }
+        String ua = userAgent.values.get(0);
+        if(ua == null){
+            Logger.info("No UA 2: interactive");
+            return true;
+        }
+        Logger.info("UA: %s", ua);
+        return !ua.startsWith("Java") && !ua.startsWith("Sardine");
+    }
+
+    public static void viewFile(Long id, String path) throws IOException{
+		models.Upload upload = getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);

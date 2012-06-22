@@ -7,6 +7,7 @@ import play.Logger;
 import play.data.validation.Validation;
 import play.mvc.Before;
 import play.mvc.Controller;
+import play.mvc.results.Error;
 import play.mvc.results.Status;
 
 public class MyController extends Controller {
@@ -40,4 +41,8 @@ public class MyController extends Controller {
 	protected static void noContent() {
 		throw new Status(HttpURLConnection.HTTP_NO_CONTENT);
 	}
+
+    protected static void badRequest(String error) {
+        throw new Error(HttpURLConnection.HTTP_BAD_REQUEST, error);
+    }
 }
