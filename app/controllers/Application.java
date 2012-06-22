@@ -1,8 +1,12 @@
 package controllers;
 
+import java.net.HttpURLConnection;
+
 import models.User;
+import play.Logger;
 import play.mvc.Before;
 import play.mvc.Controller;
+import play.mvc.results.Status;
 
 public class Application extends Controller {
 
@@ -28,5 +32,10 @@ public class Application extends Controller {
 
     public static void publish() {
         render();
+    }
+    
+    public static void options() {
+        response.setHeader("X-Herd-Version", "1");
+        throw new Status(HttpURLConnection.HTTP_OK);
     }
 }

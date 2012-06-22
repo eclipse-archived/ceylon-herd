@@ -7,7 +7,8 @@ GET     /                                                  Application.index
 GET     /about                                             Application.about
 GET     /usage                                             Application.usage
 GET     /publish                                           Application.publish
-                                                           
+OPTIONS /.*                                                Application.options
+
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login
 POST    /login                                             Secure.authenticate
