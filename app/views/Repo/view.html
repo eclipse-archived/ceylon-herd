@@ -77,7 +77,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <th>Description</th>
             <td>
                 <div>
-                    ${moduleVersion.doc.md()}
+                    ${moduleVersion.doc?.md()}
                 </div>
                 <div id="description"></div>
             </td>
