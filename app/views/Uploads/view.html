@@ -82,10 +82,10 @@
                     </fieldset>
                 </form>
                 <p>
-                    Access this upload directly from your Ceylon tools:
+                    Upload your modules directly from your Ceylon tools:
                 </p>
-                <pre>$ ceylonc -out @@{UploadAPI.viewFile(upload.id, '')} -user XXX -pass YYY com.acme.module
-$ ceylond -out @@{UploadAPI.viewFile(upload.id, '')} -user XXX -pass YYY com.acme.module</pre>
+                <pre>$ ceylonc -out @@{UploadAPI.viewFile(upload.id, '')} -user ${user.userName} -pass YYY com.acme.module
+$ ceylond -out @@{UploadAPI.viewFile(upload.id, '')} -user ${user.userName} -pass YYY com.acme.module</pre>
             </td>
         </tr>
         <tr>
