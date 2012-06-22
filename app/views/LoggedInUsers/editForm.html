@@ -1,0 +1,43 @@
+#{extends 'main.html' /}
+#{set title:'Edit your profile' /}
+#{set hasForm: true /}
+
+<h1>Edit profile of #{user user/} </h1>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#" onclick="return false;" title="General Information">Information</a></li>
+    <li><a href="@{LoggedInUsers.passwordForm(user.userName)}" title="Change password">Change password</a></li>
+</ul>
+
+#{form action: @LoggedInUsers.edit(user.userName), class: "form-horizontal"}
+
+<fieldset>
+    <legend>Edit user</legend>
+    <div class="control-group #{errorClassBootstrap 'firstName'/}">
+        <label class="control-label" for="firstName">First Name</label>
+        <div class="controls">
+            <input name="firstName" value="${flash.issues ?: user.firstName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'firtsName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'lastName'/}">
+        <label class="control-label" for="lastName">Last Name</label>
+        <div class="controls">
+            <input name="lastName" value="${flash.lastName ?: user.lastName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'lastName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'email'/}">
+        <label class="control-label" for="email">email</label>
+        <div class="controls">
+            <input name="email" value="${flash.email ?: user.email}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'email'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a href="@{Users.view(user.userName)}" class="btn" title="Go back to profile">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save profile" title="Save profile"/>
+    </div>
+</fieldset>
+
+#{/form}

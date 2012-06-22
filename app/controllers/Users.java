@@ -1,10 +1,10 @@
 package controllers;
 
-import java.util.List;
-
 import models.Project;
 import play.data.validation.Required;
 import play.mvc.Before;
+
+import java.util.List;
 
 public class Users extends MyController {
 
@@ -25,4 +25,5 @@ public class Users extends MyController {
 		
 		render(user, ownedProjects);
 	}
+
 }
