@@ -105,6 +105,10 @@ $ ceylond -out @@{UploadAPI.viewFile(upload.id, '')} -user ${user.userName} -pas
                     <button type="submit" class="btn btn-danger"
                             title="Drop upload"><i class="icon-trash icon-white"></i> Delete</button>
                 #{/form}
+                #{form @UploadAPI.deleteFile(upload.id, '/'), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-warning"
+                            title="Reset upload: remove every uploaded file"><i class="icon-off icon-white"></i> Reset</button>
+                #{/form}
                 #{if uploadInfo.publishable}
                     #{form @Uploads.publish(upload.id), class:"form-no-margin inline"}
                         <button type="submit" class="btn btn-primary"

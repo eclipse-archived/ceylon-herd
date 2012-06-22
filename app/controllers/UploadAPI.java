@@ -191,15 +191,22 @@ public class UploadAPI extends LoggedInController {
 		File uploadsDir = Util.getUploadDir(upload.id);
 		File file = new File(uploadsDir, path);
 		checkUploadPath(file, uploadsDir);
-		if(uploadsDir.getCanonicalPath().equals(file.getCanonicalPath()))
-			error(HttpURLConnection.HTTP_BAD_REQUEST, "Cannot delete root upload path: "+path);
 
 		if(!file.exists())
 			notFound(path);
 
 		Logger.info("delete: %s exists: %s", path, file.exists());
 		
-		if(file.isDirectory()){
+        if(uploadsDir.getCanonicalPath().equals(file.getCanonicalPath())){
+            // clear the entire repo
+            for(File f : uploadsDir.listFiles()){
+                if(f.isDirectory())
+                    FileUtils.deleteDirectory(f);
+                else
+                    f.delete();
+            }
+            flash("message", "Upload cleared");
+        }else if(file.isDirectory()){
 			FileUtils.deleteDirectory(file);
 			flash("message", "Directory deleted");
 		}else{
