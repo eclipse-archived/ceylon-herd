@@ -134,7 +134,18 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <td></td>
             <td>
                 <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
-                <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module binary archive"><i class="icon-download"></i> Download .car</a><br/>
+                #{if moduleVersion.isCarPresent}
+                    <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module JVM archive"><i class="icon-download"></i> Download .car</a><br/>
+                #{/if}
+                #{else}
+                    <i class="icon-remove"></i> No .car archive<br/>
+                #{/else}
+                #{if moduleVersion.isJsPresent}
+                    <a href="@{Repo.viewFile(moduleVersion.jsPath)}" title="Download module JavaScript archive"><i class="icon-download"></i> Download .js</a><br/>
+                #{/if}
+                #{else}
+                    <i class="icon-remove"></i> No .js archive<br/>
+                #{/else}
                 #{if moduleVersion.isSourcePresent}
                     <a href="@{Repo.viewFile(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
                 #{/if}
