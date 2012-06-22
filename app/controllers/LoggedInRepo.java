@@ -10,6 +10,7 @@ import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.URL;
 import play.data.validation.Validation;
+import util.MyCache;
 import util.Util;
 
 import java.io.File;
@@ -223,7 +224,6 @@ public class LoggedInRepo extends LoggedInController {
 	public static void myModules(@Required String username){
 		User user = User.find("byUserName", username).first();
 		List<models.Module> modules = models.Module.findByOwner(user);
-		flash.put("myModules", true);
 		render(modules);
 	}
 

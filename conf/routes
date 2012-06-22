@@ -50,7 +50,6 @@ GET     /uploads/{id}/repo/{<.*>path}                      UploadAPI.viewFile
 PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
 *       /uploads/{id}/repo/{<.*>path}                      UploadAPI.dispatch
 
-GET     /modules/myModules                                 Repo.myModules
 GET     /modules                                           Repo.index
 GET     /modules/{moduleName}                              Repo.versions
 GET     /modules/{moduleName}/feed.atom                    Feed.module
@@ -76,7 +75,7 @@ GET     /repo/{<.*>path}                                   404
 GET     /users/{username}                                  Users.view
 GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
-GET     /users/{username}/myModules                        LoggedInRepo.myModules
+GET     /users/{username}/modules                          LoggedInRepo.myModules
                                                            
 # Ignore favicon requests                                  
 GET     /favicon.ico                                       404

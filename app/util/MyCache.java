@@ -35,6 +35,16 @@ public class MyCache {
         return n;
     }
 
+    public static long getModulesForOwner(User owner){
+        String key = getUserKey("modules");
+        Long n = Cache.get(key, Long.class);
+        if(n == null){
+            n = Module.countForOwner(owner);
+            Cache.add(key, n, UserPropertiesDuration);
+        }
+        return n;
+    }
+
     public static long getClaims(){
         String key = "claims";
         Long n = Cache.get(key, Long.class);
@@ -55,17 +65,12 @@ public class MyCache {
         Cache.delete(key);
     }
 
+    public static void evictModulesForOwner(User user) {
+        String key = getUserKey("modules");
+        Cache.delete(key);
+    }
+
     public static void evictClaims() {
         Cache.delete("claims");
     }
-
-	public static long getModulesForOwner(User owner){
-		String key = getUserKey("modules");
-		Long n = Cache.get(key, Long.class);
-		if(n == null){
-			n = Module.count();
-			Cache.add(key, n, UserPropertiesDuration);
-		}
-		return n;
-	}
 }

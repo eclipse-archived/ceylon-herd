@@ -193,6 +193,7 @@ public class Uploads extends LoggedInController {
 		upload.delete();
 
 		MyCache.evictUploadsForOwner(user);
+		MyCache.evictModulesForOwner(user);
 		
 		flash("message", "Repository published");
 		index();
