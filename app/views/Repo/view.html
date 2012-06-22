@@ -105,6 +105,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{/if}
             </td>
         </tr>
+        #{if moduleVersion.isCarPresent}
         <tr>
             <th>Usage</th>
             <td>
@@ -135,6 +136,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 </div>
             </td>
         </tr>
+        #{/if}
         <tr>
             <td></td>
             <td>
