@@ -79,14 +79,23 @@ public class Module extends Model {
 		return find("SELECT MAX(published) FROM ModuleVersion WHERE module = ?", this).first(); 
 	}
 	
-	@Transient
-	public long getDownloads(){
-	    long ret = 0;
-	    for(ModuleVersion version : versions){
-	        ret += version.downloads;
-	    }
-	    return ret;
-	}
+    @Transient
+    public long getDownloads(){
+        long ret = 0;
+        for(ModuleVersion version : versions){
+            ret += version.downloads;
+        }
+        return ret;
+    }
+
+    @Transient
+    public long getJsDownloads(){
+        long ret = 0;
+        for(ModuleVersion version : versions){
+            ret += version.jsdownloads;
+        }
+        return ret;
+    }
 
 	@Transient
 	public long getSourceDownloads(){

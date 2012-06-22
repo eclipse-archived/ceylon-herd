@@ -82,7 +82,12 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
         <tr>
             <th>Stats</th>
             <td>
-                <b>Downloads:</b> ${moduleVersion.downloads}<br/>
+                #{if moduleVersion.isCarPresent}
+                    <b>Downloads (JVM):</b> ${moduleVersion.downloads}<br/>
+                #{/if}
+                #{if moduleVersion.isJsPresent}
+                    <b>Downloads (JS):</b> ${moduleVersion.jsdownloads}<br/>
+                #{/if}
                 <b>Source downloads:</b> ${moduleVersion.sourceDownloads}<br/>
             </td>
         </tr>

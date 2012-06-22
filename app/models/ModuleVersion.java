@@ -37,6 +37,7 @@ public class ModuleVersion extends Model {
 	public boolean isSourcePresent;
 	
 	public long downloads;
+    public long jsdownloads;
 	public long sourceDownloads;
 
 	@OrderBy("name,version")
@@ -87,6 +88,10 @@ public class ModuleVersion extends Model {
     
     public static void incrementDownloads(ModuleVersion v){
         em().createNativeQuery("UPDATE ModuleVersion set downloads = downloads + 1 WHERE id = ?").setParameter(1, v.id).executeUpdate();
+    }
+
+    public static void incrementJSDownloads(ModuleVersion v){
+        em().createNativeQuery("UPDATE ModuleVersion set jsdownloads = jsdownloads + 1 WHERE id = ?").setParameter(1, v.id).executeUpdate();
     }
 
     public static void incrementSourceDownloads(ModuleVersion v){
