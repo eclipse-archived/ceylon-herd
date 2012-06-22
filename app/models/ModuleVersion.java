@@ -41,6 +41,9 @@ public class ModuleVersion extends Model {
     public long jsdownloads;
 	public long sourceDownloads;
 
+    public int ceylonMajor;
+    public int ceylonMinor;
+
 	@OrderBy("name,version")
 	@OneToMany(mappedBy = "moduleVersion")
     private List<Dependency> dependencies = new ArrayList<Dependency>();

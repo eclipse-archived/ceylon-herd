@@ -22,12 +22,16 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.BooleanMemberValue;
+import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
+import models.ModuleVersion;
 import models.User;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+
+import util.ModuleChecker.Module;
 
 public class ModuleChecker {
 
@@ -82,6 +86,9 @@ public class ModuleChecker {
             for(Module m : modules){
                 checkModule(uploadsDir, fileByPath, m, user, modules);
             }
+            for(Module m : modules){
+                checkModuleDependencyVersions(m);
+            }
             if(modules.isEmpty())
                 diagnostics.add(new Diagnostic("error", "No module defined"));
         }
@@ -91,6 +98,21 @@ public class ModuleChecker {
         }
 
         return diagnostics;
+    }
+
+    private static void checkModuleDependencyVersions(Module m) {
+        for(Import dep : m.dependencies){
+            if(dep.existingDependency != null){
+                if(m.ceylonMajor != dep.existingDependency.ceylonMajor
+                        || m.ceylonMinor != dep.existingDependency.ceylonMinor)
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
+            }
+            if(dep.newDependency != null){
+                if(m.ceylonMajor != dep.newDependency.ceylonMajor
+                        || m.ceylonMinor != dep.newDependency.ceylonMinor)
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
+            }
+        }
     }
 
     public static void checkModule(File uploadsDir,
@@ -272,6 +294,25 @@ public class ModuleChecker {
                 inputStream.close();
 
                 AnnotationsAttribute visible = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
+                
+                // ceylon version info
+
+                Annotation ceylonAnnotation = visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ceylon");
+                if(ceylonAnnotation == null){
+                    m.diagnostics.add(new Diagnostic("error", ".car does not contain @Ceylon annotation on module.class"));
+                    return;
+                }
+                m.diagnostics.add(new Diagnostic("success", ".car file module descriptor has @Ceylon annotation"));
+
+                Integer major = getOptionalInt(ceylonAnnotation, "major", 0, m);
+                Integer minor = getOptionalInt(ceylonAnnotation, "minor", 0, m);
+                if(major == null || minor == null)
+                    return;
+                m.ceylonMajor = major;
+                m.ceylonMinor = minor;
+                
+                // module info
+                
                 Annotation moduleAnnotation = visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Module");
                 if(moduleAnnotation == null){
                     m.diagnostics.add(new Diagnostic("error", ".car does not contain @Module annotation on module.class"));
@@ -356,7 +397,6 @@ public class ModuleChecker {
         }
         // must make sure it exists
         checkDependencyExists(name, version, m, modules);
-        m.addDependency(name, version);
     }
 
     private static void checkDependencyExists(String name, String version,
@@ -365,6 +405,7 @@ public class ModuleChecker {
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is to be uploaded"));
+                m.addDependency(name, version, module);
                 return;
             }
         }
@@ -373,6 +414,7 @@ public class ModuleChecker {
         if(dep == null){
             m.diagnostics.add(new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo"));
         }else{
+            m.addDependency(name, version, dep);
             m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" present in repo"));
         }
     }
@@ -389,6 +431,19 @@ public class ModuleChecker {
             return null;
         }
         return ((StringMemberValue)value).getValue();
+    }
+
+    private static Integer getOptionalInt(Annotation annotation, String field, int defaultValue,
+            Module m) {
+        MemberValue value = annotation.getMemberValue(field);
+        if(value == null){
+            return defaultValue;
+        }
+        if(!(value instanceof IntegerMemberValue)){
+            m.diagnostics.add(new Diagnostic("error", "Invalid '"+field+"' annotation value (expecting int)"));
+            return null;
+        }
+        return ((IntegerMemberValue)value).getValue();
     }
 
     private static boolean checkChecksum(File uploadsDir, String checksumPath, File checkedFile) {
@@ -453,10 +508,19 @@ public class ModuleChecker {
         public String version;
         public boolean export;
         public boolean optional;
+        public ModuleVersion existingDependency;
+        public Module newDependency;
 
-        Import(String name, String version){
+        Import(String name, String version, ModuleVersion dep){
             this.name = name;
             this.version = version;
+            this.existingDependency = dep;
+        }
+
+        Import(String name, String version, Module dep){
+            this.name = name;
+            this.version = version;
+            this.newDependency = dep;
         }
     }
 
@@ -476,6 +540,8 @@ public class ModuleChecker {
         public boolean hasSourceChecksum;
         public boolean sourceChecksumValid;
         public boolean hasDocs;
+        public int ceylonMajor;
+        public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
 
         Module(String name, String version, String path){
@@ -484,8 +550,12 @@ public class ModuleChecker {
             this.path = path;
         }
 
-        public void addDependency(String name, String version) {
-            dependencies.add(new Import(name, version));
+        public void addDependency(String name, String version, ModuleVersion dep) {
+            dependencies.add(new Import(name, version, dep));
+        }
+
+        public void addDependency(String name, String version, Module dep) {
+            dependencies.add(new Import(name, version, dep));
         }
 
         public String getType(){
