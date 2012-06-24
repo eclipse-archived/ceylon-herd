@@ -3,6 +3,9 @@
 # ~~~~
 
 # Home page
+GET     /api                                               Demo.api
+
+
 GET     /                                                  Application.index
 GET     /about                                             Application.about
 GET     /usage                                             Application.usage
