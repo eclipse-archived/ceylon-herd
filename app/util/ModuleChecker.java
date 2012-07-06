@@ -31,8 +31,6 @@ import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
-import util.ModuleChecker.Module;
-
 public class ModuleChecker {
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
