@@ -94,7 +94,10 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	
 	public static Object md(String mdString) {
 		try {
-			return new BaseTemplate.RawData(Markdown.transformMarkdown(HTML.htmlEscape(mdString)));
+		    String html = Markdown.transformMarkdown(HTML.htmlEscape(mdString));
+		    // workaround https://github.com/ceylon/ceylon-herd/issues/74
+		    html = html.replaceAll("&amp;((\\w+)|(x?[0-9a-fA-F]+));", "&$1;");
+			return new BaseTemplate.RawData(html);
 		} catch (ParseException e) {
 			return e.toString();
 		}
