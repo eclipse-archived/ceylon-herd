@@ -102,15 +102,19 @@ public class ModuleChecker {
         // the given module has to be a JVM car module
         for(Import dep : m.dependencies){
             if(dep.existingDependency != null){
-                if(m.ceylonMajor != dep.existingDependency.ceylonMajor
-                        || m.ceylonMinor != dep.existingDependency.ceylonMinor)
+                // only check cars for binary version
+                if(dep.existingDependency.isCarPresent
+                        && (m.ceylonMajor != dep.existingDependency.ceylonMajor
+                            || m.ceylonMinor != dep.existingDependency.ceylonMinor))
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
                 if(!m.hasCar && !m.hasJar)
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
             }
             if(dep.newDependency != null){
-                if(m.ceylonMajor != dep.newDependency.ceylonMajor
-                        || m.ceylonMinor != dep.newDependency.ceylonMinor)
+                // only check cars for binary version
+                if(dep.newDependency.hasCar
+                        && (m.ceylonMajor != dep.newDependency.ceylonMajor
+                            || m.ceylonMinor != dep.newDependency.ceylonMinor))
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
                 if(!m.hasCar && !m.hasJar)
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
