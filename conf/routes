@@ -13,6 +13,9 @@ GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login
 POST    /login                                             Secure.authenticate
 
+GET     /api/1/complete-versions                           RepoAPI.completeVersions
+GET     /api/1/complete-modules                            RepoAPI.completeModules
+
 GET     /feed.atom                                         Feed.repo
                                                            
 GET     /register                                          Register.index
