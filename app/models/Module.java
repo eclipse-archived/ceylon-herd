@@ -17,6 +17,8 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
+import controllers.RepoAPI;
+
 import play.db.jpa.Model;
 
 @Entity
@@ -149,6 +151,8 @@ public class Module extends Model {
 
     public static List<Module> completeForBackend(String module, Type t) {
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
-        return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1 AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))", module).fetch();
+        return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
     }
 }

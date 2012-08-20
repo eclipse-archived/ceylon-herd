@@ -15,6 +15,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import controllers.RepoAPI;
+
 import models.Module.Type;
 
 import play.db.jpa.Model;
@@ -155,6 +157,7 @@ public class ModuleVersion extends Model {
         String typeQuery = ModuleVersion.getBackendQuery("", type);
         if(version == null)
             version = "";
-        return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")", module, version).fetch();
+        return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
+                + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
     }
 }

@@ -12,6 +12,8 @@ import models.ModuleVersion;
 
 public class RepoAPI extends MyController {
     
+    public static final int RESULT_LIMIT = 20;
+
     public static void completeVersions(String module, String version, String type){
         Module mod = Module.findByName(module);
         if(mod == null)
