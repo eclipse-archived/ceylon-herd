@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<results>
+#{list versions, as: 'version'}
+ <module-version>
+  <module>${version.module.name}</module>
+  <version>${version.version}</version>
+  <doc>${version.doc}</doc>
+  <license>${version.license}</license>
+#{list version.authors, as: 'author'}
+  <authors>${author.name}</authors>
+#{/list}
+ </module-version>
+#{/list}
+</results>

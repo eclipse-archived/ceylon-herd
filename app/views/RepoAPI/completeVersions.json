@@ -1,0 +1,17 @@
+{"results": [
+#{list versions, as: 'version'}
+ {
+  "module": "${version.module.name?.escapeJavaScript()}",
+  "version": "${version.version?.escapeJavaScript()}",
+  "doc": "${version.doc?.escapeJavaScript()}",
+  "license": "${version.license?.escapeJavaScript()}",
+#{if version.authors}
+  "authors": [
+#{list version.authors, as: 'author'}
+   "${author.name?.escapeJavaScript()}"#{if !author_isLast}, #{/if} 
+#{/list}
+  ]
+#{/if}
+ #{if !version_isLast}, #{/if}
+#{/list}
+]}

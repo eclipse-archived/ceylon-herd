@@ -1,0 +1,5 @@
+{"results" : [
+#{list modules, as: 'module'}
+ "${module.name?.escapeJavaScript()}"#{if !module_isLast},#{/if} 
+#{/list}
+]}

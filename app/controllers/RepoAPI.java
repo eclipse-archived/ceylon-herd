@@ -1,10 +1,10 @@
 package controllers;
 
 import java.net.HttpURLConnection;
-import java.util.LinkedList;
 import java.util.List;
 
-import dto.ModuleVersionJSON;
+import play.Logger;
+import play.mvc.Before;
 
 import models.Module;
 import models.Module.Type;
@@ -14,6 +14,16 @@ public class RepoAPI extends MyController {
     
     public static final int RESULT_LIMIT = 20;
 
+    @Before
+    public static void fixFormat(){
+        Logger.info(request.format);
+        // default to json
+        if(request.format == null
+                || (!request.format.equals("json")
+                        && !request.format.equals("xml")))
+            request.format = "json";
+    }
+    
     public static void completeVersions(String module, String version, String type){
         Module mod = Module.findByName(module);
         if(mod == null)
@@ -22,12 +32,7 @@ public class RepoAPI extends MyController {
         
         List<ModuleVersion> versions = ModuleVersion.completeVersionForModuleAndBackend(mod, version, t);
         
-        List<ModuleVersionJSON> versionsJSON = new LinkedList<ModuleVersionJSON>();
-        for(ModuleVersion v : versions){
-            versionsJSON.add(new ModuleVersionJSON(v));
-        }
-        
-        renderJSON(versionsJSON);
+        render(versions);
     }
 
     private static Type getType(String type) {
@@ -44,16 +49,11 @@ public class RepoAPI extends MyController {
         return null;
     }
 
-    public static void completeModule(String module, String type){
+    public static void completeModules(String module, String type){
         Type t = getType(type);
 
         List<Module> modules = Module.completeForBackend(module, t);
         
-        List<String> modulesJSON = new LinkedList<String>();
-        for(Module mod : modules){
-            modulesJSON.add(mod.name);
-        }
-        
-        renderJSON(modulesJSON);
+        render(modules);
     }
 }
