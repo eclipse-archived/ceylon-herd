@@ -1,7 +1,10 @@
 package models;
 
-import org.apache.commons.lang.StringUtils;
-import play.db.jpa.Model;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,15 +15,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+
+import play.db.jpa.Model;
 
 @Entity
 @SuppressWarnings("serial")
 public class Module extends Model {
+
+    public enum Type {
+        JVM, JS, SRC;
+    }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
 
@@ -141,4 +146,9 @@ public class Module extends Model {
 	public static long countForOwner(User owner) {
 		return count("owner = ?", owner);
 	}
+
+    public static List<Module> completeForBackend(String module, Type t) {
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1 AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))", module).fetch();
+    }
 }

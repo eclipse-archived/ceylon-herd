@@ -15,6 +15,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import models.Module.Type;
+
 import play.db.jpa.Model;
 
 @Entity
@@ -133,5 +135,26 @@ public class ModuleVersion extends Model {
 
     public static long countForOwner(User owner) {
         return count("module.owner = ?", owner);
+    }
+
+    static String getBackendQuery(String prefix, Type t){
+        switch(t){
+        case JS:
+            return prefix+"isJsPresent = true";
+        case JVM:
+            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
+        case SRC:
+            return prefix+"isSourcePresent = true";
+        default:
+            // ouch
+            throw new RuntimeException("Invalid switch statement: missing enum cases");    
+        }
+    }
+
+    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, Type type) {
+        String typeQuery = ModuleVersion.getBackendQuery("", type);
+        if(version == null)
+            version = "";
+        return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")", module, version).fetch();
     }
 }
