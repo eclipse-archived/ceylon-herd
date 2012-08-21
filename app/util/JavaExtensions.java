@@ -8,6 +8,7 @@ import play.mvc.Http.Cookie;
 import play.mvc.Http.Request;
 import play.mvc.Router.ActionDefinition;
 import play.templates.BaseTemplate;
+import play.templates.BaseTemplate.RawData;
 import play.utils.HTML;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -161,4 +162,125 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 		}
 		return date;
 	}
+	
+    public static RawData xmlEscape(String str) {
+        // quick check
+        char[] chars = str.toCharArray();
+        boolean needsEncoding = false;
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if(Character.isHighSurrogate(c)){
+                // skip the next one
+                i++;
+                continue;
+            }
+            // gt, lt, quot, amp, apos
+            if(c == '>'
+                    || c == '<'
+                    || c == '"'
+                    || c == '&'
+                    || c == '\''){
+                needsEncoding = true;
+                break;
+            }
+        }
+        if(!needsEncoding)
+            return new RawData(str);
+        // now use code points to be safe
+        StringBuilder b = new StringBuilder(str.length());
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if(Character.isHighSurrogate(c)){
+                char low = chars[++i];
+                int codePoint = Character.toCodePoint(c, low);
+                if((0x1 <= codePoint && codePoint <= 0xD7FF) 
+                        ||  (0xE000 <= codePoint && codePoint <= 0xFFFD)
+                        ||  (0x10000 <= codePoint && codePoint <= 0x10FFFF)){
+                    // print as-is
+                    b.append(c);
+                    b.append(low);
+                }else{
+                    // needs escaping
+                    b.append("&#x").append(String.format("%x", codePoint)).append(";");
+                }
+                continue;
+            }
+            if(c == '>')
+                b.append("&gt;");
+            else if(c == '<')
+                b.append("&lt;");
+            else if(c == '"')
+                b.append("&quot;");
+            else if (c == '&')
+                b.append("&amp;");
+            else if(c == '\'')
+                b.append("&apos;");
+            // good range (forgetting the higher one as that doesn't fit in a char)
+            else if((0x1 <= c && c <= 0xD7FF) ||  (0xE000 <= c && c <= 0xFFFD))
+                b.append(c);
+            else // needs escaping
+                b.append("&#x").append(String.format("%x", (int)c)).append(";");
+        }
+        return new RawData(b.toString());
+    }
+
+    public static RawData jsonEscape(String str) {
+        // quick check
+        char[] chars = str.toCharArray();
+        boolean needsEncoding = false;
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if(Character.isHighSurrogate(c)){
+                // skip the next one
+                i++;
+                continue;
+            }
+            // every char allowed except " / and control chars 
+            // \" \\ \/ \b \f \n \r \t
+            if(c == '"'
+                    || c == '\\'
+                    || c == '\b'
+                    || c == '\f'
+                    || c == '\n'
+                    || c == '\r'
+                    || c == '\t'
+                    || c <= 0x1f){
+                needsEncoding = true;
+                break;
+            }
+        }
+        if(!needsEncoding)
+            return new RawData(str);
+        // now use code points to be safe
+        StringBuilder b = new StringBuilder(str.length());
+        for (int i = 0; i < chars.length; i++) {
+            char c = chars[i];
+            if(Character.isHighSurrogate(c)){
+                // skip the whole pair
+                b.append(c);
+                b.append(chars[++i]);
+                continue;
+            }
+            if(c == '"')
+                b.append("\\\"");
+            else if(c == '\\')
+                b.append("\\\\");
+            else if(c == '\b')
+                b.append("\\b");
+            else if(c == '\f')
+                b.append("\\f");
+            else if(c == '\n')
+                b.append("\\n");
+            else if(c == '\r')
+                b.append("\\r");
+            else if(c == '\t')
+                b.append("\\t");
+            else if(c <= 0x1f)
+                b.append("\\u").append(String.format("%04x", (int)c));
+            else
+                b.append(c);
+        }
+        return new RawData(b.toString());
+    }
+
 }

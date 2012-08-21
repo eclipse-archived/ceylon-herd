@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <results>
 #{list modules, as: 'module'}
- <module>${module.name}</module> 
+ <module>${module.name?.xmlEscape()}</module> 
 #{/list}
 </results>

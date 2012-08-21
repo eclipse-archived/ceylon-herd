@@ -2,12 +2,12 @@
 <results>
 #{list versions, as: 'version'}
  <module-version>
-  <module>${version.module.name}</module>
-  <version>${version.version}</version>
-  <doc>${version.doc}</doc>
-  <license>${version.license}</license>
+  <module>${version.module.name?.xmlEscape()}</module>
+  <version>${version.version?.xmlEscape()}</version>
+  <doc>${version.doc?.xmlEscape()}</doc>
+  <license>${version.license?.xmlEscape()}</license>
 #{list version.authors, as: 'author'}
-  <authors>${author.name}</authors>
+  <authors>${author.name?.xmlEscape()}</authors>
 #{/list}
  </module-version>
 #{/list}
