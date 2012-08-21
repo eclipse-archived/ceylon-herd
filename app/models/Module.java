@@ -150,6 +150,8 @@ public class Module extends Model {
 	}
 
     public static List<Module> completeForBackend(String module, Type t) {
+        if(module == null)
+            module = "";
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
         return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1"
                 + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"

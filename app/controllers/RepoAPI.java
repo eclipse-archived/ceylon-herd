@@ -25,6 +25,8 @@ public class RepoAPI extends MyController {
     }
     
     public static void completeVersions(String module, String version, String type){
+        if(module == null || module.isEmpty())
+            badRequest("module parameter required");
         Module mod = Module.findByName(module);
         if(mod == null)
             notFound("Module not found");
