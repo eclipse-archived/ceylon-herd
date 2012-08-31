@@ -283,7 +283,7 @@ public class Projects extends LoggedInController {
 		checkForTransfer(project, newOwner);
 		
 		models.Module module = project.getModule();
-		List<ModuleVersion> publishedModuleVersions = null;
+		Set<ModuleVersion> publishedModuleVersions = null;
 		if(module != null){
 			 publishedModuleVersions = module.versions;
 		}

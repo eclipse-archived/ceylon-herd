@@ -45,4 +45,83 @@ public class Util {
 		return date;
 
 	}
+	
+	public static int compareVersions(String versionAString, String versionBString){
+        char[] versionA = versionAString.toCharArray();
+        char[] versionB = versionBString.toCharArray();
+        int aStart = 0, aEnd = 0;
+        int bStart = 0, bEnd = 0;
+        // we follow the debian algo of sorting first all non-digits, then all digits in turn
+        while(true){
+            // collect all chars until digits or end
+            while(aEnd < versionA.length && !Character.isDigit(versionA[aEnd]))
+                aEnd++;
+            while(bEnd < versionB.length && !Character.isDigit(versionB[bEnd]))
+                bEnd++;
+            int compare = compare(versionA, aStart, aEnd, versionB, bStart, bEnd);
+            if(compare != 0)
+                return compare;
+            // if we've exhausted one, it wins
+            if(aEnd == versionA.length && bEnd == versionB.length)
+                return 0;
+            if(aEnd == versionA.length)
+                return -1;
+            if(bEnd == versionB.length)
+                return -1;
+            // now collect all digits until non-digit or end
+            int a = 0, b = 0;
+            while(aEnd < versionA.length && Character.isDigit(versionA[aEnd])){
+                a = a * 10 + (versionA[aEnd] - '0');
+                aEnd++;
+            }
+            while(bEnd < versionB.length && Character.isDigit(versionB[bEnd])){
+                b = b * 10 + (versionB[bEnd] - '0');
+                bEnd++;
+            }
+            // now compare
+            compare = Integer.compare(a, b);
+            if(compare != 0)
+                return compare;
+            // if we've exhausted one, it wins
+            if(aEnd == versionA.length && bEnd == versionB.length)
+                return 0;
+            if(aEnd == versionA.length)
+                return -1;
+            if(bEnd == versionB.length)
+                return -1;
+            // and on to the next part
+        }
+    }
+    
+    private static int compare(char[] a, int aStart, int aEnd, char[] b, int bStart, int bEnd) {
+        for (; aStart < aEnd && bStart < bEnd; aStart++, bStart++) {
+            char aChar = a[aStart];
+            char bChar = b[bStart];
+            if(Character.isAlphabetic(aChar)){
+                if(Character.isAlphabetic(bChar)){
+                    int ret = Character.compare(aChar, bChar);
+                    if(ret != 0)
+                        return ret;
+                }else{
+                    // alphabetic wins
+                    return -1;
+                }
+            }else if(Character.isAlphabetic(bChar)){
+                // alphabetic wins
+                return 1;
+            }else{
+                // both non-alphabetic
+                int ret = Character.compare(aChar, bChar);
+                if(ret != 0)
+                    return ret;
+            }
+            // equal, try the next char
+        }
+        // shortest one wins
+        if(aStart == aEnd && bStart == bEnd)
+            return 0;
+        if(aStart == aEnd)
+            return -1;
+        return 1;
+    }
 }

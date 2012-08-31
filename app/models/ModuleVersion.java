@@ -20,11 +20,12 @@ import controllers.RepoAPI;
 import models.Module.Type;
 
 import play.db.jpa.Model;
+import util.Util;
 
 @Entity
 @SuppressWarnings("serial")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module_id", "version"}))
-public class ModuleVersion extends Model {
+public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
 	@Column(nullable = false)
 	public String version;
@@ -100,6 +101,11 @@ public class ModuleVersion extends Model {
         dependencies.add(dep);
     }
 
+    @Override
+    public int compareTo(ModuleVersion other) {
+        return Util.compareVersions(version, other.version);
+    }
+    
 	//
 	// Static helpers
 	

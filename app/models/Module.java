@@ -1,8 +1,13 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,10 +21,12 @@ import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
-
-import controllers.RepoAPI;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 
 import play.db.jpa.Model;
+import util.VersionComparator;
+import controllers.RepoAPI;
 
 @Entity
 @SuppressWarnings("serial")
@@ -43,8 +50,9 @@ public class Module extends Model {
 	@ManyToOne
 	public User owner;
 	
+	@Sort(comparator = VersionComparator.class, type = SortType.COMPARATOR)
 	@OneToMany(mappedBy = "module")
-	public List<ModuleVersion> versions = new ArrayList<ModuleVersion>();
+	public SortedSet<ModuleVersion> versions = new TreeSet<ModuleVersion>();
 
 	@ManyToMany
     @JoinTable(name = "module_admin_user",
@@ -130,6 +138,10 @@ public class Module extends Model {
 						|| user.isAdmin);
 	}
 
+	public ModuleVersion getLastVersion(){
+	    return versions.last();
+	}
+	
 	//
 	// Static helpers
 	
