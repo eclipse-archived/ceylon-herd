@@ -1,0 +1,23 @@
+{"results" : [
+#{list modules, as: 'module'}
+ {
+  "module": "${module.name?.jsonEscape()}",
+  "versions": [
+#{list module.getVersions(type), as: 'version'}
+   "${version.version?.jsonEscape()}"#{if !version_isLast},#{/if} 
+#{/list}
+  ],
+#{if module.lastVersion}
+#{if module.lastVersion.authors}
+  "authors": [
+#{list  module.lastVersion.authors, as: 'author'}
+   "${author.name?.jsonEscape()}"#{if !author_isLast}, #{/if} 
+#{/list}
+  ],
+#{/if}
+  "doc": "${ module.lastVersion.doc?.jsonEscape()}",
+  "license": "${ module.lastVersion.license?.jsonEscape()}"
+#{/if}
+ }#{if !module_isLast},#{/if} 
+#{/list}
+]}

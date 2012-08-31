@@ -138,6 +138,27 @@ public class Module extends Model {
 						|| user.isAdmin);
 	}
 
+	public List<ModuleVersion> getVersions(Type type){
+	    List<ModuleVersion> ret = new LinkedList<ModuleVersion>();
+	    for(ModuleVersion version : versions){
+	        boolean include = false;
+	        switch(type){
+            case JS:
+                include = version.isJsPresent;
+                break;
+            case JVM:
+                include = version.isCarPresent || version.isJarPresent;
+                break;
+            case SRC:
+                include = version.isSourcePresent;
+                break;
+	        }
+	        if(include)
+	            ret.add(version);
+	    }
+	    return ret;
+	}
+	
 	public ModuleVersion getLastVersion(){
 	    return versions.last();
 	}
@@ -168,5 +189,26 @@ public class Module extends Model {
         return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1"
                 + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
                 + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
+    }
+
+    public static List<Module> searchForBackend(String query, Type t, int start, int count) {
+        if(count == 0)
+            return Collections.<Module>emptyList();
+        
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        if(query == null || query.isEmpty()){
+            // list
+            return Module.find("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                    + " ORDER BY name").from(start).fetch(count);
+        }
+        // FIXME: this smells like the most innefficient SQL request ever made
+        // FIXME: we're not searching for author here, but should we?
+        return Module.find("FROM Module m WHERE"
+                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                +                                   " AND (LOCATE(?1, m.name) <> 0"
+                +                                          " OR LOCATE(?1, v.doc) <> 0"
+                +                                          "))"
+                + " ORDER BY name", query).from(start).fetch(count);
     }
 }

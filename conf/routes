@@ -15,6 +15,7 @@ POST    /login                                             Secure.authenticate
 
 GET     /api/1/complete-versions                           RepoAPI.completeVersions
 GET     /api/1/complete-modules                            RepoAPI.completeModules
+GET     /api/1/search-modules                              RepoAPI.searchModules
 
 GET     /feed.atom                                         Feed.repo
                                                            

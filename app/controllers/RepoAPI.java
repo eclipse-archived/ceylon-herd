@@ -1,6 +1,7 @@
 package controllers;
 
 import java.net.HttpURLConnection;
+import java.util.Collections;
 import java.util.List;
 
 import play.Logger;
@@ -56,6 +57,19 @@ public class RepoAPI extends MyController {
 
         List<Module> modules = Module.completeForBackend(module, t);
         
+        render(modules);
+    }
+
+    public static void searchModules(String query, String type, Integer start, Integer count){
+        if(start == null || start < 0)
+            start = 0;
+        if(count == null || count < 0 || count > RESULT_LIMIT)
+            count = RESULT_LIMIT;
+        Type t = getType(type);
+
+        List<Module> modules = Module.searchForBackend(query, t, start, count);
+        
+        renderArgs.put("type", t);
         render(modules);
     }
 }

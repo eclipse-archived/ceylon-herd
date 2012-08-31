@@ -41,6 +41,7 @@ public class Application extends Controller {
     // Our HTTP Link header relations
     public final static String COMPLETE_MODULES_REL = "http://modules.ceylon-lang.org/rel/complete-modules";
     public final static String COMPLETE_VERSIONS_REL = "http://modules.ceylon-lang.org/rel/complete-versions";
+    public final static String SEARCH_MODULES_REL = "http://modules.ceylon-lang.org/rel/search-modules";
     
     public static void options() {
         response.setHeader("X-Herd-Version", "1");
@@ -53,9 +54,11 @@ public class Application extends Controller {
         // Format = Link: </>; rel="http://example.net/foo"
         String completeURL = Router.getFullUrl("RepoAPI.completeModules");
         String listVersionsURL = Router.getFullUrl("RepoAPI.completeVersions");
+        String searchModulesURL = Router.getFullUrl("RepoAPI.searchModules");
         String[] links = new String[]{
                 "<" + completeURL + ">; rel=\"" + COMPLETE_MODULES_REL + "\"",
                 "<" + listVersionsURL + ">; rel=\"" + COMPLETE_VERSIONS_REL + "\"",
+                "<" + searchModulesURL + ">; rel=\"" + SEARCH_MODULES_REL + "\"",
         };
         response.setHeader("Link", StringUtils.join(links, ", "));
         
