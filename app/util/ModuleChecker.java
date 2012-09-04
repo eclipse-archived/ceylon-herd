@@ -289,10 +289,16 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
+                // try first with M4 format
                 ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module_.class");
                 if(moduleEntry == null){
-                    m.diagnostics.add(new Diagnostic("error", ".car file does not contain module information"));
-                    return;
+                    // try with pre-M4 format
+                    moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module.class");
+                    
+                    if(moduleEntry == null){
+                        m.diagnostics.add(new Diagnostic("error", ".car file does not contain module information"));
+                        return;
+                    }
                 }
                 m.diagnostics.add(new Diagnostic("success", ".car file contains module descriptor"));
 
