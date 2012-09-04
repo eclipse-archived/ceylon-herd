@@ -289,7 +289,7 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
-                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module.class");
+                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module_.class");
                 if(moduleEntry == null){
                     m.diagnostics.add(new Diagnostic("error", ".car file does not contain module information"));
                     return;
