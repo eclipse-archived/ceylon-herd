@@ -8,150 +8,153 @@
 #{moduleEditBar module, user: user /}
 
 #{if module.github}
-#{set 'moreScripts'}
+    #{set 'moreScripts'}
     <script src="@{'/public/javascripts/github.js'}" type="text/javascript" charset="${_response_encoding}"></script>
     <script type="text/javascript">
-loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
+        loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
     </script>
-#{/set}
+    #{/set}
 #{/if}
 
-#{secure.check 'admin'} 
+#{secure.check 'admin'}
     #{form @LoggedInRepo.remove1(module.name, moduleVersion.version), class: "form-no-margin inline pull-right"}
-        <button type="submit" title="Remove this module"
+    <button type="submit" title="Remove this module"
             class="btn btn-danger"
             ><i class="icon-trash icon-white"></i> Remove</button>
     #{/form}
 #{/secure.check}
 
 #{if module.canEdit(user)}
-#{set 'help'}
+    #{set 'help'}
     <p>
-        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
+        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or
         <b>issue tracker</b> URLs, as
         well as <b>grant administration permissions</b> on this module for your colleagues,
         or even <b>transfer it</b> to an other user,
         go to the <a href="@{LoggedInRepo.editForm(module.name)}" class="btn btn-mini"
-        title="Edit this module"><i class="icon-edit"></i> edit</a> page.
+                     title="Edit this module"><i class="icon-edit"></i> edit</a> page.
     </p>
     <p>
-        The <b>module name</b> and <b>version</b> are taken from the module descriptor. 
+        The <b>module name</b> and <b>version</b> are taken from the module descriptor.
     </p>
     <p>
         If your <b>code URL</b> points to a <a href="http://github.com">Github</a> project, we will extract
-        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it. 
+        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it.
     </p>
-#{/set}
+    #{/set}
 #{/if}
 
 <table class="table table-bordered table-no-hover">
     <caption>Module info</caption>
     <tbody>
-        <tr>
-            <th>Name</th>
-            <td>
-                <div id="img-holder" class="pull-right"></div>
-                #{if module.friendlyName}
-                    ${module.friendlyName}<br/>
-                #{/if}
-                <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>/${moduleVersion.version}
-            </td>
-        </tr>
-        <tr>
-            <th>Owner</th>
-            <td>#{user module.owner, img:true /}</td>
-        </tr>
-        <tr>
-            <th>Authors</th>
-            <td>
-                #{list moduleVersion.authors}
-                    ${_.name}<br/>
-                #{/list}
-            </td>
-        </tr>
-        <tr>
-            <th>License</th>
-            <td>${moduleVersion.license}</td>
-        </tr>
-        <tr>
-            <th>Description</th>
-            <td>
-                <div>
-                    ${moduleVersion.doc?.md()}
-                </div>
-                <div id="description"></div>
-            </td>
-        </tr>
-        <tr>
-            <th>Backends</th>
-            <td>
-                #{moduleBackends moduleVersion/}
-            </td>
-        </tr>
-        #{if moduleVersion.isCarPresent}
-        <tr>
-            <th>Compatible Ceylon release</th>
-            <td>
-                #{moduleCeylonCompatibility moduleVersion/}
-            </td>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <td>
+            <div id="img-holder" class="pull-right"></div>
+        #{if module.friendlyName}
+        ${module.friendlyName}<br/>
         #{/if}
-        <tr>
-            <th>Published</th>
-            <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
-        </tr>
-        <tr>
-            <th>Dependencies</th>
-            <td>
-                #{list moduleVersion.dependencies, as:'dep'}
-                    <div>
-                        <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+            <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>/${moduleVersion.version}
+        </td>
+    </tr>
+    <tr>
+        <th>Backends</th>
+        <td>
+        #{moduleBackends moduleVersion/}
+        </td>
+    </tr>
+    #{if moduleVersion.isCarPresent}
+    <tr>
+        <th>Compatible Ceylon release</th>
+        <td>
+            #{moduleCeylonCompatibility moduleVersion/}
+        </td>
+    </tr>
+    #{/if}
+    <tr>
+        <th>Published</th>
+        <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
+    </tr>
+    <tr>
+        <th>Stats</th>
+        <td>
+        #{if moduleVersion.isCarPresent || moduleVersion.isJarPresent}
+            <b>Downloads (JVM):</b> ${moduleVersion.downloads}<br/>
+        #{/if}
+        #{if moduleVersion.isJsPresent}
+            <b>Downloads (JS):</b> ${moduleVersion.jsdownloads}<br/>
+        #{/if}
+            <b>Source downloads:</b> ${moduleVersion.sourceDownloads}<br/>
+        </td>
+    </tr>
+    <tr>
+        <th>Project links</th>
+        <td>
+        #{if module.homeURL}
+            <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
+        #{/if}
+        #{if module.codeURL}
+            <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
+        #{/if}
+        #{if module.issueTrackerURL}
+            <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+        #{/if}
+        </td>
+    </tr>
+    <tr>
+        <th>Owner</th>
+        <td>#{user module.owner, img:true /}</td>
+    </tr>
+    <tr>
+        <th>Authors</th>
+        <td>
+        #{list moduleVersion.authors}
+        ${_.name}<br/>
+        #{/list}
+        </td>
+    </tr>
+    <tr>
+        <th>License</th>
+        <td>${moduleVersion.license}</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>
+            #{moduleDescription moduleVersion:moduleVersion/}
+
+            <div id="description"></div>
+        </td>
+    </tr>
+    <tr>
+        <th>Dependencies</th>
+        <td>
+        #{list moduleVersion.dependencies, as:'dep'}
+            <div>
+                <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+            </div>
+        #{/list}
+        </td>
+    </tr>
+    #{if moduleVersion.isCarPresent}
+    <tr>
+        <th>Usage</th>
+        <td>
+            <div class="tabbable">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#tab5" data-toggle="tab">Import</a></li>
+                    <li><a href="#tab1" data-toggle="tab">Java backend</a></li>
+                    <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab5">
+                        <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'</span></pre>
+                   </div>
+                    <div class="tab-pane" id="tab1">
+                        <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                        <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
                     </div>
-                #{/list}
-            </td>
-        </tr>
-        <tr>
-            <th>Stats</th>
-            <td>
-                #{if moduleVersion.isCarPresent || moduleVersion.isJarPresent}
-                    <b>Downloads (JVM):</b> ${moduleVersion.downloads}<br/>
-                #{/if}
-                #{if moduleVersion.isJsPresent}
-                    <b>Downloads (JS):</b> ${moduleVersion.jsdownloads}<br/>
-                #{/if}
-                <b>Source downloads:</b> ${moduleVersion.sourceDownloads}<br/>
-            </td>
-        </tr>
-        <tr>
-            <th>Info</th>
-            <td>
-                #{if module.homeURL}
-                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
-                #{/if}
-                #{if module.codeURL}
-                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
-                #{/if}
-                #{if module.issueTrackerURL}
-                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
-                #{/if}
-            </td>
-        </tr>
-        #{if moduleVersion.isCarPresent}
-        <tr>
-            <th>Usage</th>
-            <td>
-                <div class="tabbable">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
-                        <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
-                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                            <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre> 
-                        </div>
-                        <div class="tab-pane" id="tab3">
-                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                    <div class="tab-pane" id="tab3">
+                        <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
                             <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
   <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.3/com.redhat.ceylon.ant-0.3.jar"</span><span class="xml-tag">/&gt;</span>
@@ -162,44 +165,44 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
   <span class="xml-tag">&lt;taskdef</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon"</span> <span class="xml-attr">classname</span>=<span class="xml-val">"com.redhat.ceylon.ant.Ceylon"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
   <span class="xml-tag">&lt;ceylon</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
-                        </div>
                     </div>
                 </div>
-            </td>
-        </tr>
+            </div>
+        </td>
+    </tr>
+    #{/if}
+    <tr>
+        <td></td>
+        <td>
+            <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
+        #{if moduleVersion.isJarPresent}
+            <a href="@{Repo.viewFile(moduleVersion.jarPath)}" title="Download legacy Jar archive"><i class="icon-download"></i> Download .jar</a><br/>
         #{/if}
-        <tr>
-            <td></td>
-            <td>
-                <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
-                #{if moduleVersion.isJarPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.jarPath)}" title="Download legacy Jar archive"><i class="icon-download"></i> Download .jar</a><br/>
-                #{/if}
-                #{if moduleVersion.isCarPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module JVM archive"><i class="icon-download"></i> Download .car</a><br/>
-                #{/if}
-                #{else}
-                    <i class="icon-remove"></i> No .car archive<br/>
-                #{/else}
-                #{if moduleVersion.isJsPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.jsPath)}" title="Download module JavaScript archive"><i class="icon-download"></i> Download .js</a><br/>
-                #{/if}
-                #{else}
-                    <i class="icon-remove"></i> No .js archive<br/>
-                #{/else}
-                #{if moduleVersion.isSourcePresent}
-                    <a href="@{Repo.viewFile(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
-                #{/if}
-                #{else}
-                    <i class="icon-remove"></i> No source archive<br/>
-                #{/else}
-                #{if moduleVersion.isAPIPresent}
-                    <a href="@{Repo.viewDoc(module.name, moduleVersion.version)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
-                #{/if}
-                #{else}
-                    <i class="icon-remove"></i> No API docs<br/>
-                #{/else}
-            </td>
-        </tr>
+        #{if moduleVersion.isCarPresent}
+            <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module JVM archive"><i class="icon-download"></i> Download .car</a><br/>
+        #{/if}
+        #{else}
+            <i class="icon-remove"></i> No .car archive<br/>
+        #{/else}
+        #{if moduleVersion.isJsPresent}
+            <a href="@{Repo.viewFile(moduleVersion.jsPath)}" title="Download module JavaScript archive"><i class="icon-download"></i> Download .js</a><br/>
+        #{/if}
+        #{else}
+            <i class="icon-remove"></i> No .js archive<br/>
+        #{/else}
+        #{if moduleVersion.isSourcePresent}
+            <a href="@{Repo.viewFile(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
+        #{/if}
+        #{else}
+            <i class="icon-remove"></i> No source archive<br/>
+        #{/else}
+        #{if moduleVersion.isAPIPresent}
+            <a href="@{Repo.viewDoc(module.name, moduleVersion.version)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
+        #{/if}
+        #{else}
+            <i class="icon-remove"></i> No API docs<br/>
+        #{/else}
+        </td>
+    </tr>
     </tbody>
 </table>

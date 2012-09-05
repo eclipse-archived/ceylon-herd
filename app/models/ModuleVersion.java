@@ -1,8 +1,8 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import controllers.RepoAPI;
+import models.Module.Type;
+import play.db.jpa.Model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,12 +14,9 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
-import controllers.RepoAPI;
-
-import models.Module.Type;
-
-import play.db.jpa.Model;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @SuppressWarnings("serial")
@@ -41,6 +38,7 @@ public class ModuleVersion extends Model {
     public boolean isJsPresent;
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
+    public boolean isRunnabled;
 	
 	public long downloads;
     public long jsdownloads;
