@@ -79,7 +79,7 @@ public class Util {
                 bEnd++;
             }
             // now compare
-            compare = Integer.compare(a, b);
+            compare = compare(a, b);
             if(compare != 0)
                 return compare;
             // if we've exhausted one, it wins
@@ -93,13 +93,18 @@ public class Util {
         }
     }
     
+    private static int compare(int a, int b) {
+        // Integer.compare and Character.compare are only on 1.7
+        return a < b ? -1 : a == b ? 0 : 1;
+    }
+
     private static int compare(char[] a, int aStart, int aEnd, char[] b, int bStart, int bEnd) {
         for (; aStart < aEnd && bStart < bEnd; aStart++, bStart++) {
             char aChar = a[aStart];
             char bChar = b[bStart];
             if(Character.isAlphabetic(aChar)){
                 if(Character.isAlphabetic(bChar)){
-                    int ret = Character.compare(aChar, bChar);
+                    int ret = compare(aChar, bChar);
                     if(ret != 0)
                         return ret;
                 }else{
@@ -111,7 +116,7 @@ public class Util {
                 return 1;
             }else{
                 // both non-alphabetic
-                int ret = Character.compare(aChar, bChar);
+                int ret = compare(aChar, bChar);
                 if(ret != 0)
                     return ret;
             }
