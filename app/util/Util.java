@@ -102,8 +102,8 @@ public class Util {
         for (; aStart < aEnd && bStart < bEnd; aStart++, bStart++) {
             char aChar = a[aStart];
             char bChar = b[bStart];
-            if(Character.isAlphabetic(aChar)){
-                if(Character.isAlphabetic(bChar)){
+            if(isAlphabetic(aChar)){
+                if(isAlphabetic(bChar)){
                     int ret = compare(aChar, bChar);
                     if(ret != 0)
                         return ret;
@@ -111,7 +111,7 @@ public class Util {
                     // alphabetic wins
                     return -1;
                 }
-            }else if(Character.isAlphabetic(bChar)){
+            }else if(isAlphabetic(bChar)){
                 // alphabetic wins
                 return 1;
             }else{
@@ -128,5 +128,10 @@ public class Util {
         if(aStart == aEnd)
             return -1;
         return 1;
+    }
+
+    private static boolean isAlphabetic(char c) {
+        return c >= 'A' && c <= 'Z'
+                || c >= 'a' && c <= 'z';
     }
 }
