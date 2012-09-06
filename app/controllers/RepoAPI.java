@@ -57,6 +57,7 @@ public class RepoAPI extends MyController {
 
         List<Module> modules = Module.completeForBackend(module, t);
         
+        renderArgs.put("type", t);
         render(modules);
     }
 
