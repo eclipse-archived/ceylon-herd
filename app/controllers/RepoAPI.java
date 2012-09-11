@@ -23,6 +23,8 @@ public class RepoAPI extends MyController {
                 || (!request.format.equals("json")
                         && !request.format.equals("xml")))
             request.format = "json";
+        // Play doesn't set the charset for us when rendering a template :(
+        response.contentType = "application/"+request.format+"; charset="+response.encoding;
     }
     
     public static void completeVersions(String module, String version, String type){
