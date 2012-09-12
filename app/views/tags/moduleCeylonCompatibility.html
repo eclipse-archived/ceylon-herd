@@ -1,7 +1,5 @@
 #{if _arg.ceylonMajor == 0 && _arg.ceylonMinor == 0}<span class="label label-warning">M2 (outdated)</span>#{/if}
-#{else}
-    #{if _arg.ceylonMajor == 1 && _arg.ceylonMinor == 0}<span class="label label-success">M3 (latest)</span>#{/if}
-    #{else}
-        <span class="label label-important">Unknown (${_arg.ceylonMajor}/${_arg.ceylonMinor})</span>
-    #{/else}
-#{/else}
+#{elseif _arg.ceylonMajor == 1 && _arg.ceylonMinor == 0}<span class="label label-warning">M3 (outdated)</span>#{/elseif}
+#{elseif _arg.ceylonMajor == 2 && _arg.ceylonMinor == 0}<span class="label label-success">M3.1 (latest)</span>#{/elseif}
+#{elseif _arg.ceylonMajor == 3 && _arg.ceylonMinor == 0}<span class="label label-warning">M4 (unreleased yet)</span>#{/elseif}
+#{else}<span class="label label-important">Unknown (${_arg.ceylonMajor}/${_arg.ceylonMinor})</span>#{/else}

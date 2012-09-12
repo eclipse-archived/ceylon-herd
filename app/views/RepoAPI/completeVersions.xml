@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<results>
+#{list versions, as: 'version'}
+ <module-version>
+  <module>${version.module.name?.xmlEscape()}</module>
+  <version>${version.version?.xmlEscape()}</version>
+  <doc>${version.doc?.xmlEscape()}</doc>
+  <license>${version.license?.xmlEscape()}</license>
+#{list version.authors, as: 'author'}
+  <authors>${author.name?.xmlEscape()}</authors>
+#{/list}
+ </module-version>
+#{/list}
+</results>

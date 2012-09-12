@@ -1,7 +1,15 @@
 package models;
 
-import org.apache.commons.lang.StringUtils;
-import play.db.jpa.Model;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,15 +20,21 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+
+import play.db.jpa.Model;
+import util.VersionComparator;
+import controllers.RepoAPI;
 
 @Entity
 @SuppressWarnings("serial")
 public class Module extends Model {
+
+    public enum Type {
+        JVM, JS, SRC;
+    }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
 
@@ -36,8 +50,9 @@ public class Module extends Model {
 	@ManyToOne
 	public User owner;
 	
+	@Sort(comparator = VersionComparator.class, type = SortType.COMPARATOR)
 	@OneToMany(mappedBy = "module")
-	public List<ModuleVersion> versions = new ArrayList<ModuleVersion>();
+	public SortedSet<ModuleVersion> versions = new TreeSet<ModuleVersion>();
 
 	@ManyToMany
     @JoinTable(name = "module_admin_user",
@@ -123,6 +138,31 @@ public class Module extends Model {
 						|| user.isAdmin);
 	}
 
+	public List<ModuleVersion> getVersions(Type type){
+	    List<ModuleVersion> ret = new LinkedList<ModuleVersion>();
+	    for(ModuleVersion version : versions){
+	        boolean include = false;
+	        switch(type){
+            case JS:
+                include = version.isJsPresent;
+                break;
+            case JVM:
+                include = version.isCarPresent || version.isJarPresent;
+                break;
+            case SRC:
+                include = version.isSourcePresent;
+                break;
+	        }
+	        if(include)
+	            ret.add(version);
+	    }
+	    return ret;
+	}
+	
+	public ModuleVersion getLastVersion(){
+	    return versions.last();
+	}
+	
 	//
 	// Static helpers
 	
@@ -141,4 +181,34 @@ public class Module extends Model {
 	public static long countForOwner(User owner) {
 		return count("owner = ?", owner);
 	}
+
+    public static List<Module> completeForBackend(String module, Type t) {
+        if(module == null)
+            module = "";
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
+    }
+
+    public static List<Module> searchForBackend(String query, Type t, int start, int count) {
+        if(count == 0)
+            return Collections.<Module>emptyList();
+        
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        if(query == null || query.isEmpty()){
+            // list
+            return Module.find("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                    + " ORDER BY name").from(start).fetch(count);
+        }
+        // FIXME: this smells like the most innefficient SQL request ever made
+        // FIXME: we're not searching for author here, but should we?
+        return Module.find("FROM Module m WHERE"
+                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                +                                   " AND (LOCATE(?1, m.name) <> 0"
+                +                                          " OR LOCATE(?1, v.doc) <> 0"
+                +                                          "))"
+                + " ORDER BY name", query).from(start).fetch(count);
+    }
 }

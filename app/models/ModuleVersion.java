@@ -15,12 +15,17 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import controllers.RepoAPI;
+
+import models.Module.Type;
+
 import play.db.jpa.Model;
+import util.Util;
 
 @Entity
 @SuppressWarnings("serial")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module_id", "version"}))
-public class ModuleVersion extends Model {
+public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
 	@Column(nullable = false)
 	public String version;
@@ -96,6 +101,11 @@ public class ModuleVersion extends Model {
         dependencies.add(dep);
     }
 
+    @Override
+    public int compareTo(ModuleVersion other) {
+        return Util.compareVersions(version, other.version);
+    }
+    
 	//
 	// Static helpers
 	
@@ -133,5 +143,27 @@ public class ModuleVersion extends Model {
 
     public static long countForOwner(User owner) {
         return count("module.owner = ?", owner);
+    }
+
+    static String getBackendQuery(String prefix, Type t){
+        switch(t){
+        case JS:
+            return prefix+"isJsPresent = true";
+        case JVM:
+            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
+        case SRC:
+            return prefix+"isSourcePresent = true";
+        default:
+            // ouch
+            throw new RuntimeException("Invalid switch statement: missing enum cases");    
+        }
+    }
+
+    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, Type type) {
+        String typeQuery = ModuleVersion.getBackendQuery("", type);
+        if(version == null)
+            version = "";
+        return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
+                + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
     }
 }

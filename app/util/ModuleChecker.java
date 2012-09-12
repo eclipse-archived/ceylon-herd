@@ -31,8 +31,6 @@ import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 
-import util.ModuleChecker.Module;
-
 public class ModuleChecker {
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
@@ -104,15 +102,19 @@ public class ModuleChecker {
         // the given module has to be a JVM car module
         for(Import dep : m.dependencies){
             if(dep.existingDependency != null){
-                if(m.ceylonMajor != dep.existingDependency.ceylonMajor
-                        || m.ceylonMinor != dep.existingDependency.ceylonMinor)
+                // only check cars for binary version
+                if(dep.existingDependency.isCarPresent
+                        && (m.ceylonMajor != dep.existingDependency.ceylonMajor
+                            || m.ceylonMinor != dep.existingDependency.ceylonMinor))
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
                 if(!m.hasCar && !m.hasJar)
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
             }
             if(dep.newDependency != null){
-                if(m.ceylonMajor != dep.newDependency.ceylonMajor
-                        || m.ceylonMinor != dep.newDependency.ceylonMinor)
+                // only check cars for binary version
+                if(dep.newDependency.hasCar
+                        && (m.ceylonMajor != dep.newDependency.ceylonMajor
+                            || m.ceylonMinor != dep.newDependency.ceylonMinor))
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
                 if(!m.hasCar && !m.hasJar)
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
@@ -287,10 +289,16 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
-                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module.class");
+                // try first with M4 format
+                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module_.class");
                 if(moduleEntry == null){
-                    m.diagnostics.add(new Diagnostic("error", ".car file does not contain module information"));
-                    return;
+                    // try with pre-M4 format
+                    moduleEntry = car.getEntry(m.name.replace('.', '/') + "/module.class");
+                    
+                    if(moduleEntry == null){
+                        m.diagnostics.add(new Diagnostic("error", ".car file does not contain module information"));
+                        return;
+                    }
                 }
                 m.diagnostics.add(new Diagnostic("success", ".car file contains module descriptor"));
 

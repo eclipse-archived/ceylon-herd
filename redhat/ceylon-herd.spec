@@ -8,7 +8,7 @@
 %define herd_user		ceylherd
 
 Name:		ceylon-herd
-Version:	1.7
+Version:	1.10
 Release:	1%{?dist}
 Summary:	Ceylon Herd module repository
 
