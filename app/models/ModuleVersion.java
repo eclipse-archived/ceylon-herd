@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -58,7 +59,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public int ceylonMinor;
 
 	@OrderBy("name,version")
-	@OneToMany(mappedBy = "moduleVersion")
+	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
     @OrderBy("name")
