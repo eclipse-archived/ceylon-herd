@@ -58,9 +58,11 @@ public class RepoAPI extends MyController {
         Type t = getType(type);
 
         List<Module> modules = Module.completeForBackend(module, t);
+        long total = Module.completeForBackendCount(module, t);
+        long start = 0;
         
         renderArgs.put("type", t);
-        render(modules);
+        render(modules, start, total);
     }
 
     public static void searchModules(String query, String type, Integer start, Integer count){
@@ -71,8 +73,9 @@ public class RepoAPI extends MyController {
         Type t = getType(type);
 
         List<Module> modules = Module.searchForBackend(query, t, start, count);
+        long total = Module.searchForBackendCount(query, t);
         
         renderArgs.put("type", t);
-        render(modules);
+        render(modules, start, total);
     }
 }

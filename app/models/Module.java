@@ -191,6 +191,15 @@ public class Module extends Model {
                 + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
     }
 
+    public static long completeForBackendCount(String module, Type t) {
+        if(module == null)
+            module = "";
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        return Module.count("FROM Module m WHERE LOCATE(?, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                , module);
+    }
+
     public static List<Module> searchForBackend(String query, Type t, int start, int count) {
         if(count == 0)
             return Collections.<Module>emptyList();
@@ -210,5 +219,22 @@ public class Module extends Model {
                 +                                          " OR LOCATE(?1, v.doc) <> 0"
                 +                                          "))"
                 + " ORDER BY name", query).from(start).fetch(count);
+    }
+
+    public static long searchForBackendCount(String query, Type t) {
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        if(query == null || query.isEmpty()){
+            // list
+            return Module.count("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))");
+        }
+        // FIXME: this smells like the most innefficient SQL request ever made
+        // FIXME: we're not searching for author here, but should we?
+        return Module.count("FROM Module m WHERE"
+                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                +                                   " AND (LOCATE(?1, m.name) <> 0"
+                +                                          " OR LOCATE(?1, v.doc) <> 0"
+                +                                          "))",
+                query);
     }
 }
