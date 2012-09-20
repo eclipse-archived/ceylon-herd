@@ -1,0 +1,13 @@
+%{
+    if(_arg == models.UserStatus.REGISTERED) {
+        labelType = "success";
+        labelTooltip = "This user is registered";
+    } else if(_arg == models.UserStatus.CONFIRMATION_REQUIRED) {
+        labelType = "warning";
+        labelTooltip = "This user has to confirm its registration";
+    } else {
+        labelType = _arg?.name();
+        labelTooltip = "";
+    }
+}%
+<span class="label label-${labelType}" title="${labelTooltip}">${_arg}</span>

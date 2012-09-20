@@ -1,0 +1,72 @@
+#{extends 'main.html' /} 
+#{set title:'Admin Users' /}
+
+#{if users.empty}
+    <div class="alert alert-info">
+        No current users.
+    </div>
+#{/if}
+#{else}
+    <table class="table">
+        <caption>Users</caption>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Firstname</th>
+                <th>Lastname</th>
+                <th>Admin</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        #{list items:users, as:'__user'}
+            <tr>
+                <td><a href="@{AdminUsers.editForm(__user.id)}">${__user.userName}</a></td>
+                <td><a href="mailto:${__user.email}">${__user.email}</a></td>
+                <td>${__user.firstName}</td>
+                <td>${__user.lastName}</td>
+                <td>
+                    #{if __user.isAdmin}<span class="label label-success">Yes</span>#{/if}
+                    #{else}<span class="label label-important">No</span>#{/else}
+                </td>
+                <td>#{userStatus __user.status /}</td>
+                <td>
+                   <a href="@{AdminUsers.editForm(__user.id)}" 
+                      title="Edit this user"
+                      class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+                </td>
+            </tr>
+        #{/list}
+        </tbody>
+    </table>
+#{/else}
+
+%{
+__firstPage = page - 2;
+if (__firstPage < 1) {
+    __firstPage = 1;
+}
+__lastPage = page + 2;
+if (__lastPage > pageCount) {
+	__lastPage = pageCount;
+}
+}%
+<div class="pagination pagination-right">
+  <ul>
+    <li #{if __firstPage == 1}class="disabled"#{/if}><a href="@{AdminUsers.index(1, pageSize)}">First</a></li>
+    #{if __firstPage > 1}
+    <li><a href="@{AdminUsers.index(page - 1, pageSize)}">Prev</a></li>
+    <li class="disabled"><a href="">...</a></li>
+    #{/if}
+    #{list __firstPage..__lastPage, as: '__page'}
+    <li #{if __page == page}class="active"#{/if} ><a href="@{AdminUsers.index(__page, pageSize)}">${__page}#{if __page == page} / ${pageCount}#{/if}</a></li>
+    #{/list}
+    #{if __lastPage < pageCount}
+    <li class="disabled"><a href="">...</a></li>
+    <li><a href="@{AdminUsers.index(page + 1, pageSize)}">Next</a></li>
+    #{/if}
+    <li #{if __lastPage == pageCount}class="disabled"#{/if}><a href="@{AdminUsers.index(pageCount, pageSize)}">Last</a></li>
+  </ul>
+</div>

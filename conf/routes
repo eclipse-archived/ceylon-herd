@@ -39,7 +39,11 @@ POST    /projects/{projectId}/comments/{commentId}/edit    Projects.editComment
 GET     /admin/projects/claims                             Projects.claims
 POST    /admin/projects/{id}/accept                        Projects.accept
 POST    /admin/projects/{id}/reject                        Projects.reject
-                                                           
+      
+GET     /admin/users/index                                 AdminUsers.index
+GET     /admin/{id}/edit                                   AdminUsers.editForm
+POST    /admin/{id}/edit                                   AdminUsers.edit
+                                                     
 GET     /uploads                                           Uploads.index
 POST    /uploads/new                                       Uploads.newUpload
 GET     /uploads/{id}                                      Uploads.view
