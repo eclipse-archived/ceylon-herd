@@ -51,6 +51,10 @@ POST    /admin/categories/{id}/delete                      AdminCategories.delet
 GET     /admin/categories/{id}/edit                        AdminCategories.editForm
 POST    /admin/categories/{id}/edit                        AdminCategories.edit
                                                             
+GET     /admin/users/index                                 AdminUsers.index
+GET     /admin/{id}/edit                                   AdminUsers.editForm
+POST    /admin/{id}/edit                                   AdminUsers.edit
+                                                     
 GET     /uploads                                           Uploads.index
 POST    /uploads/new                                       Uploads.newUpload
 GET     /uploads/{id}                                      Uploads.view
