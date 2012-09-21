@@ -17,6 +17,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import models.Module.Type;
+
+import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.Util;
 import controllers.RepoAPI;
@@ -100,6 +102,13 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         dep.create();
         dependencies.add(dep);
     }
+    
+
+    public List<ModuleVersion> getDependantModuleVersions() {
+    	return JPA.em().createQuery("SELECT v FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", ModuleVersion.class)
+    			       .setParameter("name", module.name)
+    			       .setParameter("version", version).getResultList();
+    }
 
     @Override
     public int compareTo(ModuleVersion other) {
@@ -166,4 +175,5 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
                 + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
     }
+    
 }
