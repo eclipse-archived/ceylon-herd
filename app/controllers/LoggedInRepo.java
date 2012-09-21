@@ -196,14 +196,18 @@ public class LoggedInRepo extends LoggedInController {
 	public static void remove1(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
-		
-		render(module, moduleVersion);
+		List<ModuleVersion> dependentModuleVersions = moduleVersion.getDependentModuleVersions();
+		render(module, moduleVersion, dependentModuleVersions);
 	}
 	
 	@Check("admin")
 	public static void remove2(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
+
+		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+			Repo.view(moduleName, version);
+		}
 		
 		render(module, moduleVersion);
 	}
@@ -211,19 +215,9 @@ public class LoggedInRepo extends LoggedInController {
 	@Check("admin")
 	public static void remove3(@Required String moduleName, @Required String version) throws IOException{
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
-		
-		List<ModuleVersion> dependantModuleVersions = moduleVersion.getDependantModuleVersions();
-		if (dependantModuleVersions.size() > 0) {
-			prepareForErrorRedirect();
-			
-			String message = "The following modules depend on this module version: <ul>";
-			for (ModuleVersion dependantVersion : dependantModuleVersions) {
-				message += "<li>" + dependantVersion.module.name + " - " + dependantVersion.version + "</li>";
-			}
-			message += "</ul>Delete them before deleting this module version.";
 
-	    	flash("error", message);
-			Repo.versions(moduleName);
+		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+			Repo.view(moduleName, version);
 		}
 		
 		String path = moduleVersion.getPath();

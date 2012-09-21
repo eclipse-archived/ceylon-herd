@@ -60,7 +60,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public int ceylonMinor;
 
 	@OrderBy("name,version")
-	@OneToMany(mappedBy = "moduleVersion", cascade={CascadeType.REMOVE})
+	@OneToMany(mappedBy = "moduleVersion")
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
     @OrderBy("name")
@@ -102,9 +102,14 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         dep.create();
         dependencies.add(dep);
     }
-    
 
-    public List<ModuleVersion> getDependantModuleVersions() {
+    public int getDependentModuleVersionCount() {
+    	return JPA.em().createQuery("SELECT count(v) FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", Long.class)
+    			       .setParameter("name", module.name)
+    			       .setParameter("version", version).getSingleResult().intValue();
+    }    
+
+    public List<ModuleVersion> getDependentModuleVersions() {
     	return JPA.em().createQuery("SELECT v FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", ModuleVersion.class)
     			       .setParameter("name", module.name)
     			       .setParameter("version", version).getResultList();
