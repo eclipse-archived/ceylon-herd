@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -19,6 +20,7 @@ import controllers.RepoAPI;
 
 import models.Module.Type;
 
+import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.Util;
 
@@ -58,7 +60,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public int ceylonMinor;
 
 	@OrderBy("name,version")
-	@OneToMany(mappedBy = "moduleVersion")
+	@OneToMany(mappedBy = "moduleVersion", cascade={CascadeType.REMOVE})
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
     @OrderBy("name")
@@ -99,6 +101,13 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         Dependency dep = new Dependency(this, name, version, optional, export);
         dep.create();
         dependencies.add(dep);
+    }
+    
+
+    public List<ModuleVersion> getDependantModuleVersions() {
+    	return JPA.em().createQuery("SELECT v FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", ModuleVersion.class)
+    			       .setParameter("name", module.name)
+    			       .setParameter("version", version).getResultList();
     }
 
     @Override
@@ -166,4 +175,5 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
                 + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
     }
+    
 }
