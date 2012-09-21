@@ -20,6 +20,7 @@ import controllers.RepoAPI;
 
 import models.Module.Type;
 
+import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.Util;
 
@@ -102,6 +103,18 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         dependencies.add(dep);
     }
 
+    public int getDependentModuleVersionCount() {
+    	return JPA.em().createQuery("SELECT count(v) FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", Long.class)
+    			       .setParameter("name", module.name)
+    			       .setParameter("version", version).getSingleResult().intValue();
+    }    
+
+    public List<ModuleVersion> getDependentModuleVersions() {
+    	return JPA.em().createQuery("SELECT v FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name and d.version=:version", ModuleVersion.class)
+    			       .setParameter("name", module.name)
+    			       .setParameter("version", version).getResultList();
+    }
+
     @Override
     public int compareTo(ModuleVersion other) {
         return Util.compareVersions(version, other.version);
@@ -167,4 +180,5 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
                 + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
     }
+    
 }
