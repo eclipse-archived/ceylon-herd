@@ -1,0 +1,18 @@
+#{extends 'main.html' /}
+#{set title:'New category' /}
+#{set hasForm: true /}
+
+#{form action: @AdminCategories.add(), class: "form-horizontal"}
+
+<fieldset>
+	<legend>New category</legend>
+   
+    #{include 'AdminCategories/categoryFields.html'/}
+   
+    <div class="form-actions">
+        <a href="@{AdminCategories.index()}" class="btn" title="Go back to categories">Cancel</a>
+        <input type="submit" class="btn btn-primary" value="Save category" title="Save category"/>
+    </div>
+</fieldset>
+
+#{/form}
