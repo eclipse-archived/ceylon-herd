@@ -1,0 +1,15 @@
+ <div class="control-group #{errorClassBootstrap 'name'/}">
+    <label class="control-label" for="name">Name</label>
+    <div class="controls">
+        <input name="name" type="text" value="${flash.name ?: category?.name}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+        <span class="help-inline">#{error 'name'/}</span>
+    </div>
+</div>
+
+<div class="control-group #{errorClassBootstrap 'description'/}">
+    <label class="control-label" for="description">Category description</label>
+    <div class="controls">
+        <textarea name="description" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.description ?: category?.description}</textarea>
+        <span class="help-inline">​#{error 'description'/}</span>
+    </div>
+</div>
