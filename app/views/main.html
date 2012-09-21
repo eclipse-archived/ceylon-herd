@@ -115,11 +115,6 @@ function toggleHelp(){
                     ${flash.warning}
                 </div>
             #{/if}
-            #{if flash.error}
-                <div class="alert alert-error">
-                    ${flash.error.raw()}
-                </div>
-            #{/if}
             #{ifErrors}
                 #{if !hasForm}
                     <div class="alert alert-error">
