@@ -54,6 +54,10 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <td>#{user module.owner, img:true /}</td>
         </tr>
         <tr>
+        	<th>Category</th>
+        	<td>${module.category?.name}</td>
+        </tr>
+        <tr>
             <th>Description</th>
             <td id="description"></td>
         </tr>

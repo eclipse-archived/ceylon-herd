@@ -1,5 +1,6 @@
 package controllers;
 
+import models.Category;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
@@ -55,12 +56,13 @@ public class LoggedInRepo extends LoggedInController {
 
 	public static void editForm(@Required String moduleName){
 		Module module = getModule(moduleName);
-		
-		render(module);
+		List<Category> categories = Category.find("ORDER BY name").fetch();
+		render(module, categories);
 	}
 
 
 	public static void edit(@Required String moduleName, 
+			Category category,
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
@@ -72,6 +74,7 @@ public class LoggedInRepo extends LoggedInController {
 		}
 		
 		module.codeURL = code;
+		module.category = category;
 		module.homeURL = url;
 		module.issueTrackerURL = issues;
 		module.friendlyName = friendlyName;

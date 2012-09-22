@@ -14,11 +14,8 @@
                 <tr>
                     <td><a href="@{AdminCategories.editForm(__category.id)}">${__category.name}</a></td>
                     <td>${__category.description}</td>
-                    <td>
-                        #{form @AdminCategories.delete(__category.id), class:"form-no-margin"}
-                            <button type="submit" class="btn btn-danger btn-mini action"
-                             title="Delete category"><i class="icon-trash icon-white"></i> Delete</button>
-                        #{/form}
+                    <td><a href="@{AdminCategories.confirmDelete(__category.id)}" class="btn btn-danger btn-mini action" 
+                           title="Delete category"><i class="icon-trash icon-white"></i> Delete</a>
                     </td>
                 </tr>
             #{/list}

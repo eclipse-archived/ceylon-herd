@@ -60,6 +60,9 @@ public class Module extends Model {
             	inverseJoinColumns = { @JoinColumn(name = "admin") })
 	public List<User> admins = new ArrayList<User>();
 
+	@ManyToOne
+	public Category category;
+	
 	@Transient
 	public boolean isGithub(){
 		if(StringUtils.isEmpty(codeURL))
