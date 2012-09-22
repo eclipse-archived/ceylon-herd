@@ -82,6 +82,13 @@ public class AdminCategories extends LoggedInController {
 		index();
 	}
 	
+	public static void confirmDelete(Long id) {
+		notFoundIfNull(id);
+		Category category = Category.findById(id);
+		notFoundIfNull(category);
+		render(category);
+	}
+	
 	public static void delete(Long id) {
 		notFoundIfNull(id);
 		Category category = Category.findById(id);

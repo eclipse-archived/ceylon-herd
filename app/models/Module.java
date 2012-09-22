@@ -63,6 +63,9 @@ public class Module extends Model {
 	@OrderBy("date")
 	@OneToMany(mappedBy="module")
 	public List<ModuleComment> comments = new ArrayList<ModuleComment>();
+
+    @ManyToOne
+	public Category category;
 	
 	@Transient
 	public boolean isGithub(){

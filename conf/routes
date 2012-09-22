@@ -46,6 +46,7 @@ POST    /admin/projects/{id}/reject                        Projects.reject
 GET     /admin/categories                                  AdminCategories.index
 GET     /admin/categories/new                              AdminCategories.addForm
 POST    /admin/categories/new                              AdminCategories.add
+GET     /admin/categories/{id}/delete                      AdminCategories.confirmDelete
 POST    /admin/categories/{id}/delete                      AdminCategories.delete
 GET     /admin/categories/{id}/edit                        AdminCategories.editForm
 POST    /admin/categories/{id}/edit                        AdminCategories.edit

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import models.Category;
 import models.Module;
 import models.ModuleComment;
 import models.ModuleVersion;
@@ -62,12 +63,15 @@ public class LoggedInRepo extends LoggedInController {
 
 	public static void editForm(@Required String moduleName){
 		Module module = getModuleForEdit(moduleName);
+
+		List<Category> categories = Category.find("ORDER BY name").fetch();
 		
-		render(module);
+		render(module, categories);
 	}
 
 
 	public static void edit(@Required String moduleName, 
+			Category category,
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
@@ -79,6 +83,7 @@ public class LoggedInRepo extends LoggedInController {
 		}
 		
 		module.codeURL = code;
+		module.category = category;
 		module.homeURL = url;
 		module.issueTrackerURL = issues;
 		module.friendlyName = friendlyName;

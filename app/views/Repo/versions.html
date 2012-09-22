@@ -61,6 +61,10 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             </tr>
         #{/if}
         <tr>
+        	<th>Category</th>
+        	<td>${module.category?.name}</td>
+        </tr>
+        <tr>
             <th>Last Published</th>
             <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
         </tr>
