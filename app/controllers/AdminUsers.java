@@ -8,9 +8,9 @@ import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import util.Util;
 
+@Check("admin")
 public class AdminUsers extends LoggedInController {
 
-    @Check("admin")
 	public static void index(int page, int pageSize) {
     	if (page < 1) {
     		page = 1;
@@ -24,7 +24,6 @@ public class AdminUsers extends LoggedInController {
 		render(users, page, pageCount, pageSize);
 	}
 
-    @Check("admin")
     public static void editForm(Long id) {
     	notFoundIfNull(id);
     	User editedUser = User.findById(id);
@@ -32,7 +31,6 @@ public class AdminUsers extends LoggedInController {
     	render(editedUser);
     }
 
-    @Check("admin")
     public static void edit(@Required Long id, 
 	        @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email, 
 	        @MaxSize(Util.VARCHAR_SIZE) String firstName, 
