@@ -1,3 +1,5 @@
+-- #64
+
 create table ModuleComment (
     id int8 not null,
     date timestamp,
@@ -18,3 +20,8 @@ alter table ModuleComment
     foreign key (owner_id) 
     references user_table;
 
+-- #75
+
+alter table ModuleVersion add column isRunnable bool;
+update ModuleVersion set isRunnable = false;
+alter table ModuleVersion alter column isRunnable set not null;

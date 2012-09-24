@@ -117,6 +117,7 @@
         isCarPresent bool not null,
         isJarPresent bool not null,
         isJsPresent bool not null,
+        isRunnable bool not null,
         isSourcePresent bool not null,
         jsdownloads int8 not null,
         license TEXT,
