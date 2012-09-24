@@ -217,6 +217,7 @@ public class LoggedInRepo extends LoggedInController {
 		Module module = moduleVersion.module;
 
 		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+		    flash("warning", "Cannot remove module because it has dependencies");
 			Repo.view(moduleName, version);
 		}
 		
@@ -228,6 +229,7 @@ public class LoggedInRepo extends LoggedInController {
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 
 		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+            flash("warning", "Cannot remove module because it has dependencies");
 			Repo.view(moduleName, version);
 		}
 		
