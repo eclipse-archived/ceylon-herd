@@ -134,12 +134,10 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
     </table>
 #{/else}
 
-*{ -- Comments ----------------------------------------------- }*
-
 %{
-  def addAction = { actionBridge.Repo.addModuleComment(module.name) }
-  def editAction = { id -> actionBridge.Repo.editModuleComment(module.name, id) }
-  def deleteAction = { id -> actionBridge.Repo.deleteModuleComment(module.name, id) }
+  def addAction = { actionBridge.LoggedInRepo.addModuleComment(module.name) }
+  def editAction = { id -> actionBridge.LoggedInRepo.editModuleComment(module.name, id) }
+  def deleteAction = { id -> actionBridge.LoggedInRepo.deleteModuleComment(module.name, id) }
 }%
 
 #{comments addAction: addAction,
