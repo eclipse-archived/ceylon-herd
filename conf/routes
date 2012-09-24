@@ -67,14 +67,14 @@ POST    /modules/{moduleName}/permissions/add              LoggedInRepo.addAdmin
 POST    /modules/{moduleName}/permissions/remove           LoggedInRepo.removeAdmin
 GET     /modules/{moduleName}/transfer                     LoggedInRepo.transferForm
 POST    /modules/{moduleName}/transfer                     LoggedInRepo.transfer
+POST    /modules/{moduleName}/comment                      LoggedInRepo.addModuleComment
+POST    /modules/{moduleName}/comments/{commentId}/edit    LoggedInRepo.editModuleComment
+POST    /modules/{moduleName}/comments/{commentId}/delete  LoggedInRepo.deleteModuleComment
 GET     /modules/{moduleName}/{version}                    Repo.view
 GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.remove1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.remove2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.remove3
-POST    /modules/{moduleName}/comment                      LoggedInRepo.addModuleComment
-POST    /modules/{moduleName}/comments/{commentId}/edit    LoggedInRepo.editModuleComment
-POST    /modules/{moduleName}/comments/{commentId}/delete  LoggedInRepo.deleteModuleComment
 
 GET     /search                                            Repo.search
                                                            
