@@ -35,13 +35,14 @@ public class AdminUsers extends LoggedInController {
 	        @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email, 
 	        @MaxSize(Util.VARCHAR_SIZE) String firstName, 
 	        @MaxSize(Util.VARCHAR_SIZE) String lastName, 
-	        @Required Boolean isAdmin) {
+	        boolean isAdmin) {
     	if(validationFailed()) {
     		editForm(id);
     	}
     	
     	User editedUser = User.findById(id);
     	notFoundIfNull(editedUser);
+    	
     	editedUser.email = email;
     	editedUser.firstName = firstName;
     	editedUser.lastName = lastName;
