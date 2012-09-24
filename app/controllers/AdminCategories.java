@@ -3,6 +3,7 @@ package controllers;
 import java.util.List;
 
 import models.Category;
+import models.Module;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -82,6 +83,7 @@ public class AdminCategories extends LoggedInController {
 		notFoundIfNull(id);
 		Category category = Category.findById(id);
 		notFoundIfNull(category);
+		
 		render(category);
 	}
 	
@@ -90,9 +92,22 @@ public class AdminCategories extends LoggedInController {
 		Category category = Category.findById(id);
 		notFoundIfNull(category);
 		
+		// remove the links
+		int modules = category.modules.size();
+		for(Module mod : category.modules){
+		    mod.category = null;
+		    mod.save();
+		}
+		
 		category.delete();
 
-		flash("message", "The category '" + category.name + "' has been removed.");
+		String message = "The category '" + category.name + "' has been removed.";
+		if(modules == 1)
+		    message += " 1 module has been updated.";
+		else if(modules > 1)
+            message += " " + modules + " modules have been updated.";
+		
+		flash("message", message);
 		index();
 	}
 	

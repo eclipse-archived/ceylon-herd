@@ -1,7 +1,12 @@
 package models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 
 import play.db.jpa.Model;
 
@@ -16,4 +21,6 @@ public class Category extends Model {
     @Column(columnDefinition = "TEXT")
 	public String description;
     
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    public List<Module> modules = new ArrayList<Module>();
 }

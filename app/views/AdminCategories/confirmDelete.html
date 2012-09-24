@@ -6,6 +6,21 @@
     <p>
         Do you really want to delete the category '${category.name}' ?
     </p>
+    #{if category.modules.size() > 0}
+        <p>
+            The following modules are registered for this category and will be updated:
+        </p>
+        <ul>
+            #{list items: category.modules, as: 'module'}
+                <li>#{module module/}</li>
+            #{/list}
+        </ul>
+    #{/if}
+    #{else}
+        <p>
+            This category is not used by any module.
+        </p>
+    #{/else}
 </div>
 
 #{form @AdminCategories.delete(category.id), class:"form-inline form-no-margin"}
