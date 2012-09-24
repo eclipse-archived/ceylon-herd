@@ -142,11 +142,15 @@
                 <td>
                     <div class="tabbable">
                         <ul class="nav nav-tabs">
-                            <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
+                            <li class="active"><a href="#tab5" data-toggle="tab">Import</a></li>
+                            <li><a href="#tab1" data-toggle="tab">Java backend</a></li>
                             <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
                         </ul>
                         <div class="tab-content">
-                            <div class="tab-pane active" id="tab1">
+                            <div class="tab-pane active" id="tab5">
+                                <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'</span></pre>
+                           </div>
+                            <div class="tab-pane" id="tab1">
                                 <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
                                 <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
                             </div>
