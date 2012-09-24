@@ -6,6 +6,11 @@
     /}
 #{/list}
 
-#{addComment addAction: _addAction,
-             user: _user
-/}
+#{if _user != null}
+    #{addComment addAction: _addAction,
+                 user: _user
+    /}
+#{/if}
+#{else}
+    You must be <a href="@{Secure.login()}" title="Log in">logged in</a> to comment.
+#{/else}

@@ -11,7 +11,7 @@
             <span class="date"><a href="#comment-${_comment.id}">${_comment.date.sinceInUserTZ(true)}</a></span>
         </div>
         <div class="text" id="comment-${_comment.id}-view">
-            #{if _user.isAdmin || _comment.owner == _user}
+            #{if _user != null && (_user.isAdmin || _comment.owner == _user)}
                 #{form _deleteAction(_comment.id), class:"form-no-margin inline"}
                     <button type="submit" class="btn btn-danger btn-mini action"
                             title="Delete this comment"><i class="icon-trash icon-white"></i> Delete</button>
@@ -22,13 +22,15 @@
             ${_comment.text.md()}
         </div>
         <div class="text" id="comment-${_comment.id}-edit" style="display:none;">
-            #{form _editAction(_comment.id)}
-                <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}">${_comment.text}</textarea>
-                <a href="#" onclick="jQuery('#comment-${_comment.id}-edit, #comment-${_comment.id}-view').toggle(); return false;"
-                   class="btn" title="Abort!">Cancel</a>
-                <button class="btn btn-primary" type="submit"
-                    title="Save this comment"><i class="icon-ok icon-white"></i> Save</button>
-            #{/form}
+            #{if _user != null && (_user.isAdmin || _comment.owner == _user)}
+                #{form _editAction(_comment.id)}
+                    <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}">${_comment.text}</textarea>
+                    <a href="#" onclick="jQuery('#comment-${_comment.id}-edit, #comment-${_comment.id}-view').toggle(); return false;"
+                       class="btn" title="Abort!">Cancel</a>
+                    <button class="btn btn-primary" type="submit"
+                        title="Save this comment"><i class="icon-ok icon-white"></i> Save</button>
+                #{/form}
+            #{/if}
         </div>
     </div>
 </div>
