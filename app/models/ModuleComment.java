@@ -8,6 +8,7 @@ import javax.persistence.ManyToOne;
 
 import play.db.jpa.Model;
 
+@SuppressWarnings("serial")
 @Entity
 public class ModuleComment extends Model {
 	
