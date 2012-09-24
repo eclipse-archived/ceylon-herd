@@ -51,10 +51,10 @@
             <th>Name</th>
             <td>
                 <div id="img-holder" class="pull-right"></div>
+                #{user module.owner, img:true /} / <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a> / ${moduleVersion.version}
                 #{if module.friendlyName}
-                    ${module.friendlyName}<br/>
+                    <br/>${module.friendlyName}
                 #{/if}
-                <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>/${moduleVersion.version}
             </td>
         </tr>
         <tr>
