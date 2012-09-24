@@ -35,17 +35,22 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	private static Module getModule(String moduleName) {
-		if(moduleName == null){
-			Validation.addError(null, "Module name required");
-			prepareForErrorRedirect();
-			Repo.index();
-		}
-		models.Module module = models.Module.findByName(moduleName);
-		if(module == null){
-			Validation.addError(null, "Unknown module");
-			prepareForErrorRedirect();
-			Repo.index();
-		}
+	    if(moduleName == null){
+	        Validation.addError(null, "Module name required");
+	        prepareForErrorRedirect();
+	        Repo.index();
+	    }
+	    models.Module module = models.Module.findByName(moduleName);
+	    if(module == null){
+	        Validation.addError(null, "Unknown module");
+	        prepareForErrorRedirect();
+	        Repo.index();
+	    }
+	    return module;
+	}
+
+	private static Module getModuleForEdit(String moduleName) {
+		models.Module module = getModule(moduleName);
 		User user = getUser();
 		if(!module.canEdit(user)){
 			Validation.addError(null, "Unauthorised");
@@ -56,7 +61,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void editForm(@Required String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		
 		render(module);
 	}
@@ -67,7 +72,7 @@ public class LoggedInRepo extends LoggedInController {
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
 	        @MaxSize(Util.VARCHAR_SIZE) String friendlyName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		
 		if(validationFailed()){
 		    editForm(moduleName);
@@ -94,13 +99,13 @@ public class LoggedInRepo extends LoggedInController {
 	}
 	
 	public static void permissionsForm(@Required String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		
 		render(module);
 	}
 
 	public static void addAdmin(@Required String moduleName, String userName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		User user = getUser(userName);
 		if(user == null) // error
 			permissionsForm(moduleName);
@@ -135,7 +140,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void removeAdmin(@Required String moduleName, Long userId){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		if(userId == null){
 			Validation.addError("userName", "User required");
 			prepareForErrorRedirect();
@@ -161,7 +166,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void transferForm(String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		checkModuleOwner(module);
 
 		render(module);
@@ -177,7 +182,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void transfer(String moduleName, String userName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		checkModuleOwner(module);
 		
 		User newOwner = getUser(userName);
@@ -230,8 +235,8 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void addModuleComment(String moduleName, String text) {
-	    Module module = Module.findByName(moduleName);
-	    notFoundIfNull(module);
+	    Module module = getModule(moduleName);
+	    // any logged in user is allowed to comment
 
 	    if(StringUtils.isEmpty(text)){
 	        flash("commentWarning", "Empty comment");
@@ -257,7 +262,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void editModuleComment(String moduleName, Long commentId, String text) {
-	    ModuleComment comment = getComment(moduleName, commentId);
+	    ModuleComment comment = getCommentForEdit(moduleName, commentId);
 
 	    if(StringUtils.isEmpty(text)){
 	        flash("commentWarning", "Empty comment");
@@ -280,7 +285,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void deleteModuleComment(String moduleName, Long commentId) {
-	    ModuleComment c = getComment(moduleName, commentId);
+	    ModuleComment c = getCommentForEdit(moduleName, commentId);
 
 	    c.delete();
 
@@ -288,7 +293,10 @@ public class LoggedInRepo extends LoggedInController {
 	    Repo.versions(moduleName);
 	}
 
-	private static ModuleComment getComment(String moduleName, Long commentId) {
+	private static ModuleComment getCommentForEdit(String moduleName, Long commentId) {
+	    // check the module param first
+	    getModule(moduleName);
+	    // then the comment
 	    if(commentId == null){
 	        Validation.addError(null, "Missing comment id");
 	        prepareForErrorRedirect();
@@ -300,6 +308,7 @@ public class LoggedInRepo extends LoggedInController {
 	        prepareForErrorRedirect();
 	        Repo.versions(moduleName);
 	    }
+	    // permission check
 	    User user = getUser();
 	    if(c.owner != user && !user.isAdmin){
 	        Validation.addError(null, "Comment unauthorised");
