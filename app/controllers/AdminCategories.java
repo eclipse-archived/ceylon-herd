@@ -13,7 +13,7 @@ import util.Util;
 public class AdminCategories extends LoggedInController {
 	
 	public static void index() {
-		List<Category> categories = Category.find("ORDER BY name").fetch();
+		List<Category> categories = Category.allCategories();
 		render(categories);
 	}
 	
@@ -27,7 +27,7 @@ public class AdminCategories extends LoggedInController {
 			addForm();
 		}
 		
-		Category category = Category.find("lower(name) = lower(?)", name).first();
+		Category category = Category.findByName(name);
 		if(category != null){
 			Validation.addError("name", "A category with the same name already exists !");
 		}
@@ -56,7 +56,7 @@ public class AdminCategories extends LoggedInController {
 			@MaxSize(Util.TEXT_SIZE) String description) {
 		notFoundIfNull(id);
 		
-		Category category = Category.find("lower(name) = lower(?)", name).first();
+        Category category = Category.findByName(name);
 		if(category != null) {
 			if (!category.id.equals(id)) {
 				Validation.addError("name", "A category with the same name already exists !");
