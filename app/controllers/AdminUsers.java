@@ -15,7 +15,7 @@ public class AdminUsers extends LoggedInController {
     	if (page < 1) {
     		page = 1;
     	}
-    	if (pageSize < 1) {
+    	if (pageSize < 1 || pageSize > 50) {
     		pageSize = 20;
     	}
     	List<User> users = User.all().fetch(page, pageSize);
