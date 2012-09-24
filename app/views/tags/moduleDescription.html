@@ -1,4 +1,4 @@
-#{if !_moduleVersion.doc.isEmpty()}
+#{if _moduleVersion.doc != null && !_moduleVersion.doc.empty}
             #{if _moduleVersion.doc.size() > 150}
                 <script type='text/javascript'>//<![CDATA[
                     $(window).load(function(){
