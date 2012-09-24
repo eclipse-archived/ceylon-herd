@@ -8,6 +8,9 @@
         drop constraint FK7540AF6B7BF02576;
 
     alter table Module 
+        drop constraint FK89B0928CFA266C1E;
+
+    alter table Module 
         drop constraint FK89B0928CB2FABF16;
 
     alter table ModuleComment 
@@ -39,6 +42,8 @@
 
     drop table Author cascade;
 
+    drop table Category cascade;
+
     drop table Comment cascade;
 
     drop table Dependency cascade;
@@ -64,6 +69,13 @@
     create table Author (
         id int8 not null,
         name TEXT,
+        primary key (id)
+    );
+
+    create table Category (
+        id int8 not null,
+        description TEXT,
+        name varchar(255) not null unique,
         primary key (id)
     );
 
@@ -94,6 +106,7 @@
         homeURL varchar(255),
         issueTrackerURL varchar(255),
         name varchar(255) not null unique,
+        category_id int8,
         owner_id int8 not null,
         primary key (id)
     );
@@ -187,6 +200,11 @@
         add constraint FK7540AF6B7BF02576 
         foreign key (moduleVersion_id) 
         references ModuleVersion;
+
+    alter table Module 
+        add constraint FK89B0928CFA266C1E 
+        foreign key (category_id) 
+        references Category;
 
     alter table Module 
         add constraint FK89B0928CB2FABF16 
