@@ -3,10 +3,6 @@ package controllers;
 import java.util.List;
 
 import models.Category;
-import models.User;
-
-import org.junit.experimental.categories.Categories;
-
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
