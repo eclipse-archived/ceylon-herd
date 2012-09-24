@@ -33,6 +33,9 @@
             	#{/list}
             </select>
             <span class="help-inline">​#{error 'category'/}</span>
+            #{if user != null && user.isAdmin}
+                <span class="help-block"><a href="@{AdminCategories.index()}">Edit categories</a></span>
+            #{/if}
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'url'/}">
