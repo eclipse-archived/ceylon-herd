@@ -5,7 +5,7 @@
     #{gravatar.img _user.email, size:50, default:'mm', secure:request.secure /}
     <div class="data">
         <div class="header">
-            <span class="author"><i class="icon-comment"></i> Comment on this module</span>
+            <span class="author"><i class="icon-comment"></i> Comment on this ${_title}</span>
         </div>
         <div class="text">
             <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>

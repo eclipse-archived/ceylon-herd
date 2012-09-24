@@ -133,7 +133,7 @@
 #{/list}
 
 #{form @Projects.addComment(project.id)}
-    #{addCommentTextarea user: user /}
+    #{addCommentTextarea user: user, title: "project claim" /}
     <div class="pull-right">
         <button type="submit" class="btn btn-primary" 
             title="Add comment to this project claim"><i class="icon-comment icon-white"></i> Add comment</button>
