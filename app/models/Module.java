@@ -18,6 +18,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
@@ -60,6 +61,10 @@ public class Module extends Model {
             	inverseJoinColumns = { @JoinColumn(name = "admin") })
 	public List<User> admins = new ArrayList<User>();
 
+	@OrderBy("date")
+	@OneToMany(mappedBy="module")
+	public List<ModuleComment> comments = new ArrayList<ModuleComment>();
+	
 	@Transient
 	public boolean isGithub(){
 		if(StringUtils.isEmpty(codeURL))
@@ -124,7 +129,7 @@ public class Module extends Model {
     public String getPath(){
         return name.replace('.', '/');
     }
-
+    
     public boolean canEdit(User user){
 		return user != null
 				&& (user.equals(owner)
