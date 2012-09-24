@@ -64,7 +64,7 @@ public class AdminCategories extends LoggedInController {
 		}
 		else {
 			category = Category.findById(id);
-			notFoundIfNull(id);
+			notFoundIfNull(category);
 		}
 		
 		if(validationFailed()) {
