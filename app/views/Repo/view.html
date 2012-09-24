@@ -135,20 +135,22 @@
                 #{/list}
             </td>
         </tr>
-        #{if moduleVersion.isCarPresent}
-            <tr>
-                <th>Usage</th>
-                <td>
-                    <div class="tabbable">
-                        <ul class="nav nav-tabs">
-                            <li class="active"><a href="#tab1" data-toggle="tab">Import</a></li>
+        <tr>
+            <th>Usage</th>
+            <td>
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Import</a></li>
+                        #{if moduleVersion.isCarPresent}
                             <li><a href="#tab2" data-toggle="tab">Java backend</a></li>
                             <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="tab1">
-                                <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'</span></pre>
-                           </div>
+                        #{/if}
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'</span></pre>
+                        </div>
+                        #{if moduleVersion.isCarPresent}
                             <div class="tab-pane" id="tab2">
                                 <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
                                 <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
@@ -166,11 +168,11 @@
   <span class="xml-tag">&lt;ceylon</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
                             </div>
-                        </div>
+                        #{/if}
                     </div>
-                </td>
-            </tr>
-        #{/if}
+                </div>
+            </td>
+        </tr>
         <tr>
             <td></td>
             <td>
