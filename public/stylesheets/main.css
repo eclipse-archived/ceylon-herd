@@ -249,3 +249,8 @@ form.inline {
 .label-js {
     background-color: #00995F;
 }
+
+#description.collapsed {
+    height: 2em;
+    overflow: hidden;
+}

@@ -1,27 +1,21 @@
-#{if _moduleVersion.doc != null && !_moduleVersion.doc.empty}
+#{if _moduleVersion.doc != null && !_moduleVersion.doc.isEmpty()}
     #{if _moduleVersion.doc.size() > 150}
         <script type='text/javascript'>//<![CDATA[
-            $(window).load(function(){
-                $('#descriptionFull').hide();
-                $('#descriptionShort').show();
+            var shown = false;
 
-                $('.moduleDescription a').click(
-                        function(){
-                            var target = "#" + $(this).data("target");
-                            $(".description").not(target).hide();
-                            $(target).show();
-                            $('#post_type').val($(this).text());
-                        });
-            });//]]>
+                    function toggleDescription(elem){
+                    	var $elem = jQuery(elem);
+                    	console.log("here?");
+                    	shown = !shown;
+                  	    $elem.text(shown ? "Collapse" : "Expand");
+                  	    jQuery("#description").toggleClass("collapsed");
+                    };
+            //]]>
         </script>
         <div class="moduleDescription">
-            <div id="descriptionShort" class="description">
-                ${_moduleVersion.doc.substring(1,150 )} ...
-                <a href="#descriptionFull" role="button" class="button collapse" data-target="descriptionFull">More details</a>
-            </div>
-            <div id="descriptionFull" class="description">
+            <a href="#" id="description-link" onclick="toggleDescription(this); return false;">Expand</a>
+            <div id="description" class="collapsed">
                 ${_moduleVersion.doc.md()}
-                <a href="#descriptionFull" role="button" class="collapse" data-target="descriptionShort">Hide details</a>
             </div>
         </div>
     #{/if}
