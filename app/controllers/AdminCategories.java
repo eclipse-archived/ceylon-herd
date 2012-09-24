@@ -45,10 +45,9 @@ public class AdminCategories extends LoggedInController {
 	}
 
 	public static void editForm(Long id) {
-		notFoundIfNull(id);
-		Category category = Category.findById(id);
-		notFoundIfNull(category);
-		render(category);
+        Category category = getCategory(id);
+
+        render(category);
 	}
 	
 	public static void edit(@Required Long id,
@@ -63,8 +62,7 @@ public class AdminCategories extends LoggedInController {
 			}
 		}
 		else {
-			category = Category.findById(id);
-			notFoundIfNull(category);
+	        category = getCategory(id);
 		}
 		
 		if(validationFailed()) {
@@ -80,17 +78,13 @@ public class AdminCategories extends LoggedInController {
 	}
 	
 	public static void confirmDelete(Long id) {
-		notFoundIfNull(id);
-		Category category = Category.findById(id);
-		notFoundIfNull(category);
+		Category category = getCategory(id);
 		
 		render(category);
 	}
 	
-	public static void delete(Long id) {
-		notFoundIfNull(id);
-		Category category = Category.findById(id);
-		notFoundIfNull(category);
+    public static void delete(Long id) {
+        Category category = getCategory(id);
 		
 		// remove the links
 		int modules = category.modules.size();
@@ -111,4 +105,10 @@ public class AdminCategories extends LoggedInController {
 		index();
 	}
 	
+    private static Category getCategory(Long id) {
+        notFoundIfNull(id);
+        Category category = Category.findById(id);
+        notFoundIfNull(category);
+        return category;
+    }
 }
