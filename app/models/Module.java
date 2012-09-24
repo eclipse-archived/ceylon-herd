@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -18,6 +17,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
@@ -60,6 +60,13 @@ public class Module extends Model {
             	inverseJoinColumns = { @JoinColumn(name = "admin") })
 	public List<User> admins = new ArrayList<User>();
 
+	@OrderBy("date")
+	@OneToMany(mappedBy="module")
+	public List<ModuleComment> comments = new ArrayList<ModuleComment>();
+
+    @ManyToOne
+	public Category category;
+	
 	@Transient
 	public boolean isGithub(){
 		if(StringUtils.isEmpty(codeURL))
@@ -124,7 +131,7 @@ public class Module extends Model {
     public String getPath(){
         return name.replace('.', '/');
     }
-
+    
     public boolean canEdit(User user){
 		return user != null
 				&& (user.equals(owner)
@@ -191,6 +198,15 @@ public class Module extends Model {
                 + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
     }
 
+    public static long completeForBackendCount(String module, Type t) {
+        if(module == null)
+            module = "";
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        return Module.count("FROM Module m WHERE LOCATE(?, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
+                , module);
+    }
+
     public static List<Module> searchForBackend(String query, Type t, int start, int count) {
         if(count == 0)
             return Collections.<Module>emptyList();
@@ -210,5 +226,22 @@ public class Module extends Model {
                 +                                          " OR LOCATE(?1, v.doc) <> 0"
                 +                                          "))"
                 + " ORDER BY name", query).from(start).fetch(count);
+    }
+
+    public static long searchForBackendCount(String query, Type t) {
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        if(query == null || query.isEmpty()){
+            // list
+            return Module.count("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))");
+        }
+        // FIXME: this smells like the most innefficient SQL request ever made
+        // FIXME: we're not searching for author here, but should we?
+        return Module.count("FROM Module m WHERE"
+                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                +                                   " AND (LOCATE(?1, m.name) <> 0"
+                +                                          " OR LOCATE(?1, v.doc) <> 0"
+                +                                          "))",
+                query);
     }
 }

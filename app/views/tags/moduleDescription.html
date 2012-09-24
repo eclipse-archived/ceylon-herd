@@ -1,0 +1,25 @@
+#{if _moduleVersion.doc != null && !_moduleVersion.doc.isEmpty()}
+    #{if _moduleVersion.doc.size() > 150}
+        <script type='text/javascript'>//<![CDATA[
+            var shown = false;
+
+                    function toggleDescription(elem){
+                    	var $elem = jQuery(elem);
+                    	console.log("here?");
+                    	shown = !shown;
+                  	    $elem.text(shown ? "Collapse" : "Expand");
+                  	    jQuery("#description").toggleClass("collapsed");
+                    };
+            //]]>
+        </script>
+        <div class="moduleDescription">
+            <a href="#" id="description-link" onclick="toggleDescription(this); return false;">Expand</a>
+            <div id="description" class="collapsed">
+                ${_moduleVersion.doc.md()}
+            </div>
+        </div>
+    #{/if}
+    #{else }
+        ${_moduleVersion.doc.md()}
+    #{/else}
+#{/if}

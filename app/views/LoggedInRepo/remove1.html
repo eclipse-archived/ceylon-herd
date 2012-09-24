@@ -1,23 +1,39 @@
 #{extends 'main.html' /}
 #{set title:'Are you sure you want to remove a module?' /}
 
-<div class="alert">
-    <h4 class="alert-heading">Are you sure?</h4>
-    <p>
-        Removing a published module from a public repository is very dangerous as it will break existing
-        applications. Make sure you know what you are doing.
-    </p>
-    <p>
-        You should only do this in the following situations:
-    </p>
-    <ul>
-        <li>This is a private repository and you have no users</li>
-        <li>This is a test repository and you have no users</li>
-        <li>You absolutely know nobody depends on this module</li>
-        <li>This module does not conform to the Ceylon Herd publishing policy</li>
-    </ul>
-    
-</div>
+#{if dependentModuleVersions == null || dependentModuleVersions.isEmpty()}
+    <div class="alert">
+        <h4 class="alert-heading">Are you sure?</h4>
+        <p>
+            Removing a published module from a public repository is very dangerous as it will break existing
+            applications. Make sure you know what you are doing.
+        </p>
+        <p>
+            You should only do this in the following situations:
+        </p>
+        <ul>
+            <li>This is a private repository and you have no users</li>
+            <li>This is a test repository and you have no users</li>
+            <li>You absolutely know nobody depends on this module</li>
+            <li>This module does not conform to the Ceylon Herd publishing policy</li>
+        </ul>
+    </div>
 
-<a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
-<a href="@{LoggedInRepo.remove2(module.name, moduleVersion.version)}" title="I know what I´m doing" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
+    <a href="@{LoggedInRepo.remove2(module.name, moduleVersion.version)}" title="I know what I´m doing" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>
+#{/if}
+#{else}
+    <div class="alert alert-error">
+        <h4 class="alert-heading">This module version cannot be deleted!</h4>
+        <p>
+            The following modules depend on this module version. You must delete them first.
+        </p>
+        <ul>
+            #{list dependentModuleVersions, as: 'mv'}
+                <li><a href="@{Repo.view(mv.module.name, mv.version)}" title="View module">${mv.module.name} / ${mv.version}</a></li>
+            #{/list}
+        </ul>    
+    </div>
+
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back" class="btn">Back</a>
+#{/else}

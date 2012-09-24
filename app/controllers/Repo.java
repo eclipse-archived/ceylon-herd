@@ -1,9 +1,15 @@
 package controllers;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import models.Module;
 import models.ModuleVersion;
 import models.User;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -11,10 +17,6 @@ import play.libs.MimeTypes;
 import play.mvc.Before;
 import util.JavaExtensions;
 import util.Util;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 public class Repo extends MyController {
 
@@ -106,7 +108,7 @@ public class Repo extends MyController {
 			renderBinary(file);
 		}
 	}
-
+	
 	private static Module findModule(File file) {
 	    for(File f : file.listFiles()){
 	        if(!f.isDirectory()){

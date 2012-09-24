@@ -2,22 +2,20 @@ package controllers;
 
 import java.util.List;
 
+import models.User;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
-import play.data.validation.URL;
 import util.Util;
 
-import models.User;
-
+@Check("admin")
 public class AdminUsers extends LoggedInController {
 
-    @Check("admin")
 	public static void index(int page, int pageSize) {
     	if (page < 1) {
     		page = 1;
     	}
-    	if (pageSize < 1) {
+    	if (pageSize < 1 || pageSize > 50) {
     		pageSize = 20;
     	}
     	List<User> users = User.all().fetch(page, pageSize);
@@ -26,7 +24,6 @@ public class AdminUsers extends LoggedInController {
 		render(users, page, pageCount, pageSize);
 	}
 
-    @Check("admin")
     public static void editForm(Long id) {
     	notFoundIfNull(id);
     	User editedUser = User.findById(id);
@@ -34,18 +31,18 @@ public class AdminUsers extends LoggedInController {
     	render(editedUser);
     }
 
-    @Check("admin")
     public static void edit(@Required Long id, 
 	        @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email, 
 	        @MaxSize(Util.VARCHAR_SIZE) String firstName, 
 	        @MaxSize(Util.VARCHAR_SIZE) String lastName, 
-	        @Required Boolean isAdmin) {
+	        boolean isAdmin) {
     	if(validationFailed()) {
     		editForm(id);
     	}
     	
     	User editedUser = User.findById(id);
     	notFoundIfNull(editedUser);
+    	
     	editedUser.email = email;
     	editedUser.firstName = firstName;
     	editedUser.lastName = lastName;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<results>
+<results start="${start}" total="${total}">
 #{list modules, as: 'module'}
  <module>
   <name>${module.name?.xmlEscape()}</name>

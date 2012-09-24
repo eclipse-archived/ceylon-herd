@@ -1,5 +1,21 @@
 package util;
 
+import javassist.bytecode.AccessFlag;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.MethodInfo;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.BooleanMemberValue;
+import javassist.bytecode.annotation.IntegerMemberValue;
+import javassist.bytecode.annotation.MemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
+import models.ModuleVersion;
+import models.User;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,21 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.AnnotationMemberValue;
-import javassist.bytecode.annotation.ArrayMemberValue;
-import javassist.bytecode.annotation.BooleanMemberValue;
-import javassist.bytecode.annotation.IntegerMemberValue;
-import javassist.bytecode.annotation.MemberValue;
-import javassist.bytecode.annotation.StringMemberValue;
-import models.ModuleVersion;
-import models.User;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
 
 public class ModuleChecker {
 
@@ -51,16 +52,18 @@ public class ModuleChecker {
                         || (name.endsWith(".js") && !path.contains("module-doc"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
                     // don't add a module for both the car, jar and js file
-                    if(!alreadyTreatedArchives.add(pathBeforeDot))
+                    if (!alreadyTreatedArchives.add(pathBeforeDot)) {
                         continue;
+                    }
                     int sep = name.indexOf('-');
                     if(sep == -1){
-                        if(name.equals("default.car") 
+                        if (name.equals("default.car")
                                 || name.equals("default.js")
-                                || name.equals("default.jar"))
+                                || name.equals("default.jar")) {
                             diagnostics.add(new Diagnostic("error", "Default module not allowed."));
-                        else
-                            diagnostics.add(new Diagnostic("error", "Module artifact has no version: "+name));
+                        } else {
+                            diagnostics.add(new Diagnostic("error", "Module artifact has no version: " + name));
+                        }
                         continue;
                     }
                     int dot = name.lastIndexOf('.');
@@ -87,12 +90,14 @@ public class ModuleChecker {
             for(Module m : modules){
                 checkModuleDependencyVersions(m);
             }
-            if(modules.isEmpty())
+            if (modules.isEmpty()) {
                 diagnostics.add(new Diagnostic("error", "No module defined"));
+            }
         }
         if(!fileByPath.isEmpty()){
-            for(String key : fileByPath.keySet())
-                diagnostics.add(new Diagnostic("error", "Unknown file: "+key, key.substring(1)));
+            for (String key : fileByPath.keySet()) {
+                diagnostics.add(new Diagnostic("error", "Unknown file: " + key, key.substring(1)));
+            }
         }
 
         return diagnostics;
@@ -103,21 +108,25 @@ public class ModuleChecker {
         for(Import dep : m.dependencies){
             if(dep.existingDependency != null){
                 // only check cars for binary version
-                if(dep.existingDependency.isCarPresent
+                if (dep.existingDependency.isCarPresent
                         && (m.ceylonMajor != dep.existingDependency.ceylonMajor
-                            || m.ceylonMinor != dep.existingDependency.ceylonMinor))
-                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
-                if(!m.hasCar && !m.hasJar)
-                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
+                        || m.ceylonMinor != dep.existingDependency.ceylonMinor)) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
+                }
+                if (!m.hasCar && !m.hasJar) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: " + dep.name + "/" + dep.version));
+                }
             }
             if(dep.newDependency != null){
                 // only check cars for binary version
-                if(dep.newDependency.hasCar
+                if (dep.newDependency.hasCar
                         && (m.ceylonMajor != dep.newDependency.ceylonMajor
-                            || m.ceylonMinor != dep.newDependency.ceylonMinor))
-                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: "+dep.name+"/"+dep.version));
-                if(!m.hasCar && !m.hasJar)
-                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: "+dep.name+"/"+dep.version));
+                        || m.ceylonMinor != dep.newDependency.ceylonMinor)) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
+                }
+                if (!m.hasCar && !m.hasJar) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: " + dep.name + "/" + dep.version));
+                }
             }
         }
     }
@@ -142,23 +151,25 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
         }else{
             // do we own it?
-            if(project.owner == user)
+            if (project.owner == user) {
                 m.diagnostics.add(new Diagnostic("success", "You own this module"));
-            else{
+            } else {
                 // we don't own it but we may be admin
                 models.Module publishedModule = models.Module.findByName(m.name);
-                if(publishedModule == null || !publishedModule.canEdit(user)){
+                if (publishedModule == null || !publishedModule.canEdit(user)) {
                     // we're not the owner, and not admin, but perhaps we already have a claim for it
                     project = models.Project.findForOwner(m.name, user);
                     m.diagnostics.add(new Diagnostic("error", "You do not own this module", project));
-                }else
+                } else {
                     m.diagnostics.add(new Diagnostic("success", "You are admin on this module"));
+                }
             }
         }
 
         models.ModuleVersion publishedModule = models.ModuleVersion.findByVersion(m.name, m.version);
-        if(publishedModule != null)
+        if (publishedModule != null) {
             m.diagnostics.add(new Diagnostic("error", "Module already published"));
+        }
 
         // jar check first
 
@@ -169,16 +180,18 @@ public class ModuleChecker {
             fileByPath.remove(jarPath); // jar
             String checksumPath = m.path + jarName + ".sha1";
             m.hasJarChecksum = fileByPath.containsKey(checksumPath);
-            if(m.hasJarChecksum){
+            if (m.hasJarChecksum) {
                 fileByPath.remove(checksumPath); // jar checksum
                 File jarFile = new File(uploadsDir, jarPath);
                 m.jarChecksumValid = checkChecksum(uploadsDir, checksumPath, jarFile);
-                if(m.jarChecksumValid)
+                if (m.jarChecksumValid) {
                     m.diagnostics.add(new Diagnostic("success", "Jar checksum valid"));
-                else
+                } else {
                     m.diagnostics.add(new Diagnostic("error", "Invalid Jar checksum"));
-            }else
+                }
+            } else {
                 m.diagnostics.add(new Diagnostic("error", "Missing Jar checksum"));
+            }
         }
 
         // car check
@@ -189,10 +202,11 @@ public class ModuleChecker {
         if(m.hasCar){
             fileByPath.remove(carPath); // car
 
-            if(!m.hasJar)
-                m.diagnostics.add(new Diagnostic("success", "Has car: "+carName));
-            else
+            if (!m.hasJar) {
+                m.diagnostics.add(new Diagnostic("success", "Has car: " + carName));
+            } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
 
             String checksumPath = m.path + carName + ".sha1";
             m.hasChecksum = fileByPath.containsKey(checksumPath);
@@ -200,17 +214,22 @@ public class ModuleChecker {
                 fileByPath.remove(checksumPath); // car checksum
                 File carFile = new File(uploadsDir, carPath);
                 m.checksumValid = checkChecksum(uploadsDir, checksumPath, carFile);
-                if(m.checksumValid){
-                    if(!m.hasJar)
+                if (m.checksumValid) {
+                    if (!m.hasJar) {
                         m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
-                }else
+                    }
+                } else {
                     m.diagnostics.add(new Diagnostic("error", "Invalid checksum"));
-            }else if(!m.hasJar)
+                }
+            }else if (!m.hasJar) {
                 m.diagnostics.add(new Diagnostic("error", "Missing checksum"));
+            }
 
             loadModuleInfo(uploadsDir, m.path+carName, m, modules);
-        }else if(!m.hasJar)
+            checkIsRunnable(uploadsDir,m.path+carName,m, modules);
+        }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
+        }
 
         // js check
 
@@ -219,16 +238,19 @@ public class ModuleChecker {
         m.hasJs = fileByPath.containsKey(jsPath);
         if(m.hasJs){
             fileByPath.remove(jsPath); // js
-            if(!m.hasJar)
-                m.diagnostics.add(new Diagnostic("success", "Has js: "+jsName));
-            else
+            if (!m.hasJar) {
+                m.diagnostics.add(new Diagnostic("success", "Has js: " + jsName));
+            } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-        }else if(!m.hasJar)
+            }
+        }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
+        }
 
         // must have at least js or car or jar
-        if(!m.hasCar && !m.hasJs && !m.hasJar)
+        if (!m.hasCar && !m.hasJs && !m.hasJar) {
             m.diagnostics.add(new Diagnostic("error", "Module must have at least a car, jar or js archive"));
+        }
 
         // src check
 
@@ -236,25 +258,30 @@ public class ModuleChecker {
         File srcFile = new File(uploadsDir, m.path + srcName);
         if(srcFile.exists()){
             m.hasSource = true;
-            if(!m.hasJar)
+            if (!m.hasJar) {
                 m.diagnostics.add(new Diagnostic("success", "Has source"));
-            else
+            } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
             fileByPath.remove(m.path + srcName); // source archive
             String srcChecksumPath = m.path + srcName + ".sha1";
             m.hasSourceChecksum = fileByPath.containsKey(srcChecksumPath);
             if(m.hasSourceChecksum){
                 fileByPath.remove(srcChecksumPath); // car checksum
                 m.sourceChecksumValid = checkChecksum(uploadsDir, srcChecksumPath, srcFile);
-                if(m.sourceChecksumValid){
-                    if(!m.hasJar)
+                if (m.sourceChecksumValid) {
+                    if (!m.hasJar) {
                         m.diagnostics.add(new Diagnostic("success", "Source checksum valid"));
-                }else
+                    }
+                } else {
                     m.diagnostics.add(new Diagnostic("error", "Invalid source checksum"));
-            }else if(!m.hasJar)
+                }
+            }else if (!m.hasJar) {
                 m.diagnostics.add(new Diagnostic("error", "Missing source checksum"));
-        }else if(!m.hasJar)
+            }
+        }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
+        }
 
         // doc check
 
@@ -262,27 +289,32 @@ public class ModuleChecker {
         File docFile = new File(uploadsDir, docName);
         if(docFile.exists()){
             m.hasDocs = true;
-            if(!m.hasJar)
+            if (!m.hasJar) {
                 m.diagnostics.add(new Diagnostic("success", "Has docs"));
-            else
+            } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
             String prefix = m.path + "module-doc" + File.separator;
             Iterator<String> iterator = fileByPath.keySet().iterator();
             while(iterator.hasNext()){
                 String key = iterator.next();
                 // count all the doc files
-                if(key.startsWith(prefix))
+                if (key.startsWith(prefix)) {
                     iterator.remove();
+                }
             }
-        }else if(!m.hasJar)
+        }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing docs"));
+        }
         
         // second jar check
         
         // if the jar is alone it's good. Otherwise an error was already added
-        if(m.hasJar && !m.hasJs && !m.hasCar && !m.hasChecksum && !m.hasDocs && !m.hasSource && !m.hasSourceChecksum)
-            m.diagnostics.add(new Diagnostic("success", "Has jar: "+jarName));
+        if (m.hasJar && !m.hasJs && !m.hasCar && !m.hasChecksum && !m.hasDocs && !m.hasSource && !m.hasSourceChecksum) {
+            m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }
     }
+
 
     private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules) {
         try {
@@ -319,8 +351,9 @@ public class ModuleChecker {
 
                 Integer major = getOptionalInt(ceylonAnnotation, "major", 0, m);
                 Integer minor = getOptionalInt(ceylonAnnotation, "minor", 0, m);
-                if(major == null || minor == null)
+                if (major == null || minor == null) {
                     return;
+                }
                 m.ceylonMajor = major;
                 m.ceylonMinor = minor;
                 
@@ -335,8 +368,9 @@ public class ModuleChecker {
 
                 String name = getString(moduleAnnotation, "name", m, false);
                 String version = getString(moduleAnnotation, "version", m, false);
-                if(name == null || version == null)
+                if (name == null || version == null) {
                     return;
+                }
                 if(!name.equals(m.name)){
                     m.diagnostics.add(new Diagnostic("error", ".car file contains unexpected module: "+name));
                     return;
@@ -349,14 +383,17 @@ public class ModuleChecker {
 
                 // metadata
                 m.license = getString(moduleAnnotation, "license", m, true);
-                if(m.license != null)
-                    m.diagnostics.add(new Diagnostic("success", "License: "+m.license));
+                if (m.license != null) {
+                    m.diagnostics.add(new Diagnostic("success", "License: " + m.license));
+                }
                 m.doc = getString(moduleAnnotation, "doc", m, true);
-                if(m.doc != null)
+                if (m.doc != null) {
                     m.diagnostics.add(new Diagnostic("success", "Has doc string"));
+                }
                 m.authors = getStringArray(moduleAnnotation, "by", m, true);
-                if(m.authors != null && m.authors.length != 0)
+                if (m.authors != null && m.authors.length != 0) {
                     m.diagnostics.add(new Diagnostic("success", "Has authors"));
+                }
                 
                 // dependencies
                 
@@ -398,8 +435,9 @@ public class ModuleChecker {
         }
         String name = getString(dependency, "name", m, false);
         String version = getString(dependency, "version", m, false);
-        if(name == null || version == null)
+        if (name == null || version == null) {
             return;
+        }
         if(name.isEmpty()){
             m.diagnostics.add(new Diagnostic("error", "Invalid empty dependency name"));
             return;
@@ -445,12 +483,50 @@ public class ModuleChecker {
         }
     }
 
+    private static void checkIsRunnable(File uploadsDir, String carName, Module m, List<Module> modules) {
+
+        try {
+            ZipFile car = new ZipFile(new File(uploadsDir, carName));
+
+            try{
+                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/run.class");
+                if(moduleEntry == null){
+                    return;
+                }
+                DataInputStream inputStream = new DataInputStream(car.getInputStream(moduleEntry));
+                ClassFile classFile = new ClassFile(inputStream);
+                inputStream.close();
+
+                AnnotationsAttribute visible = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
+
+                m.isRunnable=false;
+                Annotation methodAnnotation = visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method");
+                if(methodAnnotation != null) {
+                    MethodInfo runMethodInfo = (MethodInfo) classFile.getMethod("run");
+                    MethodInfo mainMethodInfo = (MethodInfo) classFile.getMethod("main");
+                    if(runMethodInfo != null && mainMethodInfo != null && mainMethodInfo.toString().endsWith("V")) {
+                        m.isRunnable = AccessFlag.isPublic(mainMethodInfo.getAccessFlags());
+                    }
+                }
+            } finally {
+                car.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        if(m.isRunnable) {
+            m.diagnostics.add(new Diagnostic("success", "Module is runnable."));
+        }
+
+        }
+
     private static String getString(Annotation annotation,
             String field, Module m, boolean missingOK) {
         MemberValue value = annotation.getMemberValue(field);
         if(value == null){
-            if(!missingOK)
-                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            if (!missingOK) {
+                m.diagnostics.add(new Diagnostic("error", "Missing '" + field + "' annotation value"));
+            }
             return null;
         }
         if(!(value instanceof StringMemberValue)){
@@ -464,8 +540,9 @@ public class ModuleChecker {
             String field, Module m, boolean missingOK) {
         MemberValue value = annotation.getMemberValue(field);
         if(value == null){
-            if(!missingOK)
-                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            if (!missingOK) {
+                m.diagnostics.add(new Diagnostic("error", "Missing '" + field + "' annotation value"));
+            }
             return null;
         }
         if(!(value instanceof ArrayMemberValue)){
@@ -474,8 +551,9 @@ public class ModuleChecker {
         }
         MemberValue[] arrayValue = ((ArrayMemberValue)value).getValue();
         if(arrayValue == null){
-            if(!missingOK)
-                m.diagnostics.add(new Diagnostic("error", "Missing '"+field+"' annotation value"));
+            if (!missingOK) {
+                m.diagnostics.add(new Diagnostic("error", "Missing '" + field + "' annotation value"));
+            }
             return null;
         }
         String[] ret = new String[arrayValue.length];
@@ -528,8 +606,9 @@ public class ModuleChecker {
         try{
             String prefix = uploadsDir.getCanonicalPath();
             String path = f.getCanonicalPath();
-            if(path.startsWith(prefix))
+            if (path.startsWith(prefix)) {
                 return path.substring(prefix.length());
+            }
         }catch(IOException x){
             throw new RuntimeException(x);
         }
@@ -603,6 +682,7 @@ public class ModuleChecker {
         public int ceylonMajor;
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
+        public boolean isRunnable;
 
         Module(String name, String version, String path){
             this.name = name;
@@ -621,10 +701,12 @@ public class ModuleChecker {
         public String getType(){
             String worse = "success";
             for(Diagnostic d : diagnostics){
-                if(d.type.equals("error"))
+                if (d.type.equals("error")) {
                     return d.type;
-                if(d.type.equals("warning"))
+                }
+                if (d.type.equals("warning")) {
                     worse = d.type;
+                }
             }
             return worse;
         }
@@ -660,8 +742,9 @@ public class ModuleChecker {
                     status = d.type;
                     return;
                 }
-                if(d.type.equals("empty"))
-                    status =d.type;
+                if (d.type.equals("empty")) {
+                    status = d.type;
+                }
 
             }
             for(Module m : modules){
@@ -670,8 +753,9 @@ public class ModuleChecker {
                     status = type;
                     return;
                 }
-                if(type.equals("warning"))
+                if (type.equals("warning")) {
                     status = type;
+                }
             }
         }
 

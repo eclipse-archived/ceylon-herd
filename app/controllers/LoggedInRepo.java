@@ -1,22 +1,25 @@
 package controllers;
 
-import models.Module;
-import models.ModuleVersion;
-import models.User;
-import notifiers.Emails;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import play.data.validation.MaxSize;
-import play.data.validation.Required;
-import play.data.validation.URL;
-import play.data.validation.Validation;
-import util.MyCache;
-import util.Util;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import models.Category;
+import models.Module;
+import models.ModuleComment;
+import models.ModuleVersion;
+import models.User;
+import notifiers.Emails;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+
+import play.data.validation.MaxSize;
+import play.data.validation.Required;
+import play.data.validation.URL;
+import play.data.validation.Validation;
+import util.Util;
 
 public class LoggedInRepo extends LoggedInController {
 
@@ -33,17 +36,22 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	private static Module getModule(String moduleName) {
-		if(moduleName == null){
-			Validation.addError(null, "Module name required");
-			prepareForErrorRedirect();
-			Repo.index();
-		}
-		models.Module module = models.Module.findByName(moduleName);
-		if(module == null){
-			Validation.addError(null, "Unknown module");
-			prepareForErrorRedirect();
-			Repo.index();
-		}
+	    if(moduleName == null){
+	        Validation.addError(null, "Module name required");
+	        prepareForErrorRedirect();
+	        Repo.index();
+	    }
+	    models.Module module = models.Module.findByName(moduleName);
+	    if(module == null){
+	        Validation.addError(null, "Unknown module");
+	        prepareForErrorRedirect();
+	        Repo.index();
+	    }
+	    return module;
+	}
+
+	private static Module getModuleForEdit(String moduleName) {
+		models.Module module = getModule(moduleName);
 		User user = getUser();
 		if(!module.canEdit(user)){
 			Validation.addError(null, "Unauthorised");
@@ -54,24 +62,28 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void editForm(@Required String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
+
+		List<Category> categories = Category.find("ORDER BY name").fetch();
 		
-		render(module);
+		render(module, categories);
 	}
 
 
 	public static void edit(@Required String moduleName, 
+			Category category,
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
 	        @MaxSize(Util.VARCHAR_SIZE) String friendlyName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		
 		if(validationFailed()){
 		    editForm(moduleName);
 		}
 		
 		module.codeURL = code;
+		module.category = category;
 		module.homeURL = url;
 		module.issueTrackerURL = issues;
 		module.friendlyName = friendlyName;
@@ -92,13 +104,13 @@ public class LoggedInRepo extends LoggedInController {
 	}
 	
 	public static void permissionsForm(@Required String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		
 		render(module);
 	}
 
 	public static void addAdmin(@Required String moduleName, String userName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		User user = getUser(userName);
 		if(user == null) // error
 			permissionsForm(moduleName);
@@ -133,7 +145,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void removeAdmin(@Required String moduleName, Long userId){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		if(userId == null){
 			Validation.addError("userName", "User required");
 			prepareForErrorRedirect();
@@ -159,7 +171,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void transferForm(String moduleName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		checkModuleOwner(module);
 
 		render(module);
@@ -175,7 +187,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 
 	public static void transfer(String moduleName, String userName){
-		Module module = getModule(moduleName);
+		Module module = getModuleForEdit(moduleName);
 		checkModuleOwner(module);
 		
 		User newOwner = getUser(userName);
@@ -195,14 +207,19 @@ public class LoggedInRepo extends LoggedInController {
 	public static void remove1(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
-		
-		render(module, moduleVersion);
+		List<ModuleVersion> dependentModuleVersions = moduleVersion.getDependentModuleVersions();
+		render(module, moduleVersion, dependentModuleVersions);
 	}
 	
 	@Check("admin")
 	public static void remove2(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
+
+		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+		    flash("warning", "Cannot remove module because it has dependencies");
+			Repo.view(moduleName, version);
+		}
 		
 		render(module, moduleVersion);
 	}
@@ -210,6 +227,11 @@ public class LoggedInRepo extends LoggedInController {
 	@Check("admin")
 	public static void remove3(@Required String moduleName, @Required String version) throws IOException{
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
+
+		if (moduleVersion.getDependentModuleVersionCount() > 0) {
+            flash("warning", "Cannot remove module because it has dependencies");
+			Repo.view(moduleName, version);
+		}
 		
 		String path = moduleVersion.getPath();
 		File repoDir = Util.getRepoDir();
@@ -227,4 +249,87 @@ public class LoggedInRepo extends LoggedInController {
 		render(modules);
 	}
 
+	public static void addModuleComment(String moduleName, String text) {
+	    Module module = getModule(moduleName);
+	    // any logged in user is allowed to comment
+
+	    if(StringUtils.isEmpty(text)){
+	        flash("commentWarning", "Empty comment");
+	        Repo.versions(moduleName);
+	    }
+	    Validation.maxSize("text", text, Util.TEXT_SIZE);
+	    if(Validation.hasErrors()){
+	        prepareForErrorRedirect();
+	        Repo.versions(moduleName);
+	    }
+
+	    User user = getUser();
+
+	    ModuleComment comment = new ModuleComment();
+	    comment.text = text;
+	    comment.owner = user;
+	    comment.date = Util.currentTimeInUTC();
+	    comment.module = module;
+	    comment.create();
+
+	    flash("commentMessage2", "Comment added");
+	    Repo.versions(moduleName);
+	}
+
+	public static void editModuleComment(String moduleName, Long commentId, String text) {
+	    ModuleComment comment = getCommentForEdit(moduleName, commentId);
+
+	    if(StringUtils.isEmpty(text)){
+	        flash("commentWarning", "Empty comment");
+	        flash("commentId", comment.id);
+	        Repo.versions(moduleName);
+	    }
+	    Validation.maxSize("text", text, Util.TEXT_SIZE);
+	    if(Validation.hasErrors()){
+	        prepareForErrorRedirect();
+	        Repo.versions(moduleName);
+	    }
+
+	    comment.text = text;
+	    comment.save();
+
+	    flash("commentMessage", "Comment edited");
+	    flash("commentId",comment.id);
+
+	    Repo.versions(moduleName);
+	}
+
+	public static void deleteModuleComment(String moduleName, Long commentId) {
+	    ModuleComment c = getCommentForEdit(moduleName, commentId);
+
+	    c.delete();
+
+	    flash("commentMessage", "Comment deleted");
+	    Repo.versions(moduleName);
+	}
+
+	private static ModuleComment getCommentForEdit(String moduleName, Long commentId) {
+	    // check the module param first
+	    getModule(moduleName);
+	    // then the comment
+	    if(commentId == null){
+	        Validation.addError(null, "Missing comment id");
+	        prepareForErrorRedirect();
+	        Repo.versions(moduleName);
+	    }
+	    ModuleComment c = ModuleComment.findById(commentId);
+	    if(c == null){
+	        Validation.addError(null, "Invalid comment id");
+	        prepareForErrorRedirect();
+	        Repo.versions(moduleName);
+	    }
+	    // permission check
+	    User user = getUser();
+	    if(c.owner != user && !user.isAdmin){
+	        Validation.addError(null, "Comment unauthorised");
+	        prepareForErrorRedirect();
+	        Repo.versions(moduleName);
+	    }
+	    return c;
+	}
 }

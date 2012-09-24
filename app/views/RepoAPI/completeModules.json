@@ -1,4 +1,6 @@
-{"results" : [
+{"total": ${total},
+ "start": ${start},
+ "results" : [
 #{list modules, as: 'module'}
  {
   "module": "${module.name?.jsonEscape()}",

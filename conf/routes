@@ -42,10 +42,18 @@ POST    /projects/{projectId}/comments/{commentId}/edit    Projects.editComment
 GET     /admin/projects/claims                             Projects.claims
 POST    /admin/projects/{id}/accept                        Projects.accept
 POST    /admin/projects/{id}/reject                        Projects.reject
-      
+
+GET     /admin/categories                                  AdminCategories.index
+GET     /admin/categories/new                              AdminCategories.addForm
+POST    /admin/categories/new                              AdminCategories.add
+GET     /admin/categories/{id}/delete                      AdminCategories.confirmDelete
+POST    /admin/categories/{id}/delete                      AdminCategories.delete
+GET     /admin/categories/{id}/edit                        AdminCategories.editForm
+POST    /admin/categories/{id}/edit                        AdminCategories.edit
+                                                            
 GET     /admin/users/index                                 AdminUsers.index
-GET     /admin/{id}/edit                                   AdminUsers.editForm
-POST    /admin/{id}/edit                                   AdminUsers.edit
+GET     /admin/users/{id}/edit                             AdminUsers.editForm
+POST    /admin/users/{id}/edit                             AdminUsers.edit
                                                      
 GET     /uploads                                           Uploads.index
 POST    /uploads/new                                       Uploads.newUpload
@@ -71,6 +79,9 @@ POST    /modules/{moduleName}/permissions/add              LoggedInRepo.addAdmin
 POST    /modules/{moduleName}/permissions/remove           LoggedInRepo.removeAdmin
 GET     /modules/{moduleName}/transfer                     LoggedInRepo.transferForm
 POST    /modules/{moduleName}/transfer                     LoggedInRepo.transfer
+POST    /modules/{moduleName}/comment                      LoggedInRepo.addModuleComment
+POST    /modules/{moduleName}/comments/{commentId}/edit    LoggedInRepo.editModuleComment
+POST    /modules/{moduleName}/comments/{commentId}/delete  LoggedInRepo.deleteModuleComment
 GET     /modules/{moduleName}/{version}                    Repo.view
 GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.remove1
