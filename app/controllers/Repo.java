@@ -1,10 +1,15 @@
 package controllers;
 
+import models.Comment;
 import models.Module;
+import models.ModuleComment;
 import models.ModuleVersion;
 import models.User;
+import notifiers.Emails;
+
 import org.apache.commons.lang.StringUtils;
 import play.Logger;
+import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
@@ -106,7 +111,87 @@ public class Repo extends MyController {
 			renderBinary(file);
 		}
 	}
+	
+	public static void addModuleComment(String moduleName, String text) {
+		Module module = Module.findByName(moduleName);
+		notFoundIfNull(module);
+		
+		if(StringUtils.isEmpty(text)){
+			flash("commentWarning", "Empty comment");
+			versions(moduleName);
+		}
+		Validation.maxSize("text", text, Util.TEXT_SIZE);
+		if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+			versions(moduleName);
+		}
+		
+		User user = getUser();
+		
+		ModuleComment comment = new ModuleComment();
+		comment.text = text;
+		comment.owner = user;
+		comment.date = Util.currentTimeInUTC();
+		comment.module = module;
+		comment.create();
 
+		flash("commentMessage2", "Comment added");
+		versions(moduleName);
+	}
+
+	public static void editModuleComment(String moduleName, Long commentId, String text) {
+		ModuleComment comment = getComment(moduleName, commentId);
+		
+		if(StringUtils.isEmpty(text)){
+			flash("commentWarning", "Empty comment");
+			flash("commentId", comment.id);
+			versions(moduleName);
+		}
+        Validation.maxSize("text", text, Util.TEXT_SIZE);
+        if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+    		versions(moduleName);
+        }
+
+		comment.text = text;
+		comment.save();
+
+		flash("commentMessage", "Comment edited");
+		flash("commentId",comment.id);
+
+		versions(moduleName);
+	}
+	
+	public static void deleteModuleComment(String moduleName, Long commentId) {
+		ModuleComment c = getComment(moduleName, commentId);
+		
+		c.delete();
+		
+		flash("commentMessage", "Comment deleted");
+		versions(moduleName);
+	}
+	
+	private static ModuleComment getComment(String moduleName, Long commentId) {
+		if(commentId == null){
+			Validation.addError(null, "Missing comment id");
+			prepareForErrorRedirect();
+			versions(moduleName);
+		}
+		ModuleComment c = ModuleComment.findById(commentId);
+		if(c == null){
+			Validation.addError(null, "Invalid comment id");
+			prepareForErrorRedirect();
+			versions(moduleName);
+		}
+		User user = getUser();
+		if(c.owner != user && !user.isAdmin){
+			Validation.addError(null, "Comment unauthorised");
+			prepareForErrorRedirect();
+			versions(moduleName);
+		}
+		return c;
+	}
+	
 	private static Module findModule(File file) {
 	    for(File f : file.listFiles()){
 	        if(!f.isDirectory()){
