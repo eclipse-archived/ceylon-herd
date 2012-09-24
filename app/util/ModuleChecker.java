@@ -226,6 +226,7 @@ public class ModuleChecker {
             }
 
             loadModuleInfo(uploadsDir, m.path+carName, m, modules);
+            checkIsRunnable(uploadsDir,m.path+carName,m, modules);
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
         }
@@ -482,6 +483,43 @@ public class ModuleChecker {
         }
     }
 
+    private static void checkIsRunnable(File uploadsDir, String carName, Module m, List<Module> modules) {
+
+        try {
+            ZipFile car = new ZipFile(new File(uploadsDir, carName));
+
+            try{
+                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/run.class");
+                if(moduleEntry == null){
+                    return;
+                }
+                DataInputStream inputStream = new DataInputStream(car.getInputStream(moduleEntry));
+                ClassFile classFile = new ClassFile(inputStream);
+                inputStream.close();
+
+                AnnotationsAttribute visible = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
+
+                m.isRunnable=false;
+                Annotation methodAnnotation = visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method");
+                if(methodAnnotation != null) {
+                    MethodInfo runMethodInfo = (MethodInfo) classFile.getMethod("run");
+                    MethodInfo mainMethodInfo = (MethodInfo) classFile.getMethod("main");
+                    if(runMethodInfo != null && mainMethodInfo != null && mainMethodInfo.toString().endsWith("V")) {
+                        m.isRunnable = AccessFlag.isPublic(mainMethodInfo.getAccessFlags());
+                    }
+                }
+            } finally {
+                car.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        if(m.isRunnable) {
+            m.diagnostics.add(new Diagnostic("success", "Module is runnable."));
+        }
+
+        }
+
     private static String getString(Annotation annotation,
             String field, Module m, boolean missingOK) {
         MemberValue value = annotation.getMemberValue(field);
@@ -644,6 +682,7 @@ public class ModuleChecker {
         public int ceylonMajor;
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
+        public boolean isRunnable;
 
         Module(String name, String version, String path){
             this.name = name;
