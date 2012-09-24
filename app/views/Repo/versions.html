@@ -43,15 +43,11 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             <th>Name</th>
             <td>
                 <div id="img-holder" class="pull-right"></div>
+                #{user module.owner, img:true /} / <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>
                 #{if module.friendlyName}
-                    ${module.friendlyName}<br/>
+                    <br/>${module.friendlyName}
                 #{/if}
-                <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>
             </td>
-        </tr>
-        <tr>
-            <th>Owner</th>
-            <td>#{user module.owner, img:true /}</td>
         </tr>
         <tr>
             <th>Description</th>
