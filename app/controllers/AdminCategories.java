@@ -30,7 +30,7 @@ public class AdminCategories extends LoggedInController {
 			addForm();
 		}
 		
-		Category category = Category.find("name = ?", name).first();
+		Category category = Category.find("lower(name) = lower(?)", name).first();
 		if(category != null){
 			Validation.addError("name", "A category with the same name already exists !");
 		}
@@ -59,7 +59,7 @@ public class AdminCategories extends LoggedInController {
 			@MaxSize(Util.TEXT_SIZE) String description) {
 		notFoundIfNull(id);
 		
-		Category category = Category.find("name = ?", name).first();
+		Category category = Category.find("lower(name) = lower(?)", name).first();
 		if(category != null) {
 			if (category.id != id) {
 				Validation.addError("name", "A category with the same name already exists !");
