@@ -58,31 +58,6 @@
             </td>
         </tr>
         <tr>
-            <th>Owner</th>
-            <td>#{user module.owner, img:true /}</td>
-        </tr>
-        <tr>
-            <th>Authors</th>
-            <td>
-                #{list moduleVersion.authors}
-                    ${_.name}<br/>
-                #{/list}
-            </td>
-        </tr>
-        <tr>
-            <th>License</th>
-            <td>${moduleVersion.license}</td>
-        </tr>
-        <tr>
-            <th>Description</th>
-            <td>
-                <div>
-                    ${moduleVersion.doc?.md()}
-                </div>
-                <div id="description"></div>
-            </td>
-        </tr>
-        <tr>
             <th>Backends</th>
             <td>
                 #{moduleBackends moduleVersion/}
@@ -101,16 +76,6 @@
             <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
         </tr>
         <tr>
-            <th>Dependencies</th>
-            <td>
-                #{list moduleVersion.dependencies, as:'dep'}
-                    <div>
-                        <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
-                    </div>
-                #{/list}
-            </td>
-        </tr>
-        <tr>
             <th>Stats</th>
             <td>
                 #{if moduleVersion.isCarPresent || moduleVersion.isJarPresent}
@@ -123,7 +88,7 @@
             </td>
         </tr>
         <tr>
-            <th>Info</th>
+            <th>Project links</th>
             <td>
                 #{if module.homeURL}
                     <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
@@ -134,6 +99,40 @@
                 #{if module.issueTrackerURL}
                     <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
                 #{/if}
+            </td>
+        </tr>
+        <tr>
+            <th>Owner</th>
+            <td>#{user module.owner, img:true /}</td>
+        </tr>
+        <tr>
+            <th>Authors</th>
+            <td>
+                #{list moduleVersion.authors}
+                    ${_.name}<br/>
+                #{/list}
+            </td>
+        </tr>
+        <tr>
+            <th>License</th>
+            <td>${moduleVersion.license}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>
+                #{moduleDescription moduleVersion:moduleVersion/}
+    
+                <div id="description"></div>
+            </td>
+        </tr>
+        <tr>
+            <th>Dependencies</th>
+            <td>
+                #{list moduleVersion.dependencies, as:'dep'}
+                    <div>
+                        <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+                    </div>
+                #{/list}
             </td>
         </tr>
         #{if moduleVersion.isCarPresent}
