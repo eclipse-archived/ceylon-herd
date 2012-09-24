@@ -87,40 +87,44 @@
                 <b>Source downloads:</b> ${moduleVersion.sourceDownloads}<br/>
             </td>
         </tr>
-        <tr>
-            <th>Owner</th>
-            <td>#{user module.owner, img:true /}</td>
-        </tr>
-        <tr>
-            <th>Authors</th>
-            <td>
-                #{list moduleVersion.authors}
-                    ${_.name}<br/>
-                #{/list}
-            </td>
-        </tr>
-        <tr>
-            <th>License</th>
-            <td>${moduleVersion.license}</td>
-        </tr>
-        <tr>
-            <th>Description</th>
-            <td>
-                #{moduleDescription moduleVersion:moduleVersion/}
-    
-                <div id="description"></div>
-            </td>
-        </tr>
-        <tr>
-            <th>Dependencies</th>
-            <td>
-                #{list moduleVersion.dependencies, as:'dep'}
-                    <div>
-                        <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
-                    </div>
-                #{/list}
-            </td>
-        </tr>
+        #{if moduleVersion.authors}
+            <tr>
+                <th>Authors</th>
+                <td>
+                    #{list moduleVersion.authors}
+                        ${_.name}<br/>
+                    #{/list}
+                </td>
+            </tr>
+        #{/if}
+        #{if moduleVersion.license}
+            <tr>
+                <th>License</th>
+                <td>${moduleVersion.license}</td>
+            </tr>
+        #{/if}
+        #{if moduleVersion.doc || module.github}
+            <tr>
+                <th>Description</th>
+                <td>
+                    #{moduleDescription moduleVersion:moduleVersion/}
+        
+                    <div id="description"></div>
+                </td>
+            </tr>
+        #{/if}
+        #{if moduleVersion.dependencies}
+            <tr>
+                <th>Dependencies</th>
+                <td>
+                    #{list moduleVersion.dependencies, as:'dep'}
+                        <div>
+                            <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+                        </div>
+                    #{/list}
+                </td>
+            </tr>
+        #{/if}
         <tr>
             <th>Usage</th>
             <td>
