@@ -1,32 +1,31 @@
 #{if _moduleVersion.doc != null && !_moduleVersion.doc.empty}
-            #{if _moduleVersion.doc.size() > 150}
-                <script type='text/javascript'>//<![CDATA[
-                    $(window).load(function(){
-                        $('#descriptionFull').hide();
-                        $('#descriptionShort').show();
+    #{if _moduleVersion.doc.size() > 150}
+        <script type='text/javascript'>//<![CDATA[
+            $(window).load(function(){
+                $('#descriptionFull').hide();
+                $('#descriptionShort').show();
 
-                        $('.moduleDescription a').click(
-                                function(){
-                                    var target = "#" + $(this).data("target");
-                                    $(".description").not(target).hide();
-                                    $(target).show();
-                                    $('#post_type').val($(this).text());
-                                });
-                    });//]]>
-                </script>
-            <div class="moduleDescription">
-                <div id="descriptionShort" class="description">
-                    ${_moduleVersion.doc.substring(1,150 )} ...
-                    <a href="#descriptionFull" role="button" class="button collapse" data-target="descriptionFull">More details</a>
-                </div>
-                <div id="descriptionFull" class="description">
-                    ${_moduleVersion.doc.md()}
-                    <a href="#descriptionFull" role="button" class="collapse" data-target="descriptionShort">Hide details</a>
-                </div>
+                $('.moduleDescription a').click(
+                        function(){
+                            var target = "#" + $(this).data("target");
+                            $(".description").not(target).hide();
+                            $(target).show();
+                            $('#post_type').val($(this).text());
+                        });
+            });//]]>
+        </script>
+        <div class="moduleDescription">
+            <div id="descriptionShort" class="description">
+                ${_moduleVersion.doc.substring(1,150 )} ...
+                <a href="#descriptionFull" role="button" class="button collapse" data-target="descriptionFull">More details</a>
             </div>
-            #{/if}
-            #{else }
+            <div id="descriptionFull" class="description">
                 ${_moduleVersion.doc.md()}
-            #{/else}
-
+                <a href="#descriptionFull" role="button" class="collapse" data-target="descriptionShort">Hide details</a>
+            </div>
+        </div>
+    #{/if}
+    #{else }
+        ${_moduleVersion.doc.md()}
+    #{/else}
 #{/if}
