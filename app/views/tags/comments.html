@@ -1,0 +1,11 @@
+#{list items: _comments, as: 'comment'}
+    #{comment comment: comment,
+              deleteAction: _deleteAction,
+              editAction: _editAction,
+              user: _user 
+    /}
+#{/list}
+
+#{addComment addAction: _addAction,
+             user: _user
+/}

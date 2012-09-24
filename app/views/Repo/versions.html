@@ -136,60 +136,17 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 
 *{ -- Comments ----------------------------------------------- }*
 
-#{list items: module.comments, as: 'comment'}
-    <div class="comment" id="comment-${comment.id}">
-        #{if flash.commentId !=null && comment.id.compareTo(new java.lang.Long(flash.commentId)) == 0}
-            #{include 'Repo/commentMessagesBlock.html'/}
-        #{/if}
-        <a href="@{Users.view(comment.owner.userName)}" title="View ${comment.owner.userName}´s profile">
-            #{gravatar.img comment.owner.email, size:50, default:'mm', secure:request.secure/}
-        </a>
-        <div class="data">
-            <div class="header">
-                <span class="author"><i class="icon-comment"></i> #{user comment.owner /} <span class="small">commented</span></span>
-                <span class="date"><a href="#comment-${comment.id}">${comment.date.sinceInUserTZ(true)}</a></span>
-            </div>
-            <div class="text" id="comment-${comment.id}-view">
-                #{if user.isAdmin || comment.owner == user}
-                    #{form @Repo.deleteModuleComment(module.name, comment.id), class:"form-no-margin inline"}
-                        <button type="submit" class="btn btn-danger btn-mini action"
-                                title="Delete this comment"><i class="icon-trash icon-white"></i> Delete</button>
-                    #{/form}
-                    <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
-                       title="Edit this comment" class="btn btn-mini action"><i class="icon-edit"></i> Edit</a>
-                #{/if}
-                ${comment.text.md()}
-            </div>
-            <div class="text" id="comment-${comment.id}-edit" style="display:none;">
-                #{form @Repo.editModuleComment(module.name, comment.id)}
-                    <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}">${comment.text}</textarea>
-                    <a href="#" onclick="jQuery('#comment-${comment.id}-edit, #comment-${comment.id}-view').toggle(); return false;"
-                       class="btn" title="Abort!">Cancel</a>
-                    <button class="btn btn-primary" type="submit"
-                        title="Save this comment"><i class="icon-ok icon-white"></i> Save</button>
-                #{/form}
-            </div>
-        </div>
-    </div>
-#{/list}
+%{
+  def addAction = { actionBridge.Repo.addModuleComment(module.name) }
+  def editAction = { id -> actionBridge.Repo.editModuleComment(module.name, id) }
+  def deleteAction = { id -> actionBridge.Repo.deleteModuleComment(module.name, id) }
+}%
 
-#{form @Repo.addModuleComment(module.name)}
-    #{if flash.commentId ==null}
-        #{include 'Repo/commentMessagesBlock.html'/}
-    #{/if}
-    <div class="comment" id="comment-add">
-        #{gravatar.img user.email, size:50, default:'mm', secure:request.secure /}
-        <div class="data">
-            <div class="header">
-                <span class="author"><i class="icon-comment"></i> Comment on this module</span>
-            </div>
-            <div class="text">
-                <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>
-            </div>
-        </div>
-    </div>
-    <div class="pull-right">
-        <button type="submit" class="btn btn-primary" 
-            title="Add comment to this module"><i class="icon-comment icon-white"></i> Add comment</button>
-    </div>
-#{/form}
+#{comments addAction: addAction,
+           editAction: editAction,
+           deleteAction: deleteAction,
+           comments: module.comments,
+           user: user
+ /}
+
+

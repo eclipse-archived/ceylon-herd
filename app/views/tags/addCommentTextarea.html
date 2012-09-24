@@ -1,0 +1,14 @@
+#{if flash.commentId ==null}
+    #{commentMessages/}
+#{/if}
+<div class="comment" id="comment-add">
+    #{gravatar.img _user.email, size:50, default:'mm', secure:request.secure /}
+    <div class="data">
+        <div class="header">
+            <span class="author"><i class="icon-comment"></i> Comment on this module</span>
+        </div>
+        <div class="text">
+            <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>
+        </div>
+    </div>
+</div>
