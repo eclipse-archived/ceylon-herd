@@ -61,7 +61,7 @@ public class AdminCategories extends LoggedInController {
 		
 		Category category = Category.find("lower(name) = lower(?)", name).first();
 		if(category != null) {
-			if (category.id != id) {
+			if (!category.id.equals(id)) {
 				Validation.addError("name", "A category with the same name already exists !");
 			}
 		}
