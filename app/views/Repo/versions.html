@@ -49,10 +49,17 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{/if}
             </td>
         </tr>
-        <tr>
-            <th>Description</th>
-            <td id="description"></td>
-        </tr>
+        #{if module.github || (module.lastVersion != null && module.lastVersion.doc != null && !module.lastVersion.doc.isEmpty())}
+            <tr>
+                <th>Description</th>
+                <td>
+                    #{if module.lastVersion != null && module.lastVersion.doc != null && !module.lastVersion.doc.isEmpty()}
+                        #{moduleDescription moduleVersion:module.lastVersion/}
+                    #{/if}
+                    <div id="description"></div>
+                </td>
+            </tr>
+        #{/if}
         <tr>
             <th>Last Published</th>
             <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
