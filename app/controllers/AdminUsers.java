@@ -2,13 +2,11 @@ package controllers;
 
 import java.util.List;
 
+import models.User;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
-import play.data.validation.URL;
 import util.Util;
-
-import models.User;
 
 public class AdminUsers extends LoggedInController {
 
