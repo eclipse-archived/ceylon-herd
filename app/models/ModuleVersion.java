@@ -16,12 +16,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import controllers.RepoAPI;
-
 import models.Module.Type;
-
 import play.db.jpa.Model;
 import util.Util;
+import controllers.RepoAPI;
 
 @Entity
 @SuppressWarnings("serial")
