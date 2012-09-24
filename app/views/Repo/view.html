@@ -88,20 +88,6 @@
             </td>
         </tr>
         <tr>
-            <th>Project links</th>
-            <td>
-                #{if module.homeURL}
-                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
-                #{/if}
-                #{if module.codeURL}
-                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
-                #{/if}
-                #{if module.issueTrackerURL}
-                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
-                #{/if}
-            </td>
-        </tr>
-        <tr>
             <th>Owner</th>
             <td>#{user module.owner, img:true /}</td>
         </tr>
@@ -174,8 +160,17 @@
             </td>
         </tr>
         <tr>
-            <td></td>
+            <th>Project links</th>
             <td>
+                #{if module.homeURL}
+                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
+                #{/if}
+                #{if module.codeURL}
+                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
+                #{/if}
+                #{if module.issueTrackerURL}
+                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+                #{/if}
                 <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
                 #{if moduleVersion.isJarPresent}
                     <a href="@{Repo.viewFile(moduleVersion.jarPath)}" title="Download legacy Jar archive"><i class="icon-download"></i> Download .jar</a><br/>
