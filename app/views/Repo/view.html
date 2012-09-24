@@ -8,40 +8,40 @@
 #{moduleEditBar module, user: user /}
 
 #{if module.github}
-#{set 'moreScripts'}
+    #{set 'moreScripts'}
     <script src="@{'/public/javascripts/github.js'}" type="text/javascript" charset="${_response_encoding}"></script>
     <script type="text/javascript">
-loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
+        loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
     </script>
-#{/set}
+    #{/set}
 #{/if}
 
-#{secure.check 'admin'} 
+#{secure.check 'admin'}
     #{form @LoggedInRepo.remove1(module.name, moduleVersion.version), class: "form-no-margin inline pull-right"}
-        <button type="submit" title="Remove this module"
+    <button type="submit" title="Remove this module"
             class="btn btn-danger"
             ><i class="icon-trash icon-white"></i> Remove</button>
     #{/form}
 #{/secure.check}
 
 #{if module.canEdit(user)}
-#{set 'help'}
+    #{set 'help'}
     <p>
-        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
+        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or
         <b>issue tracker</b> URLs, as
         well as <b>grant administration permissions</b> on this module for your colleagues,
         or even <b>transfer it</b> to an other user,
         go to the <a href="@{LoggedInRepo.editForm(module.name)}" class="btn btn-mini"
-        title="Edit this module"><i class="icon-edit"></i> edit</a> page.
+                     title="Edit this module"><i class="icon-edit"></i> edit</a> page.
     </p>
     <p>
-        The <b>module name</b> and <b>version</b> are taken from the module descriptor. 
+        The <b>module name</b> and <b>version</b> are taken from the module descriptor.
     </p>
     <p>
         If your <b>code URL</b> points to a <a href="http://github.com">Github</a> project, we will extract
-        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it. 
+        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it.
     </p>
-#{/set}
+    #{/set}
 #{/if}
 
 <table class="table table-bordered table-no-hover">
@@ -89,12 +89,12 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             </td>
         </tr>
         #{if moduleVersion.isCarPresent}
-        <tr>
-            <th>Compatible Ceylon release</th>
-            <td>
-                #{moduleCeylonCompatibility moduleVersion/}
-            </td>
-        </tr>
+            <tr>
+                <th>Compatible Ceylon release</th>
+                <td>
+                    #{moduleCeylonCompatibility moduleVersion/}
+                </td>
+            </tr>
         #{/if}
         <tr>
             <th>Published</th>
@@ -137,22 +137,22 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
             </td>
         </tr>
         #{if moduleVersion.isCarPresent}
-        <tr>
-            <th>Usage</th>
-            <td>
-                <div class="tabbable">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
-                        <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
-                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                            <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre> 
-                        </div>
-                        <div class="tab-pane" id="tab3">
-                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                            <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
+            <tr>
+                <th>Usage</th>
+                <td>
+                    <div class="tabbable">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
+                            <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab1">
+                                <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                                <pre>$ <span class="xml-tag">ceylon</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
+                            </div>
+                            <div class="tab-pane" id="tab3">
+                                <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                                    <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
   <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.3/com.redhat.ceylon.ant-0.3.jar"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
@@ -162,11 +162,11 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
   <span class="xml-tag">&lt;taskdef</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon"</span> <span class="xml-attr">classname</span>=<span class="xml-val">"com.redhat.ceylon.ant.Ceylon"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
   <span class="xml-tag">&lt;ceylon</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </td>
-        </tr>
+                </td>
+            </tr>
         #{/if}
         <tr>
             <td></td>
