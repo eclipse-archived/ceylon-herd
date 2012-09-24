@@ -8,8 +8,8 @@
     </p>
 </div>
 
-<a href="@{AdminCategories.index()}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
 #{form @AdminCategories.delete(category.id), class:"form-inline form-no-margin"}
+    <a href="@{AdminCategories.index()}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
     <button type="submit" class="btn btn-danger action"
             title="I know what I´m doing"><i class="icon-trash icon-white"></i> Yes I am sure</button>
 #{/form}
