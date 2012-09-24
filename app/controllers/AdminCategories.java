@@ -8,8 +8,8 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 import util.Util;
 
+@Check("admin")
 public class AdminCategories extends LoggedInController {
-
 	
 	public static void index() {
 		List<Category> categories = Category.find("ORDER BY name").fetch();
