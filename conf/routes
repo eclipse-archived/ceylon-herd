@@ -67,6 +67,8 @@ GET     /uploads/{id}/repo/{<.*>path}                      UploadAPI.viewFile
 PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
 *       /uploads/{id}/repo/{<.*>path}                      UploadAPI.dispatch
 
+GET     /categories                                        Repo.categories
+GET     /categories/{categoryName}                         Repo.category
 GET     /modules                                           Repo.index
 GET     /modules/{moduleName}                              Repo.versions
 GET     /modules/{moduleName}/feed.atom                    Feed.module

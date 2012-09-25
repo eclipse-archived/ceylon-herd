@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import models.Category;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
@@ -29,6 +30,22 @@ public class Repo extends MyController {
         }
     }
 
+	public static void categories() {
+		List<Category> categories = Category.allCategories();
+		render(categories);
+	}
+	
+	public static void category(String categoryName) {
+		notFoundIfNull(categoryName);
+		Category category = Category.findByName(categoryName);
+		notFoundIfNull(category);
+		List<Module> modules = category.modules;
+		
+		
+		render(category, modules);
+	}
+	
+	
 	public static void index(){
 		List<models.Module> modules = models.Module.find("ORDER BY name").fetch();
 		
