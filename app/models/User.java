@@ -37,6 +37,11 @@ public class User extends Model {
 	public UserStatus status;
 
 	@Transient
+	public boolean isRegistered(){
+	    return status == UserStatus.REGISTERED;
+	}
+	
+	@Transient
 	public List<Project> getOwnedProjects(){
 	    return Project.findForOwner(this);
 	}
