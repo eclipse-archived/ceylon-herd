@@ -74,18 +74,28 @@ public class LoggedInUsers extends LoggedInController {
     }
 
     public static void passwordEdit(@Required String username,
-            @Required @MaxSize(Util.VARCHAR_SIZE) String oldPassword,
+            @MaxSize(Util.VARCHAR_SIZE) String oldPassword,
             @Required @MaxSize(Util.VARCHAR_SIZE) String password,
             @Required @MaxSize(Util.VARCHAR_SIZE) String password2) {
+        User currentUser = getUser();
+        
+        // admin doesn't need old password but regular users do
+        if(!currentUser.isAdmin){
+            Validation.required("oldPassword", oldPassword);
+        }
+        
         if(validationFailed()){
             passwordForm(username);
         }
-        User user = getUser(username);
+        User editedUser = getUser(username);
 
-        if(!Codec.hexSHA1(user.salt + oldPassword).equals(user.password)){
-            Validation.addError("oldPassword", "Wrong Password");
-            prepareForErrorRedirect();
-            passwordForm(username);
+        // old password check for non-admins
+        if(!currentUser.isAdmin){
+            if(!Codec.hexSHA1(editedUser.salt + oldPassword).equals(editedUser.password)){
+                Validation.addError("oldPassword", "Wrong Password");
+                prepareForErrorRedirect();
+                passwordForm(username);
+            }
         }
 
         if(!password.equals(password2)) {
@@ -100,8 +110,8 @@ public class LoggedInUsers extends LoggedInController {
             passwordForm(username);
         }
 
-        user.password = Codec.hexSHA1(user.salt + password);
-        user.save();
+        editedUser.password = Codec.hexSHA1(editedUser.salt + password);
+        editedUser.save();
 
         flash("message", "Password modified.");
         Users.view(username);
