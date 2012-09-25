@@ -52,8 +52,6 @@ GET     /admin/categories/{id}/edit                        AdminCategories.editF
 POST    /admin/categories/{id}/edit                        AdminCategories.edit
                                                             
 GET     /admin/users/index                                 AdminUsers.index
-GET     /admin/users/{id}/edit                             AdminUsers.editForm
-POST    /admin/users/{id}/edit                             AdminUsers.edit
                                                      
 GET     /uploads                                           Uploads.index
 POST    /uploads/new                                       Uploads.newUpload

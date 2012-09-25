@@ -23,7 +23,7 @@
         <tbody>
         #{list items:users, as:'__user'}
             <tr>
-                <td><a href="@{AdminUsers.editForm(__user.id)}">${__user.userName}</a></td>
+                <td><a href="@{LoggedInUsers.editForm(__user.userName)}">${__user.userName}</a></td>
                 <td><a href="mailto:${__user.email}">${__user.email}</a></td>
                 <td>${__user.firstName}</td>
                 <td>${__user.lastName}</td>
@@ -33,7 +33,7 @@
                 </td>
                 <td>#{userStatus __user.status /}</td>
                 <td>
-                   <a href="@{AdminUsers.editForm(__user.id)}" 
+                   <a href="@{LoggedInUsers.editForm(__user.userName)}" 
                       title="Edit this user"
                       class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
                 </td>
