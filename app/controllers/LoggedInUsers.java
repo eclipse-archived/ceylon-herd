@@ -32,7 +32,8 @@ public class LoggedInUsers extends LoggedInController {
 	public static void edit(@Required String username,
 							@MaxSize(Util.VARCHAR_SIZE) String firstName,
 							@MaxSize(Util.VARCHAR_SIZE) String lastName,
-							@MaxSize(Util.VARCHAR_SIZE) @Email String email){
+							@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
+							boolean isAdmin){
 
 		if(validationFailed()){
 			editForm(username);
@@ -49,6 +50,9 @@ public class LoggedInUsers extends LoggedInController {
 		user.firstName = firstName;
 		user.lastName = lastName;
 		user.email = email;
+		// only support setting admin from admins
+		if(getUser().isAdmin)
+		    user.isAdmin = isAdmin;
 		user.save();
 
 		Users.view(username);
