@@ -1,12 +1,12 @@
 #{extends 'main.html' /}
-#{set title:user.userName+"'s home" /}
+#{set title:viewedUser.userName+"'s home" /}
 
 <div class="user-info">
-    #{gravatar.img user.email, size:50, default:'mm', secure:request.secure/}
-    <span class="username">${user.userName}</span>
-    <span class="name">(${user.firstName} ${user.lastName})</span>
-    <a href="@{Feed.user(user.userName)}" title="Subscribe to this user´s feed"><img src="@{'/public/images/feed.png'}"/></a>
-    <a href="@{LoggedInUsers.editForm(user.userName)}" title="Edit profile" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+    #{gravatar.img viewedUser.email, size:50, default:'mm', secure:request.secure/}
+    <span class="username">${viewedUser.userName}</span>
+    <span class="name">(${viewedUser.firstName} ${viewedUser.lastName})</span>
+    <a href="@{Feed.user(viewedUser.userName)}" title="Subscribe to this user´s feed"><img src="@{'/public/images/feed.png'}"/></a>
+    <a href="@{LoggedInUsers.editForm(viewedUser.userName)}" title="Edit profile" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
 </div>
 
 <hr/>
@@ -14,7 +14,7 @@
 <table class="user-details">
     <tr>
         <th>Name</th>
-        <td>${user.firstName} ${user.lastName}</td>
+        <td>${viewedUser.firstName} ${viewedUser.lastName}</td>
     </tr>
     <tr>
         <th>Projects</th>
@@ -22,7 +22,7 @@
     </tr>
     <tr>
         <th>Published modules</th>
-        <td>${user.publishedModules}</td>
+        <td>${viewedUser.publishedModules}</td>
     </tr>
 </table>
 
@@ -63,7 +63,7 @@
     <div class="span6">
         <h2>Last published modules</h2>
         
-        #{list items:user.lastPublishedModuleVersions, as:'moduleVersion'}
+        #{list items:viewedUser.lastPublishedModuleVersions, as:'moduleVersion'}
             <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" title="View module version">${moduleVersion.module.name}/${moduleVersion.version}</a> 
             was published ${moduleVersion.published.sinceInUserTZ(true)}
             <hr/>

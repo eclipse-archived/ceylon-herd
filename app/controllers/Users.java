@@ -18,12 +18,12 @@ public class Users extends MyController {
     }
 
 	public static void view(@Required String username){
-		models.User user = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(user);
+		models.User viewedUser = models.User.findRegisteredByUserName(username);
+		notFoundIfNull(viewedUser);
 		
-		List<Project> ownedProjects = user.getOwnedProjects();
+		List<Project> ownedProjects = viewedUser.getOwnedProjects();
 		
-		render(user, ownedProjects);
+		render(viewedUser, ownedProjects);
 	}
 
 }
