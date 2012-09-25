@@ -1,41 +1,66 @@
 #{extends 'main.html' /}
-#{set title:'Edit your profile' /}
+#{if user == editedUser}
+    #{set title:'Edit your profile' /}
+#{/if}
+#{else}
+    #{set title:'Edit user' /}
+#{/else}
 #{set hasForm: true /}
 
-<h1>Edit profile of #{user user/} </h1>
+#{if user == editedUser}
+    <h1>Edit your profile</h1>
+#{/if}
+#{else}
+    <h1>Edit #{user editedUser/}´s profile</h1>
+#{/else}
 
 <ul class="nav nav-tabs">
     <li class="active"><a href="#" onclick="return false;" title="General Information">Information</a></li>
-    <li><a href="@{LoggedInUsers.passwordForm(user.userName)}" title="Change password">Change password</a></li>
+    <li><a href="@{LoggedInUsers.passwordForm(editedUser.userName)}" title="Change password">Change password</a></li>
 </ul>
 
-#{form action: @LoggedInUsers.edit(user.userName), class: "form-horizontal"}
+#{form action: @LoggedInUsers.edit(editedUser.userName), class: "form-horizontal"}
 
 <fieldset>
-    <legend>Edit user</legend>
-    <div class="control-group #{errorClassBootstrap 'firstName'/}">
-        <label class="control-label" for="firstName">First Name</label>
+    <legend>Edit profile</legend>
+    <div class="control-group #{errorClassBootstrap 'email'/}">
+        <label class="control-label" for="email">Email</label>
         <div class="controls">
-            <input name="firstName" value="${flash.issues ?: user.firstName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
-            <span class="help-inline">​#{error 'firtsName'/}</span>
+            #{if user != null && user.isAdmin}
+                <input name="email" type="text" value="${flash.email ?: editedUser.email}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <span class="help-inline">​#{error 'email'/}</span>
+            #{/if}
+            #{else}
+                ${editedUser.email}
+                <span class="help-block">Email is not currently editable.</span>
+            #{/else}
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'firstName'/}">
+        <label class="control-label" for="firstName">First name</label>
+        <div class="controls">
+            <input name="firstName" type="text" value="${flash.firstName ?: editedUser.firstName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'firstName'/}</span>
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'lastName'/}">
-        <label class="control-label" for="lastName">Last Name</label>
+        <label class="control-label" for="lastName">Last name</label>
         <div class="controls">
-            <input name="lastName" value="${flash.lastName ?: user.lastName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <input name="lastName" type="text" value="${flash.lastName ?: editedUser.lastName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'lastName'/}</span>
         </div>
     </div>
-    <div class="control-group #{errorClassBootstrap 'email'/}">
-        <label class="control-label" for="email">email</label>
-        <div class="controls">
-            <input name="email" value="${flash.email ?: user.email}" maxlength="${util.Util.VARCHAR_SIZE}"/>
-            <span class="help-inline">​#{error 'email'/}</span>
+    #{if user != null && user.isAdmin}
+        <div class="control-group #{errorClassBootstrap 'isAdmin'/}">
+            <label class="control-label" for="isAdmin">Administrator</label>
+            <div class="controls">
+                <input name="isAdmin" type="checkbox" value="true" #{if (flash.isAdmin == null && editedUser.isAdmin) || flash.isAdmin}checked="checked"#{/if} />
+                <span class="help-inline">​#{error 'isAdmin'/}</span>
+            </div>
         </div>
-    </div>
+    #{/if}
     <div class="form-actions">
-        <a href="@{Users.view(user.userName)}" class="btn" title="Go back to profile">Cancel</a>​
+        <a href="@{Users.view(editedUser.userName)}" class="btn" title="Go back to profile">Cancel</a>​
         <input type="submit" class="btn btn-primary" value="Save profile" title="Save profile"/>
     </div>
 </fieldset>
