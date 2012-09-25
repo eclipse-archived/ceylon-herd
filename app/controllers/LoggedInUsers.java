@@ -1,5 +1,6 @@
 package controllers;
 
+import models.User;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
@@ -18,7 +19,7 @@ public class LoggedInUsers extends LoggedInController {
 
 		models.User editedUser = models.User.findRegisteredByUserName(username);
 		notFoundIfNull(editedUser);
-		if(!isAuthorised(username)){
+		if(!isAuthorised(editedUser)){
 			Validation.addError("", "Unauthorised");
 			prepareForErrorRedirect();
 			Users.view(username);
@@ -39,7 +40,7 @@ public class LoggedInUsers extends LoggedInController {
 		models.User user = models.User.findByUserName(username);
 		notFoundIfNull(user);
 
-		if(!isAuthorised(username)){
+		if(!isAuthorised(user)){
 				Validation.addError("", "Unauthorised");
 				prepareForErrorRedirect();
 				Users.view(username);
@@ -65,7 +66,7 @@ public class LoggedInUsers extends LoggedInController {
 		models.User editedUser = models.User.findRegisteredByUserName(username);
 		notFoundIfNull(editedUser);
 
-		if(!isAuthorised(username)){
+		if(!isAuthorised(editedUser)){
 			Validation.addError("", "Unauthorised");
 			prepareForErrorRedirect();
 			Users.view(username);
@@ -84,7 +85,7 @@ public class LoggedInUsers extends LoggedInController {
 		models.User user = models.User.findRegisteredByUserName(username);
 		notFoundIfNull(user);
 
-		if(!isAuthorised(username)){
+		if(!isAuthorised(user)){
 			Validation.addError("oldPassword","Unauthorised");
 			prepareForErrorRedirect();
 			Users.view(username);
@@ -115,10 +116,7 @@ public class LoggedInUsers extends LoggedInController {
 		Users.view(username);
 	}
 
-	private static boolean isAuthorised(String username){
-		return getUser().userName.equals(username) || getUser().isAdmin;
-
+	private static boolean isAuthorised(User user){
+		return getUser() == user || getUser().isAdmin;
 	}
-
-
 }
