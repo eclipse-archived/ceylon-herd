@@ -6,7 +6,9 @@
     <span class="username">${viewedUser.userName}</span>
     <span class="name">(${viewedUser.firstName} ${viewedUser.lastName})</span>
     <a href="@{Feed.user(viewedUser.userName)}" title="Subscribe to this user´s feed"><img src="@{'/public/images/feed.png'}"/></a>
-    <a href="@{LoggedInUsers.editForm(viewedUser.userName)}" title="Edit profile" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+    #{if user != null && (user.isAdmin || user == viewedUser)}
+        <a href="@{LoggedInUsers.editForm(viewedUser.userName)}" title="Edit profile" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+    #{/if}
 </div>
 
 <hr/>
