@@ -10,24 +10,28 @@ import util.Util;
 
 public class LoggedInUsers extends LoggedInController {
 
-    public static void editForm(String username){
-        if(username.isEmpty()) {
+    private static User getUser(String username) {
+        if(username == null || username.isEmpty()) {
             Validation.addError("", "Unknown user");
             prepareForErrorRedirect();
             Application.index();
         }
 
-        models.User editedUser = models.User.findRegisteredByUserName(username);
-        notFoundIfNull(editedUser);
-        if(!isAuthorised(editedUser)){
+        models.User user = models.User.findRegisteredByUserName(username);
+        notFoundIfNull(user);
+        if(!isAuthorised(user)){
             Validation.addError("", "Unauthorised");
             prepareForErrorRedirect();
             Users.view(username);
         }
-
-        render(editedUser);
+        return user;
     }
 
+    public static void editForm(String username){
+        User editedUser = getUser(username);
+        
+        render(editedUser);
+    }
 
     public static void edit(@Required String username,
             @MaxSize(Util.VARCHAR_SIZE) String firstName,
@@ -38,14 +42,7 @@ public class LoggedInUsers extends LoggedInController {
         if(validationFailed()){
             editForm(username);
         }
-        models.User user = models.User.findByUserName(username);
-        notFoundIfNull(user);
-
-        if(!isAuthorised(user)){
-            Validation.addError("", "Unauthorised");
-            prepareForErrorRedirect();
-            Users.view(username);
-        }
+        User user = getUser(username);
 
         user.firstName = firstName;
         user.lastName = lastName;
@@ -60,21 +57,7 @@ public class LoggedInUsers extends LoggedInController {
     }
 
     public static void passwordForm(String username) {
-
-        if(username.isEmpty()) {
-            Validation.addError("", "Unknown user");
-            prepareForErrorRedirect();
-            Application.index();
-        }
-
-        models.User editedUser = models.User.findRegisteredByUserName(username);
-        notFoundIfNull(editedUser);
-
-        if(!isAuthorised(editedUser)){
-            Validation.addError("", "Unauthorised");
-            prepareForErrorRedirect();
-            Users.view(username);
-        }
+        User editedUser = getUser(username);
 
         render(editedUser);
     }
@@ -86,15 +69,7 @@ public class LoggedInUsers extends LoggedInController {
         if(validationFailed()){
             passwordForm(username);
         }
-        models.User user = models.User.findRegisteredByUserName(username);
-        notFoundIfNull(user);
-
-        if(!isAuthorised(user)){
-            Validation.addError("oldPassword","Unauthorised");
-            prepareForErrorRedirect();
-            Users.view(username);
-        }
-
+        User user = getUser(username);
 
         if(!Codec.hexSHA1(user.salt + oldPassword).equals(user.password)){
             Validation.addError("oldPassword", "Wrong Password");
