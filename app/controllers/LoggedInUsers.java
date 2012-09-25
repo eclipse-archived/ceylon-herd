@@ -63,7 +63,7 @@ public class LoggedInUsers extends LoggedInController {
         }
         editedUser.save();
 
-        flash("message", "The user profile has been modified.");
+        flash("message", "User profile modified.");
         Users.view(username);
     }
 
@@ -103,6 +103,7 @@ public class LoggedInUsers extends LoggedInController {
         user.password = Codec.hexSHA1(user.salt + password);
         user.save();
 
+        flash("message", "Password modified.");
         Users.view(username);
     }
 
