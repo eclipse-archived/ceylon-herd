@@ -36,21 +36,32 @@ public class LoggedInUsers extends LoggedInController {
     public static void edit(@Required String username,
             @MaxSize(Util.VARCHAR_SIZE) String firstName,
             @MaxSize(Util.VARCHAR_SIZE) String lastName,
-            @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
+            @MaxSize(Util.VARCHAR_SIZE) @Email String email,
             boolean isAdmin){
-
+        User currentUser = getUser();
+        
+        if(currentUser.isAdmin){
+            // email required for admins
+            Validation.required("email", email);
+        }
+        
         if(validationFailed()){
             editForm(username);
         }
-        User user = getUser(username);
+        User editedUser = getUser(username);
 
-        user.firstName = firstName;
-        user.lastName = lastName;
-        user.email = email;
+        editedUser.firstName = firstName;
+        editedUser.lastName = lastName;
+        // only support setting email from admin for now, until we have code that
+        // verifies the email
+        if(currentUser.isAdmin){
+            editedUser.email = email;
+        }
         // only support setting admin from admins
-        if(getUser().isAdmin)
-            user.isAdmin = isAdmin;
-        user.save();
+        if(currentUser.isAdmin){
+            editedUser.isAdmin = isAdmin;
+        }
+        editedUser.save();
 
         flash("message", "The user profile has been modified.");
         Users.view(username);
