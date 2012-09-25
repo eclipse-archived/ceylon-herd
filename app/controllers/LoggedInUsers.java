@@ -10,117 +10,117 @@ import util.Util;
 
 public class LoggedInUsers extends LoggedInController {
 
-	public static void editForm(String username){
- 		if(username.isEmpty()) {
-			 Validation.addError("", "Unknown user");
-			 prepareForErrorRedirect();
-			 Application.index();
-		 }
+    public static void editForm(String username){
+        if(username.isEmpty()) {
+            Validation.addError("", "Unknown user");
+            prepareForErrorRedirect();
+            Application.index();
+        }
 
-		models.User editedUser = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(editedUser);
-		if(!isAuthorised(editedUser)){
-			Validation.addError("", "Unauthorised");
-			prepareForErrorRedirect();
-			Users.view(username);
-		}
+        models.User editedUser = models.User.findRegisteredByUserName(username);
+        notFoundIfNull(editedUser);
+        if(!isAuthorised(editedUser)){
+            Validation.addError("", "Unauthorised");
+            prepareForErrorRedirect();
+            Users.view(username);
+        }
 
-		render(editedUser);
-	}
+        render(editedUser);
+    }
 
 
-	public static void edit(@Required String username,
-							@MaxSize(Util.VARCHAR_SIZE) String firstName,
-							@MaxSize(Util.VARCHAR_SIZE) String lastName,
-							@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
-							boolean isAdmin){
+    public static void edit(@Required String username,
+            @MaxSize(Util.VARCHAR_SIZE) String firstName,
+            @MaxSize(Util.VARCHAR_SIZE) String lastName,
+            @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
+            boolean isAdmin){
 
-		if(validationFailed()){
-			editForm(username);
-		}
-		models.User user = models.User.findByUserName(username);
-		notFoundIfNull(user);
+        if(validationFailed()){
+            editForm(username);
+        }
+        models.User user = models.User.findByUserName(username);
+        notFoundIfNull(user);
 
-		if(!isAuthorised(user)){
-				Validation.addError("", "Unauthorised");
-				prepareForErrorRedirect();
-				Users.view(username);
-		}
+        if(!isAuthorised(user)){
+            Validation.addError("", "Unauthorised");
+            prepareForErrorRedirect();
+            Users.view(username);
+        }
 
-		user.firstName = firstName;
-		user.lastName = lastName;
-		user.email = email;
-		// only support setting admin from admins
-		if(getUser().isAdmin)
-		    user.isAdmin = isAdmin;
-		user.save();
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.email = email;
+        // only support setting admin from admins
+        if(getUser().isAdmin)
+            user.isAdmin = isAdmin;
+        user.save();
 
         flash("message", "The user profile has been modified.");
-		Users.view(username);
-	}
+        Users.view(username);
+    }
 
-	public static void passwordForm(String username) {
+    public static void passwordForm(String username) {
 
-		if(username.isEmpty()) {
-			Validation.addError("", "Unknown user");
-			prepareForErrorRedirect();
-			Application.index();
-		}
+        if(username.isEmpty()) {
+            Validation.addError("", "Unknown user");
+            prepareForErrorRedirect();
+            Application.index();
+        }
 
-		models.User editedUser = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(editedUser);
+        models.User editedUser = models.User.findRegisteredByUserName(username);
+        notFoundIfNull(editedUser);
 
-		if(!isAuthorised(editedUser)){
-			Validation.addError("", "Unauthorised");
-			prepareForErrorRedirect();
-			Users.view(username);
-		}
+        if(!isAuthorised(editedUser)){
+            Validation.addError("", "Unauthorised");
+            prepareForErrorRedirect();
+            Users.view(username);
+        }
 
-		render(editedUser);
-	}
+        render(editedUser);
+    }
 
-	public static void passwordEdit(@Required String username,
-									@Required @MaxSize(Util.VARCHAR_SIZE) String oldPassword,
-									@Required @MaxSize(Util.VARCHAR_SIZE) String password,
-									@Required @MaxSize(Util.VARCHAR_SIZE) String password2) {
-		if(validationFailed()){
-			passwordForm(username);
-		}
-		models.User user = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(user);
+    public static void passwordEdit(@Required String username,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String oldPassword,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String password,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String password2) {
+        if(validationFailed()){
+            passwordForm(username);
+        }
+        models.User user = models.User.findRegisteredByUserName(username);
+        notFoundIfNull(user);
 
-		if(!isAuthorised(user)){
-			Validation.addError("oldPassword","Unauthorised");
-			prepareForErrorRedirect();
-			Users.view(username);
-		}
+        if(!isAuthorised(user)){
+            Validation.addError("oldPassword","Unauthorised");
+            prepareForErrorRedirect();
+            Users.view(username);
+        }
 
 
-		if(!Codec.hexSHA1(user.salt + oldPassword).equals(user.password)){
-			Validation.addError("oldPassword", "Wrong Password");
-			prepareForErrorRedirect();
-			passwordForm(username);
-		}
+        if(!Codec.hexSHA1(user.salt + oldPassword).equals(user.password)){
+            Validation.addError("oldPassword", "Wrong Password");
+            prepareForErrorRedirect();
+            passwordForm(username);
+        }
 
-		if(!password.equals(password2)) {
-			Validation.addError("password2","Confirmation password doesn't match the new password");
-			prepareForErrorRedirect();
-			passwordForm(username);
-		}
+        if(!password.equals(password2)) {
+            Validation.addError("password2","Confirmation password doesn't match the new password");
+            prepareForErrorRedirect();
+            passwordForm(username);
+        }
 
-		if(password.equals(oldPassword)){
-			Validation.addError("password", "Old and new password are the same!");
-			prepareForErrorRedirect();
-			passwordForm(username);
-		}
+        if(password.equals(oldPassword)){
+            Validation.addError("password", "Old and new password are the same!");
+            prepareForErrorRedirect();
+            passwordForm(username);
+        }
 
-		user.password = Codec.hexSHA1(user.salt + password);
-		user.save();
+        user.password = Codec.hexSHA1(user.salt + password);
+        user.save();
 
-		Users.view(username);
-	}
+        Users.view(username);
+    }
 
-	private static boolean isAuthorised(User user){
-		return getUser() == user || getUser().isAdmin;
-	}
+    private static boolean isAuthorised(User user){
+        return getUser() == user || getUser().isAdmin;
+    }
 }
