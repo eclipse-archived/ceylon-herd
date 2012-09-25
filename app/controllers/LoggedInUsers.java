@@ -55,8 +55,8 @@ public class LoggedInUsers extends LoggedInController {
 		    user.isAdmin = isAdmin;
 		user.save();
 
+        flash("message", "The user profile has been modified.");
 		Users.view(username);
-
 	}
 
 	public static void passwordForm(String username) {
