@@ -16,15 +16,15 @@ public class LoggedInUsers extends LoggedInController {
 			 Application.index();
 		 }
 
-		models.User user = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(user);
+		models.User editedUser = models.User.findRegisteredByUserName(username);
+		notFoundIfNull(editedUser);
 		if(!isAuthorised(username)){
 			Validation.addError("", "Unauthorised");
 			prepareForErrorRedirect();
 			Users.view(username);
 		}
 
-		render(user);
+		render(editedUser);
 	}
 
 
@@ -62,8 +62,8 @@ public class LoggedInUsers extends LoggedInController {
 			Application.index();
 		}
 
-		models.User user = models.User.findRegisteredByUserName(username);
-		notFoundIfNull(user);
+		models.User editedUser = models.User.findRegisteredByUserName(username);
+		notFoundIfNull(editedUser);
 
 		if(!isAuthorised(username)){
 			Validation.addError("", "Unauthorised");
@@ -71,7 +71,7 @@ public class LoggedInUsers extends LoggedInController {
 			Users.view(username);
 		}
 
-		render(user);
+		render(editedUser);
 	}
 
 	public static void passwordEdit(@Required String username,
