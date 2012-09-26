@@ -26,8 +26,8 @@
     <div class="control-group #{errorClassBootstrap 'category'/}">
         <label class="control-label" for="category">Category</label>
         <div class="controls">
-            <select name="category.id">
-            	<option>No category</option>
+            <select name="categoryId">
+            	<option value="">No category</option>
             	#{list categories, as: 'c'}
             	<option value="${c.id}" #{if module.category?.id == c.id}selected="selected"#{/if}>${c.name}</option>
             	#{/list}
