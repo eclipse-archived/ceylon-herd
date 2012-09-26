@@ -60,15 +60,15 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 </td>
             </tr>
         #{/if}
+      	#{if module.category}
         <tr>
         	<th>Category</th>
         	<td>
-        	#{if module.category}
         		<a href="@{Repo.category(module.category.name)}" title="Category module list"><i class="icon-book"></i> ${module.category.name}</a>
 				#{categoryDescription module.category /}   
-        	#{/if}
         	</td>
         </tr>
+       	#{/if}
         <tr>
             <th>Last Published</th>
             <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
