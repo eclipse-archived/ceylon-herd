@@ -58,6 +58,15 @@
             </td>
         </tr>
         <tr>
+        	<th>Category</th>
+        	<td>
+        	#{if module.category}
+        		<a href="@{Repo.category(module.category.name)}" title="Category module list"><i class="icon-book"></i> ${module.category.name}</a>
+				#{categoryDescription module.category /}     			
+        	#{/if}
+        	</td>
+        </tr>
+        <tr>
             <th>Backends</th>
             <td>
                 #{moduleBackends moduleVersion/}

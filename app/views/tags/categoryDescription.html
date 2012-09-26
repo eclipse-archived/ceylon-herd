@@ -1,0 +1,24 @@
+#{if _arg != null}
+    #{if _arg.description?.length() > 150}
+        <script type='text/javascript'>//<![CDATA[
+            var shown = false;
+
+                    function toggleDescription(elem){
+                    	var $elem = jQuery(elem);
+                    	shown = !shown;
+                  	    $elem.text(shown ? "Collapse" : "Expand");
+                  	    jQuery("#description").toggleClass("collapsed");
+                    };
+            //]]>
+        </script>
+        <div class="categoryDescription">
+            <a href="#" id="description-link" onclick="toggleDescription(this); return false;">Expand</a>
+            <div id="description" class="collapsed">
+                ${_arg.description.md()}
+            </div>
+        </div>
+    #{/if}
+    #{else}
+        ${_arg.description.md()}
+    #{/else}
+#{/if}
