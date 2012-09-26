@@ -52,36 +52,42 @@ function toggleHelp(){
                     <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"/> Ceylon Herd</a>
                     <ul class="nav">
                         #{if session.username != null && user}
-                            <li class="user">
-                                #{if user.isAdmin}<i class="icon-star icon-white" title="You are an administrator"></i>#{/if}
-                                #{user user, img:true /}
-                            </li>
+                        <li class="user">
+                            #{if user.isAdmin}<i class="icon-star icon-white" title="You are an administrator"></i>#{/if}
+                            #{user user, img:true /}
+                        </li>
                         #{/if}
                         <li><a href="@{Repo.viewFile('')}">Repository</a>
-                        <li><a href="@{Repo.index()}">Modules</a>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="@{Repo.categories()}">By categories</a></li>
+                                <li><a href="@{Repo.index()}">By names</a>
+                            </ul>
+                        </li>
                         #{if session.username != null && user}
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My stuff<b class="caret"></b></a>
-                                <ul class="dropdown-menu">
-                                    <li><a href="@{Projects.index()}">My project claims <span class="badge">${user.projectsCached}</span></a>
-                                    <li><a href="@{Uploads.index()}">My uploads <span class="badge">${user.uploadsCached}</span></a></li>
-                                    <li><a href="@{LoggedInRepo.myModules(session.username)}">My modules <span class="badge">${user.modulesCached}</span></a></li>
-                                </ul>
-                            </li>
-                            #{if user.isAdmin}
-                                <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
-                                    <ul class="dropdown-menu">
-                                        <li><a href="@{Projects.claims()}">Current project claims <span class="badge">${util.MyCache.getClaims()}</span></a></li>
-                                        <li><a href="@{AdminCategories.index()}">Categories</a></li>
-                                        <li><a href="@{AdminUsers.index()}">User List</a></li>
-                                    </ul>
-                                </li>
-                            #{/if}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">My stuff<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="@{Projects.index()}">My project claims <span class="badge">${user.projectsCached}</span></a>
+                                <li><a href="@{Uploads.index()}">My uploads <span class="badge">${user.uploadsCached}</span></a></li>
+                                <li><a href="@{LoggedInRepo.myModules(session.username)}">My modules <span class="badge">${user.modulesCached}</span></a></li>
+                            </ul>
+                        </li>
+                        #{if user.isAdmin}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="@{Projects.claims()}">Current project claims <span class="badge">${util.MyCache.getClaims()}</span></a></li>
+                                <li><a href="@{AdminCategories.index()}">Categories</a></li>
+                                <li><a href="@{AdminUsers.index()}">User List</a></li>
+                            </ul>
+                        </li>
+                        #{/if}
                         #{/if}
                         #{if session.username == null}
-                            <li><a href="@{Register.index()}">Register</a>
-                            <li><a href="@{Secure.login()}">Log in</a>
+                        <li><a href="@{Register.index()}">Register</a>
+                        <li><a href="@{Secure.login()}">Log in</a>
                         #{/if}
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>

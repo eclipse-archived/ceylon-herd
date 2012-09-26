@@ -1,0 +1,28 @@
+#{extends 'main.html' /}
+#{set title:'List of categories' /}
+
+<div class="alert">
+    Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
+</div>
+
+#{if categories.empty}
+    <div class="alert alert-info">
+        No category in repository yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>
+            #{if caption}${caption}#{/if}
+            #{else}List of categories#{/else}
+        </caption>
+        <tbody>
+            #{list items:categories, as:'cat'}
+                <tr>
+                    <td><a href="@{Repo.category(cat.name)}" title="View modules">${cat.name}</a></td>
+                    <td>${cat.description}</td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

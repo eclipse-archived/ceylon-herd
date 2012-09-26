@@ -8,12 +8,14 @@ import notifiers.Emails;
 
 import org.apache.commons.lang.StringUtils;
 
+import play.Play;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.Codec;
 import play.libs.Crypto;
+import play.libs.Mail.Mock;
 import util.Util;
 
 public class Register extends MyController {
@@ -23,7 +25,7 @@ public class Register extends MyController {
     }
 
     public static void register(@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email) {
-        badRequest();
+        //badRequest();
         
     	if(validationFailed())
     		index();
