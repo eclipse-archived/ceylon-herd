@@ -71,12 +71,16 @@ public class LoggedInRepo extends LoggedInController {
 
 
 	public static void edit(@Required String moduleName, 
-			Category category,
+			Long categoryId,
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String issues, 
 	        @MaxSize(Util.VARCHAR_SIZE) @URL String code, 
 	        @MaxSize(Util.VARCHAR_SIZE) String friendlyName){
 		Module module = getModuleForEdit(moduleName);
+		Category category = null;
+		if (categoryId != null) {
+			category = Category.findById(categoryId);
+		}
 		
 		if(validationFailed()){
 		    editForm(moduleName);
