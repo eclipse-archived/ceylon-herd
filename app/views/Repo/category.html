@@ -1,18 +1,18 @@
 #{extends 'main.html' /}
-#{set title:'List of modules' /}
+#{set title:'List of modules in '+category.name /}
 
 <div class="alert">
     Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
 </div>
 
-<h2>Category ${category.name}</h2>
+<h2>${category.name}</h2>
 <p>
-${category.description}
+    ${category.description?.md()}
 </p>
 
 #{if modules.empty}
     <div class="alert alert-info">
-        No module in category yet.
+        No module in this category yet.
     </div>
 #{/if}
 #{else}
