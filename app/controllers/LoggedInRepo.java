@@ -80,6 +80,7 @@ public class LoggedInRepo extends LoggedInController {
 		Category category = null;
 		if (categoryId != null) {
 			category = Category.findById(categoryId);
+			Validation.required("categoryId", category);
 		}
 		
 		if(validationFailed()){
