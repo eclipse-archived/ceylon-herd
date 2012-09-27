@@ -57,15 +57,15 @@
                 #{/if}
             </td>
         </tr>
-        <tr>
-        	#{if module.category}
-        	<th>Category</th>
-        	<td>
-        		<a href="@{Repo.category(module.category.name)}" title="Category module list"><i class="icon-book"></i> ${module.category.name}</a>
-				#{categoryDescription module.category /}     			
-        	</td>
-        	#{/if}
-        </tr>
+        #{if module.category}
+            <tr>
+            	<th>Category</th>
+            	<td>
+            		<a href="@{Repo.category(module.category.name)}" title="Category module list"><i class="icon-book"></i> ${module.category.name}</a>
+    				#{categoryDescription module.category /}     			
+            	</td>
+            </tr>
+        #{/if}
         <tr>
             <th>Backends</th>
             <td>
