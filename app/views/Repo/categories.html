@@ -20,7 +20,7 @@
             #{list items:categories, as:'cat'}
                 <tr>
                     <td><a href="@{Repo.category(cat.name)}" title="View modules">${cat.name}</a></td>
-                    <td>${cat.description}</td>
+                    <td>#{categoryDescription cat/}</td>
                 </tr>
             #{/list}
         </tbody>
