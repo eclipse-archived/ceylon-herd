@@ -250,7 +250,7 @@ form.inline {
     background-color: #00995F;
 }
 
-#description.collapsed {
+.expandable.collapsed {
     height: 2em;
     overflow: hidden;
 }

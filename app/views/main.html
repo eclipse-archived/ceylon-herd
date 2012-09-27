@@ -27,6 +27,18 @@ function hideHelp(){
 function toggleHelp(){
     jQuery("#help").toggle();
 }
+jQuery(function(){
+	// plug in the behaviour of expendable items
+    jQuery("[data-behaviour=expandable]").each(function(i, elem){
+        var $elem = jQuery(elem);
+        $elem.click(function(){
+            var shown = !$elem.hasClass("collapsed");
+            $elem.text(!shown ? "Collapse" : "Expand");
+            $elem.siblings(".expandable").toggleClass("collapsed");
+            return false;
+        });
+    });
+});
         </script>
         #{get 'moreScripts' /}
         <link href="@{Feed.repo()}" type="application/atom+xml" rel="alternate" title="Repository Atom Feed" />
