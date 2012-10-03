@@ -489,7 +489,8 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
-                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/run.class");
+                String name = m.ceylonMajor >= 3 ? "run_" : "run";
+                ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/" + name + ".class");
                 if(moduleEntry == null){
                     return;
                 }
