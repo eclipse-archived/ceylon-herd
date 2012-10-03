@@ -484,7 +484,7 @@ public class ModuleChecker {
     }
 
     private static void checkIsRunnable(File uploadsDir, String carName, Module m, List<Module> modules) {
-
+        // FIXME: do this in one go with the module loading
         try {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
@@ -512,13 +512,13 @@ public class ModuleChecker {
                 car.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            // FIXME
+            e.printStackTrace();
         }
         if(m.isRunnable) {
-            m.diagnostics.add(new Diagnostic("success", "Module is runnable."));
+            m.diagnostics.add(new Diagnostic("success", "Module is runnable"));
         }
-
-        }
+    }
 
     private static String getString(Annotation annotation,
             String field, Module m, boolean missingOK) {
