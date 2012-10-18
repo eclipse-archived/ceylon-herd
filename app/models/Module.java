@@ -144,8 +144,12 @@ public class Module extends Model {
 				&& (user.equals(owner)
 						|| user.isAdmin);
 	}
-
+    
 	public List<ModuleVersion> getVersions(Type type){
+	    return getVersions(type, null, null);
+    }
+    
+	public List<ModuleVersion> getVersions(Type type, Integer binaryMajor, Integer binaryMinor){
 	    List<ModuleVersion> ret = new LinkedList<ModuleVersion>();
 	    for(ModuleVersion version : versions){
 	        boolean include = false;
@@ -154,7 +158,8 @@ public class Module extends Model {
                 include = version.isJsPresent;
                 break;
             case JVM:
-                include = version.isCarPresent || version.isJarPresent;
+                include = (version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
+                        || version.isJarPresent;
                 break;
             case SRC:
                 include = version.isSourcePresent;
@@ -189,59 +194,81 @@ public class Module extends Model {
 		return count("owner = ?", owner);
 	}
 
-    public static List<Module> completeForBackend(String module, Type t) {
+    public static List<Module> completeForBackend(String module, Type t, Integer binaryMajor, Integer binaryMinor) {
         if(module == null)
             module = "";
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
-        return Module.find("FROM Module m WHERE LOCATE(?, m.name) = 1"
-                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
-                + " ORDER BY name", module).fetch(RepoAPI.RESULT_LIMIT);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        JPAQuery query = Module.find("FROM Module m WHERE LOCATE(:module, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")"
+                + " ORDER BY name");
+        query.bind("module", module);
+        ModuleVersion.addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+                
+        return query.fetch(RepoAPI.RESULT_LIMIT);
     }
 
-    public static long completeForBackendCount(String module, Type t) {
+    public static long completeForBackendCount(String module, Type t, Integer binaryMajor, Integer binaryMinor) {
         if(module == null)
             module = "";
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
-        return Module.count("FROM Module m WHERE LOCATE(?, m.name) = 1"
-                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
-                , module);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        JPAQuery query = Module.find("SELECT COUNT(*) FROM Module m WHERE LOCATE(:module, m.name) = 1"
+                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")");
+        query.bind("module", module);
+        ModuleVersion.addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+        
+        return query.first();
     }
 
-    public static List<Module> searchForBackend(String query, Type t, int start, int count) {
+    public static List<Module> searchForBackend(String query, Type t, int start, int count,
+            Integer binaryMajor, Integer binaryMinor) {
         if(count == 0)
             return Collections.<Module>emptyList();
         
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        JPAQuery jpaQuery;
         if(query == null || query.isEmpty()){
             // list
-            return Module.find("FROM Module m WHERE"
-                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))"
-                    + " ORDER BY name").from(start).fetch(count);
+            jpaQuery = Module.find("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")"
+                    + " ORDER BY name");
+        }else{
+            // FIXME: this smells like the most innefficient SQL request ever made
+            // FIXME: we're not searching for author here, but should we?
+            jpaQuery = Module.find("FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                    +                                   " AND (LOCATE(:query, m.name) <> 0"
+                    +                                          " OR LOCATE(:query, v.doc) <> 0"
+                    +                                          ")"+binaryQuery+")"
+                    + " ORDER BY name");
+            jpaQuery.bind("query", query);
         }
-        // FIXME: this smells like the most innefficient SQL request ever made
-        // FIXME: we're not searching for author here, but should we?
-        return Module.find("FROM Module m WHERE"
-                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
-                +                                   " AND (LOCATE(?1, m.name) <> 0"
-                +                                          " OR LOCATE(?1, v.doc) <> 0"
-                +                                          "))"
-                + " ORDER BY name", query).from(start).fetch(count);
+        ModuleVersion.addBinaryQueryParameters(jpaQuery, binaryMajor, binaryMinor);
+        return jpaQuery.from(start).fetch(count);
     }
 
-    public static long searchForBackendCount(String query, Type t) {
+    public static long searchForBackendCount(String query, Type t, Integer binaryMajor, Integer binaryMinor) {
         String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        JPAQuery jpaQuery;
         if(query == null || query.isEmpty()){
             // list
-            return Module.count("FROM Module m WHERE"
-                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+"))");
+            jpaQuery = Module.find("SELECT COUNT(*) FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")");
+        }else{
+            // FIXME: this smells like the most innefficient SQL request ever made
+            // FIXME: we're not searching for author here, but should we?
+            jpaQuery = Module.find("SELECT COUNT(*) FROM Module m WHERE"
+                    + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
+                    +                                   " AND (LOCATE(:query, m.name) <> 0"
+                    +                                          " OR LOCATE(:query, v.doc) <> 0"
+                    +                                          ")"+binaryQuery+")");
+            jpaQuery.bind("query", query);
         }
-        // FIXME: this smells like the most innefficient SQL request ever made
-        // FIXME: we're not searching for author here, but should we?
-        return Module.count("FROM Module m WHERE"
-                + " EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"
-                +                                   " AND (LOCATE(?1, m.name) <> 0"
-                +                                          " OR LOCATE(?1, v.doc) <> 0"
-                +                                          "))",
-                query);
+        ModuleVersion.addBinaryQueryParameters(jpaQuery, binaryMajor, binaryMinor);
+        
+        return jpaQuery.first();
     }
 }

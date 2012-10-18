@@ -173,12 +173,53 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         }
     }
 
-    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, Type type) {
+    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, Type type,
+            Integer binaryMajor, Integer binaryMinor) {
         String typeQuery = ModuleVersion.getBackendQuery("", type);
         if(version == null)
             version = "";
-        return ModuleVersion.find("module = ? AND LOCATE(?, version) = 1 AND ("+typeQuery+")"
-                + " ORDER BY version", module, version).fetch(RepoAPI.RESULT_LIMIT);
+        String binaryQuery = getBinaryQuery("", binaryMajor, binaryMinor);
+        JPAQuery query = ModuleVersion.find("module = :module AND LOCATE(:version, version) = 1 AND ("+typeQuery+")"
+                + binaryQuery
+                + " ORDER BY version");
+        query.bind("module", module);
+        query.bind("version", version);
+        addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+        
+        return query.fetch(RepoAPI.RESULT_LIMIT);
+    }
+
+    static void addBinaryQueryParameters(JPAQuery query, Integer binaryMajor, Integer binaryMinor) {
+        // Note that we use query.query.setParameter here rather than query.bindParameter because the latter
+        // has a bug that turns Integer instances into Long instances (WTF?)
+        if(binaryMajor != null)
+            query.query.setParameter("binaryMajor", binaryMajor);
+        if(binaryMinor != null)
+            query.query.setParameter("binaryMinor", binaryMinor);
+    }
+
+    static String getBinaryQuery(String prefix, Integer binaryMajor, Integer binaryMinor) {
+        if(binaryMajor == null && binaryMinor == null)
+            return "";
+        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false OR (");
+        // these only apply to ceylon modules
+        if(binaryMajor != null)
+            ret.append(prefix).append("ceylonMajor = :binaryMajor");
+        if(binaryMinor != null){
+            if(binaryMajor != null)
+                ret.append(" AND ");
+            ret.append(prefix).append("ceylonMinor = :binaryMinor");
+        }
+        ret.append("))");
+        return ret.toString();
+    }
+
+    public boolean matchesBinaryVersion(Integer binaryMajor, Integer binaryMinor) {
+        if(binaryMajor != null && ceylonMajor != binaryMajor)
+            return false;
+        if(binaryMinor != null && ceylonMinor != binaryMinor)
+            return false;
+        return true;
     }
     
 }
