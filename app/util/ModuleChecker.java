@@ -107,6 +107,7 @@ public class ModuleChecker {
         // the given module has to be a JVM car module
         for(Import dep : m.dependencies){
             if(dep.existingDependency != null){
+                // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
                 if (dep.existingDependency.isCarPresent
                         && (m.ceylonMajor != dep.existingDependency.ceylonMajor
@@ -465,6 +466,9 @@ public class ModuleChecker {
 
     private static void checkDependencyExists(String name, String version,
             Module m, List<Module> modules) {
+        // skip JDK modules
+        if(JDKUtil.isJdkModule(name))
+            return;
         // try to find it in the list of uploaded modules
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
