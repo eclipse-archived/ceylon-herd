@@ -147,7 +147,7 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab1">
-                            <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'</span></pre>
+                            <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'<span class="xml-tag">;</span></span></pre>
                         </div>
                         #{if moduleVersion.isCarPresent && moduleVersion.isRunnable}
                             <div class="tab-pane" id="tab2">
@@ -163,7 +163,7 @@
                                 <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
                                     <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
-  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.3/com.redhat.ceylon.ant-0.3.jar"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.4/com.redhat.ceylon.ant-0.4.jar"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
   <span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
     <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">location</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
