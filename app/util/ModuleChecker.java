@@ -244,6 +244,20 @@ public class ModuleChecker {
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
+            String checksumPath = m.path + jsName + ".sha1";
+            m.hasJsChecksum = fileByPath.containsKey(checksumPath);
+            if (m.hasJsChecksum) {
+                fileByPath.remove(checksumPath); // js checksum
+                File jsFile = new File(uploadsDir, jsPath);
+                m.jsChecksumValid = checkChecksum(uploadsDir, checksumPath, jsFile);
+                if (m.jsChecksumValid) {
+                    m.diagnostics.add(new Diagnostic("success", "Js checksum valid"));
+                } else {
+                    m.diagnostics.add(new Diagnostic("error", "Invalid Js checksum"));
+                }
+            } else {
+                m.diagnostics.add(new Diagnostic("error", "Missing Js checksum"));
+            }
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
         }
@@ -680,6 +694,8 @@ public class ModuleChecker {
         public boolean hasJs;
         public boolean hasChecksum;
         public boolean checksumValid;
+        public boolean jsChecksumValid;
+        public boolean hasJsChecksum;
         public boolean hasSource;
         public boolean hasSourceChecksum;
         public boolean sourceChecksumValid;
