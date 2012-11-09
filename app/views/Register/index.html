@@ -2,28 +2,31 @@
 #{set title:'Home' /}
 #{set hasForm: true /}
 
-<div class="alert">
-    Ceylon Herd registration currently disabled. Sorry.
-</div>
-
-*{
+#{if play.configuration["register.enabled"] == "true"}
 
 #{form @Register.register()}
 
-<fieldset>
-    <legend>Register</legend>
-	<div class="control-group ${play.data.validation.Validation.hasError('email') ? 'error' : ''}">
-		<label class="control-label" for="email">Email</label>
-		<div class="controls">
-			<input name="email" maxlength="${util.Util.VARCHAR_SIZE}"/>
-            <span class="help-inline">​#{error 'email'/}</span>​
-		</div>
-	</div>
-    <div class="form-actions">​
-        <input type="submit" class="btn-primary" value="Register"/>
+    <fieldset>
+        <legend>Register</legend>
+        <div class="control-group ${play.data.validation.Validation.hasError('email') ? 'error' : ''}">
+            <label class="control-label" for="email">Email</label>
+            <div class="controls">
+                <input name="email" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <span class="help-inline">​#{error 'email'/}</span>​
+            </div>
+        </div>
+        <div class="form-actions">​
+            <input type="submit" class="btn-primary" value="Register"/>
+        </div>
+    </fieldset>
+    
+    #{/form}
+
+#{/if}
+#{else}
+
+    <div class="alert">
+        Ceylon Herd registration currently disabled. Sorry.
     </div>
-</fieldset>
-
-#{/form}
-
-}*
+    
+#{/else}

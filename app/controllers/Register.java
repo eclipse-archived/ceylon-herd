@@ -8,6 +8,7 @@ import notifiers.Emails;
 
 import org.apache.commons.lang.StringUtils;
 
+import play.Play;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
@@ -18,12 +19,18 @@ import util.Util;
 
 public class Register extends MyController {
 
+    private static void checkEnabled(){
+        if(!"true".equals(Play.configuration.get("register.enabled"))){
+            badRequest();
+        }
+    }
+    
     public static void index() {
         render();
     }
 
     public static void register(@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email) {
-        badRequest();
+        checkEnabled();
         
     	if(validationFailed())
     		index();
@@ -65,7 +72,9 @@ public class Register extends MyController {
     		String password2, 
     		String firstName, 
     		String lastName) {
-		User user = checkConfirmationCode(confirmationCode);
+        checkEnabled();
+
+        User user = checkConfirmationCode(confirmationCode);
 		validation.required(userName);
 		validation.maxSize(userName, Util.VARCHAR_SIZE);
 		validation.required(password);
