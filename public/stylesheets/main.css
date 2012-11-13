@@ -113,6 +113,14 @@ background-image: -webkit-gradient(
 	width: 850px;
 }
 
+.comment .rating {
+	float: right;	
+}
+
+.comment .rating label {
+	display: inline;
+}
+
 .user-info {
 	font-size: 24pt;
 }
