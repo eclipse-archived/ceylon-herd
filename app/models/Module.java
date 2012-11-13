@@ -132,6 +132,11 @@ public class Module extends Model {
         return name.replace('.', '/');
     }
     
+    @Transient
+    public Double getAvgRating() {
+    	return find("SELECT AVG(mark) FROM ModuleRating WHERE module = ? AND mark > -1 AND mark < 6", this).first();
+    }
+    
     public boolean canEdit(User user){
 		return user != null
 				&& (user.equals(owner)

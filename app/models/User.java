@@ -70,6 +70,18 @@ public class User extends Model {
 	public long getModulesCached(){
 		return MyCache.getModulesForOwner(this);
 	}
+	
+	@Transient
+	public ModuleRating getRatingFor(Module module) {
+		ModuleRating moduleRating = ModuleRating.find("owner=? and module=?", this, module).first();
+		if (moduleRating == null) {
+			moduleRating = new ModuleRating();
+			moduleRating.mark = -1;
+			moduleRating.module = module;
+			moduleRating.owner = this;
+		}
+		return moduleRating;
+	}
 
 	public static User connect(String username, String password) {
 	    // sanity check

@@ -69,6 +69,11 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
         	</td>
         </tr>
        	#{/if}
+       	<tr>
+       		<th>Rating</th>
+       		<td>
+       			${module.getAvgRating()}
+       		</td>
         <tr>
             <th>Last Published</th>
             <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
@@ -141,6 +146,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
     </table>
 #{/else}
 
+*{ Module Comments and rating }*
 %{
   def addAction = { actionBridge.LoggedInRepo.addModuleComment(module.name) }
   def editAction = { id -> actionBridge.LoggedInRepo.editModuleComment(module.name, id) }
@@ -152,7 +158,8 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
            deleteAction: deleteAction,
            comments: module.comments,
            user: user,
-           title: "module"
+           title: "module",
+           rating: user.getRatingFor(module)
  /}
 
 

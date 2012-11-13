@@ -8,6 +8,7 @@ import java.util.List;
 import models.Category;
 import models.Module;
 import models.ModuleComment;
+import models.ModuleRating;
 import models.ModuleVersion;
 import models.User;
 import notifiers.Emails;
@@ -254,7 +255,7 @@ public class LoggedInRepo extends LoggedInController {
 		render(modules);
 	}
 
-	public static void addModuleComment(String moduleName, String text) {
+	public static void addModuleComment(String moduleName, String text, int rating) {
 	    Module module = getModule(moduleName);
 	    // any logged in user is allowed to comment
 
@@ -276,7 +277,11 @@ public class LoggedInRepo extends LoggedInController {
 	    comment.date = Util.currentTimeInUTC();
 	    comment.module = module;
 	    comment.create();
-
+	    
+	    ModuleRating moduleRating = user.getRatingFor(module);
+	    moduleRating.mark = rating;
+	    moduleRating.save();
+	    
 	    flash("commentMessage2", "Comment added");
 	    Repo.versions(moduleName);
 	}
