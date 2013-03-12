@@ -74,7 +74,7 @@
 <fieldset>
     <legend>Upload a repo archive</legend>
     <div class="control-group #{errorClassBootstrap 'repo'/}">
-        <label class="control-label" for="repo">Repo archive file (.zip) or module artifact (.car, .jar or .src)</label>
+        <label class="control-label" for="repo">Repo archive file (.zip) or module artifact (.car, .jar, .js or .src)</label>
         <div class="controls">
             <input name="repo" type="file" value="${flash.repo}" onchange="checkUpload(this);" title="Choose file to upload"/>
             <span class="help-inline">​#{error 'repo'/}</span>

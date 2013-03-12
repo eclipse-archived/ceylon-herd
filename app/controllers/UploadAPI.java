@@ -27,7 +27,7 @@ import util.Util;
 
 public class UploadAPI extends LoggedInController {
 
-	private static final String[] SupportedExtensions = new String[]{".car", ".jar", ".src"};
+	private static final String[] SupportedExtensions = new String[]{".car", ".jar", ".src", ".js"};
 
     @Before
 	static void before(){
