@@ -224,6 +224,13 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                                         <a href="@{Projects.view(diagnostic.project.id)}">#{projectStatus diagnostic.project.status /}</a>
                                     #{/else}
                                 #{/if}
+                                #{elseif diagnostic.missingChecksum}
+                                    &nbsp;
+                                    #{form @UploadAPI.addChecksum(upload.id, diagnostic.fileToChecksum), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Remove this file from upload"><i class="icon-plus icon-white"></i> Generate Checksum</button>
+                                    #{/form}
+                                #{/elseif}
                             </li>
                         #{/list}
                     </ul>

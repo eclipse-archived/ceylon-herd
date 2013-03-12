@@ -261,6 +261,24 @@ public class UploadAPI extends LoggedInController {
 			Uploads.view(id);
 	}
 
+	public static void addChecksum(Long id, String path) throws IOException{
+	    models.Upload upload = Uploads.getUpload(id);
+	    File uploadsDir = Util.getUploadDir(upload.id);
+	    File file = new File(uploadsDir, path);
+	    checkUploadPath(file, uploadsDir);
+
+	    if(!file.exists())
+	        notFound(path);
+
+	    Logger.info("add checksum: %s exists: %s", path, file.exists());
+	    
+        String sha1 = ModuleChecker.sha1(file);
+        File sha1File = new File(uploadsDir, path+".sha1");
+        FileUtils.write(sha1File, sha1);
+	    
+	    Uploads.view(id);
+	}
+
 	public static void uploadRepo(Long id, @Required File repo, String module, String version) throws ZipException, IOException{
 		models.Upload upload = Uploads.getUpload(id);
 		File uploadsDir = Util.getUploadDir(upload.id);

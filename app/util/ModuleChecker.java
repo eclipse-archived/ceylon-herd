@@ -188,10 +188,10 @@ public class ModuleChecker {
                 if (m.jarChecksumValid) {
                     m.diagnostics.add(new Diagnostic("success", "Jar checksum valid"));
                 } else {
-                    m.diagnostics.add(new Diagnostic("error", "Invalid Jar checksum"));
+                    m.diagnostics.add(checksumDiagnostic("error", "Invalid Jar checksum", m.path + jarName));
                 }
             } else {
-                m.diagnostics.add(new Diagnostic("error", "Missing Jar checksum"));
+                m.diagnostics.add(checksumDiagnostic("error", "Missing Jar checksum", m.path + jarName));
             }
         }
 
@@ -220,10 +220,10 @@ public class ModuleChecker {
                         m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
                     }
                 } else {
-                    m.diagnostics.add(new Diagnostic("error", "Invalid checksum"));
+                    m.diagnostics.add(checksumDiagnostic("error", "Invalid checksum", m.path + carName));
                 }
             }else if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("error", "Missing checksum"));
+                m.diagnostics.add(checksumDiagnostic("error", "Missing checksum", m.path + carName));
             }
 
             loadModuleInfo(uploadsDir, m.path+carName, m, modules);
@@ -253,10 +253,10 @@ public class ModuleChecker {
                 if (m.jsChecksumValid) {
                     m.diagnostics.add(new Diagnostic("success", "Js checksum valid"));
                 } else {
-                    m.diagnostics.add(new Diagnostic("error", "Invalid Js checksum"));
+                    m.diagnostics.add(checksumDiagnostic("error", "Invalid Js checksum", m.path + jsName));
                 }
             } else {
-                m.diagnostics.add(new Diagnostic("error", "Missing Js checksum"));
+                m.diagnostics.add(checksumDiagnostic("error", "Missing Js checksum", m.path + jsName));
             }
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
@@ -289,10 +289,10 @@ public class ModuleChecker {
                         m.diagnostics.add(new Diagnostic("success", "Source checksum valid"));
                     }
                 } else {
-                    m.diagnostics.add(new Diagnostic("error", "Invalid source checksum"));
+                    m.diagnostics.add(checksumDiagnostic("error", "Invalid source checksum", m.path + srcName));
                 }
             }else if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("error", "Missing source checksum"));
+                m.diagnostics.add(checksumDiagnostic("error", "Missing source checksum", m.path + srcName));
             }
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
@@ -330,6 +330,12 @@ public class ModuleChecker {
         }
     }
 
+    private static Diagnostic checksumDiagnostic(String type, String message, String file) {
+        Diagnostic diagnostic = new Diagnostic(type, message);
+        diagnostic.missingChecksum = true;
+        diagnostic.fileToChecksum = file;
+        return diagnostic;
+    }
 
     private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules) {
         try {
@@ -640,6 +646,8 @@ public class ModuleChecker {
         public String unknownPath;
         public models.Project project;
         public boolean projectClaim;
+        public boolean missingChecksum;
+        public String fileToChecksum;
 
         Diagnostic(String type, String message){
             this.type = type;
