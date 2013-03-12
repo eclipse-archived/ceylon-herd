@@ -1,5 +1,23 @@
 package util;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
@@ -13,24 +31,16 @@ import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import models.ModuleVersion;
 import models.User;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import play.libs.XML;
 
 public class ModuleChecker {
 
@@ -195,6 +205,31 @@ public class ModuleChecker {
             }
         }
 
+        String jarModulePropertiesName = "module.properties";
+        String jarModulePropertiesPath = m.path + jarModulePropertiesName;
+        boolean hasJarModulesProperties = fileByPath.containsKey(jarModulePropertiesPath);
+        if(hasJarModulesProperties){
+            fileByPath.remove(jarModulePropertiesPath);
+            if(!m.hasJar){
+                m.diagnostics.add(new Diagnostic("error", "module properties file only supported with jar upload"));
+            }
+            loadJarModuleProperties(uploadsDir, jarModulePropertiesPath, m, modules);
+        }
+
+        String jarModuleXmlName = "module.xml";
+        String jarModuleXmlPath = m.path + jarModuleXmlName;
+        boolean hasJarXmlProperties = fileByPath.containsKey(jarModuleXmlPath);
+        if(hasJarXmlProperties){
+            fileByPath.remove(jarModuleXmlPath);
+            if(!m.hasJar){
+                m.diagnostics.add(new Diagnostic("error", "module xml file only supported with jar upload"));
+            }
+            loadJarModuleXml(uploadsDir, jarModuleXmlPath, m, modules);
+            if(hasJarModulesProperties){
+                m.diagnostics.add(new Diagnostic("error", "only one of module xml or properties file supported"));
+            }
+        }
+
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
@@ -327,6 +362,116 @@ public class ModuleChecker {
         // if the jar is alone it's good. Otherwise an error was already added
         if (m.hasJar && !m.hasJs && !m.hasCar && !m.hasChecksum && !m.hasDocs && !m.hasSource && !m.hasSourceChecksum) {
             m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }
+    }
+
+    private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules) {
+        File f = new File(uploadsDir, fileName);
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(f));
+            try{
+                String line;
+                int nr = 0;
+                while((line = reader.readLine()) != null){
+                    line = line.trim();
+                    // remove # comments
+                    int hashPos = line.indexOf('#');
+                    if(hashPos > -1)
+                        line = line.substring(0, hashPos).trim();
+                    nr++;
+                    // skip empty lines
+                    if(line.isEmpty())
+                        continue;
+                    // make sure line is valid
+                    int equalsPos = line.indexOf('=');
+                    if(equalsPos == -1){
+                        m.diagnostics.add(new Diagnostic("error", "Invalid modules.properties line "+nr+": "+line));
+                        continue;
+                    }
+                    String name = line.substring(0, equalsPos);
+                    String version = line.substring(equalsPos+1);
+                    if(name.isEmpty()){
+                        m.diagnostics.add(new Diagnostic("error", "Invalid modules.properties line "+nr+" (name is empty): "+line));
+                        continue;
+                    }
+                    if(version.isEmpty()){
+                        m.diagnostics.add(new Diagnostic("error", "Invalid modules.properties line "+nr+" (version is empty): "+line));
+                        continue;
+                    }
+                    // must make sure it exists
+                    checkDependencyExists(name, version, m, modules);
+                }
+            }finally{
+                reader.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            m.diagnostics.add(new Diagnostic("error", "Invalid modules file: "+e.getMessage()));
+        }
+    }
+
+    private static void loadJarModuleXml(File uploadsDir, String fileName, Module m, List<Module> modules) {
+        File f = new File(uploadsDir, fileName);
+        try {
+            Document document = XML.getDocument(f);
+            Element root = document.getDocumentElement();
+            if(!root.getTagName().equals("module")){
+                m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid module root element: "+root.getTagName()));
+                return;
+            }
+            String moduleName = root.getAttribute("name");
+            if(moduleName == null || moduleName.isEmpty()){
+                m.diagnostics.add(new Diagnostic("error", "module.xml: Missing module name"));
+            }
+            if(!moduleName.equals(m.name)){
+                m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid module name: "+moduleName));
+            }
+            String moduleVersion = root.getAttribute("slot");
+            if(moduleVersion == null || moduleVersion.isEmpty()){
+                m.diagnostics.add(new Diagnostic("error", "module.xml: Missing module version"));
+            }
+            if(!moduleVersion.equals(m.version)){
+                m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid module version: "+moduleVersion));
+            }
+            NodeList dependenciesNodes = root.getElementsByTagName("dependencies");
+            for(int i=0;i<dependenciesNodes.getLength();i++){
+                Node node = dependenciesNodes.item(i);
+                if(node instanceof Element == false){
+                    m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid dependencies node: "+node));
+                    continue;
+                }
+                Element dependencies = (Element) node;
+                NodeList dependencyNodes = dependencies.getElementsByTagName("module");
+                for(int j=0;j < dependencyNodes.getLength();j++){
+                    Node dependencyNode = dependencyNodes.item(j);
+                    if(dependencyNode instanceof Element == false){
+                        m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid dependency node: "+dependencyNode));
+                        continue;
+                    }
+                    Element dependency = (Element) dependencyNode;
+                    String name = dependency.getAttribute("name");
+                    if(name == null || name.isEmpty()){
+                        m.diagnostics.add(new Diagnostic("error", "module.xml: Missing dependency name: "+dependency));
+                        continue;
+                    }
+                    String version = dependency.getAttribute("slot");
+                    if(version == null || version.isEmpty()){
+                        m.diagnostics.add(new Diagnostic("error", "module.xml: Missing dependency version: "+dependency));
+                        continue;
+                    }
+                    String optional = dependency.getAttribute("optional");
+                    boolean isOptional = "true".equals(optional);
+                    if(isOptional){
+                        m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is optional"));
+                        return;
+                    }
+                    // must make sure it exists
+                    checkDependencyExists(name, version, m, modules);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            m.diagnostics.add(new Diagnostic("error", "Invalid modules file: "+e.getMessage()));
         }
     }
 
