@@ -2,8 +2,10 @@ package models;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import play.db.jpa.Model;
+import util.JDKUtil;
 
 @SuppressWarnings("serial")
 @Entity
@@ -23,5 +25,20 @@ public class Dependency extends Model {
         this.version = version;
         this.export = export;
         this.optional = optional;
+    }
+    
+    @Transient
+    public boolean isJdk(){
+        return JDKUtil.isJdkModule(name);
+    }
+
+    @Transient
+    public boolean isExists(){
+        return ModuleVersion.count("name = ? AND version = ?", name, version) > 0;
+    }
+
+    @Transient
+    public boolean isOtherVersions(){
+        return ModuleVersion.count("name = ?", name) > 0;
     }
 }

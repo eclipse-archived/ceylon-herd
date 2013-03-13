@@ -128,7 +128,20 @@
                 <td>
                     #{list moduleVersion.dependencies, as:'dep'}
                         <div>
-                            <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+                            #{if dep.exists}
+                                <a href="@{Repo.view(dep.name, dep.version)}">${dep.name}/${dep.version}</a>
+                            #{/if}
+                            #{elseif dep.jdk}
+                                ${dep.name}/${dep.version} <span class="label label-import-keyword">JDK</span>
+                            #{/elseif}
+                            #{elseif dep.otherVersions}
+                                <a href="@{Repo.versions(dep.name)}">${dep.name}</a>/${dep.version} <span class="label label-warning">missing</span>
+                            #{/elseif}
+                            #{else}
+                                ${dep.name}/${dep.version} <span class="label label-warning">missing</span>
+                            #{/else}
+                            #{if dep.export}<span class="label label-import-keyword">shared</span>#{/if}
+                            #{if dep.optional}<span class="label label-import-keyword">optional</span>#{/if}
                         </div>
                     #{/list}
                 </td>

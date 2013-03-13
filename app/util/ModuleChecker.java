@@ -36,7 +36,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -399,7 +398,7 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExists(name, version, m, modules);
+                    checkDependencyExists(name, version, false, false, m, modules);
                 }
             }finally{
                 reader.close();
@@ -461,12 +460,11 @@ public class ModuleChecker {
                     }
                     String optional = dependency.getAttribute("optional");
                     boolean isOptional = "true".equals(optional);
-                    if(isOptional){
-                        m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is optional"));
-                        return;
-                    }
+
+                    String export = dependency.getAttribute("export");
+                    boolean isExported = "true".equals(export);
                     // must make sure it exists
-                    checkDependencyExists(name, version, m, modules);
+                    checkDependencyExists(name, version, isOptional, isExported, m, modules);
                 }
             }
         } catch (Exception e) {
@@ -614,40 +612,56 @@ public class ModuleChecker {
         }
 
         MemberValue optionalValue = dependency.getMemberValue("optional");
+        boolean optional = false;
         if(optionalValue != null){
             if(!(optionalValue instanceof BooleanMemberValue)){
                 m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'optional' value (expecting boolean)"));
                 return;
             }
-            boolean optional = ((BooleanMemberValue)optionalValue).getValue();
-            if(optional){
-                m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is optional"));
+            optional = ((BooleanMemberValue)optionalValue).getValue();
+        }
+
+        MemberValue exportValue = dependency.getMemberValue("export");
+        boolean export = false;
+        if(exportValue != null){
+            if(!(exportValue instanceof BooleanMemberValue)){
+                m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'export' value (expecting boolean)"));
                 return;
             }
+            export = ((BooleanMemberValue)exportValue).getValue();
         }
+        
         // must make sure it exists
-        checkDependencyExists(name, version, m, modules);
+        checkDependencyExists(name, version, optional, export, m, modules);
     }
 
-    private static void checkDependencyExists(String name, String version,
+    private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
             Module m, List<Module> modules) {
-        // skip JDK modules
-        if(JDKUtil.isJdkModule(name))
+        // JDK modules are always available
+        if(JDKUtil.isJdkModule(name)){
+            m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is a JDK module"));
+            m.addDependency(name, version, optional, export);
             return;
+        }
         // try to find it in the list of uploaded modules
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is to be uploaded"));
-                m.addDependency(name, version, module);
+                m.addDependency(name, version, optional, export, module);
                 return;
             }
         }
         // try to find it in the repo
         models.ModuleVersion dep = models.ModuleVersion.findByVersion(name, version);
         if(dep == null){
-            m.diagnostics.add(new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo"));
+            if(optional){
+                m.diagnostics.add(new Diagnostic("warning", "Dependency "+name+"/"+version+" was not found but is optional"));
+                m.addDependency(name, version, optional, export);
+            }else{
+                m.diagnostics.add(new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo and is not optional"));
+            }
         }else{
-            m.addDependency(name, version, dep);
+            m.addDependency(name, version, optional, export, dep);
             m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" present in repo"));
         }
     }
@@ -819,16 +833,21 @@ public class ModuleChecker {
         public ModuleVersion existingDependency;
         public Module newDependency;
 
-        Import(String name, String version, ModuleVersion dep){
-            this.name = name;
-            this.version = version;
+        Import(String name, String version, boolean optional, boolean export, ModuleVersion dep){
+            this(name, version, optional, export);
             this.existingDependency = dep;
         }
 
-        Import(String name, String version, Module dep){
+        Import(String name, String version, boolean optional, boolean export, Module dep){
+            this(name, version, optional, export);
+            this.newDependency = dep;
+        }
+
+        Import(String name, String version, boolean optional, boolean export) {
             this.name = name;
             this.version = version;
-            this.newDependency = dep;
+            this.optional = optional;
+            this.export = export;
         }
     }
 
@@ -864,12 +883,16 @@ public class ModuleChecker {
             this.path = path;
         }
 
-        public void addDependency(String name, String version, ModuleVersion dep) {
-            dependencies.add(new Import(name, version, dep));
+        public void addDependency(String name, String version, boolean optional, boolean export) {
+            dependencies.add(new Import(name, version, optional, export));
         }
 
-        public void addDependency(String name, String version, Module dep) {
-            dependencies.add(new Import(name, version, dep));
+        public void addDependency(String name, String version, boolean optional, boolean export, ModuleVersion dep) {
+            dependencies.add(new Import(name, version, optional, export, dep));
+        }
+
+        public void addDependency(String name, String version, boolean optional, boolean export, Module dep) {
+            dependencies.add(new Import(name, version, optional, export, dep));
         }
 
         public String getType(){

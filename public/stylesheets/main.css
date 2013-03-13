@@ -238,6 +238,10 @@ form.inline {
     background-color: inherit;
 }
 
+.label-import-keyword {
+    background-color: #919191;
+}
+
 .label-jar {
     background-color: #717171;
 }
