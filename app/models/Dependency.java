@@ -34,11 +34,11 @@ public class Dependency extends Model {
 
     @Transient
     public boolean isExists(){
-        return ModuleVersion.count("name = ? AND version = ?", name, version) > 0;
+        return ModuleVersion.count("module.name = ? AND version = ?", name, version) > 0;
     }
 
     @Transient
     public boolean isOtherVersions(){
-        return ModuleVersion.count("name = ?", name) > 0;
+        return Module.count("name = ?", name) > 0;
     }
 }
