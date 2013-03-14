@@ -4,6 +4,8 @@
     <head>
         <title>#{get 'title' /}</title>
         <meta charset="${_response_encoding}">
+        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/shCore.css'}">
+        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/shThemeDefault.css'}">
         <link rel="stylesheet" media="screen" href="@{'/public/bootstrap/css/bootstrap.css'}">
         <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
         #{get 'moreStyles' /}
@@ -12,6 +14,9 @@
         <script src="@{'/public/bootstrap/js/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/bootstrap/js/bootstrap-tab.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/javascripts/jstz.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/shCore.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/shBrushCeylon.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+        <script src="@{'/public/javascripts/main.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script type="text/javascript">
 // save the user time zone in a cookie so the server can access it
 var timezone = jstz.determine_timezone();
