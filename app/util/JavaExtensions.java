@@ -23,6 +23,9 @@ import play.templates.BaseTemplate;
 import play.templates.BaseTemplate.RawData;
 import play.utils.HTML;
 
+import com.github.rjeschke.txtmark.Configuration;
+import com.github.rjeschke.txtmark.Processor;
+
 public class JavaExtensions extends play.templates.JavaExtensions {
 
 	public static final String DATE_FORMAT_DEFAULT = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -94,18 +97,19 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	}
 	
 	public static Object md(String mdString) {
-//      TODO removing play markdown module		    
-//		try {
-//		    String html = Markdown.transformMarkdown(HTML.htmlEscape(mdString));
-		    
-		    String html = HTML.htmlEscape(mdString);
-		    
-		    // workaround https://github.com/ceylon/ceylon-herd/issues/74
-		    html = html.replaceAll("&amp;((\\w+)|(x?[0-9a-fA-F]+));", "&$1;");
-			return new BaseTemplate.RawData(html);
-//		} catch (ParseException e) {
-//			return e.toString();
-//		}
+	    String escaped = HTML.htmlEscape(mdString);
+
+	    Configuration config = Configuration.builder()
+	            .forceExtentedProfile()
+	            // .setCodeBlockEmitter(...) TODO
+	            // .setSpecialLinkEmitter(...) TODO
+	            .build();
+	    String html = Processor.process(escaped, config);        
+
+	    // workaround https://github.com/ceylon/ceylon-herd/issues/74
+	    html = html.replaceAll("&amp;((\\w+)|(x?[0-9a-fA-F]+));", "&$1;");
+	    
+	    return new BaseTemplate.RawData(html);
 	}
 	
 	public static String toISO8601(Date date) throws DatatypeConfigurationException{
