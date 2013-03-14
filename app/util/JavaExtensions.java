@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -23,6 +24,7 @@ import play.templates.BaseTemplate;
 import play.templates.BaseTemplate.RawData;
 import play.utils.HTML;
 
+import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 
@@ -101,7 +103,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 
 	    Configuration config = Configuration.builder()
 	            .forceExtentedProfile()
-	            // .setCodeBlockEmitter(...) TODO
+	            .setCodeBlockEmitter(MarkdownBlockEmitter.INSTANCE)
 	            // .setSpecialLinkEmitter(...) TODO
 	            .build();
 	    String html = Processor.process(escaped, config);        
@@ -289,6 +291,28 @@ public class JavaExtensions extends play.templates.JavaExtensions {
                 b.append(c);
         }
         return new RawData(b.toString());
+    }
+    
+    private static class MarkdownBlockEmitter implements BlockEmitter {
+
+        private static final MarkdownBlockEmitter INSTANCE = new MarkdownBlockEmitter();
+
+        @Override
+        public void emitBlock(StringBuilder out, List<String> lines, String meta) {
+            if (!lines.isEmpty()) {
+                if (meta == null || meta.length() == 0) {
+                    out.append("<pre>");
+                }
+                else {
+                    out.append("<pre class=\"brush: ").append(meta).append("\">");
+                }
+                for (String line : lines) {
+                    out.append(line).append('\n');
+                }
+                out.append("</pre>\n");
+            }
+        }
+
     }
 
 }
