@@ -7,5 +7,5 @@ Standards-Version: 3.8.4
 
 Package: ceylon-herd
 Architecture: all
-Depends: ${misc:Depends}, play-1.2.4, play-1.2-gravatar-module-1.0.2, play-1.2-markdown-module-1.7
+Depends: ${misc:Depends}, play-1.2.4, play-1.2-gravatar-module-1.0.2
 Description: The Ceylon Repo web app

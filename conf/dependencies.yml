@@ -3,5 +3,3 @@
 require:
     - play
     - play -> gravatar 1.0.2
-    - play -> markdown 1.7
-

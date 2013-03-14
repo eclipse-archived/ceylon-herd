@@ -1,6 +1,18 @@
 package util;
 
-import markdown.Markdown;
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
 import models.Upload;
 import play.Logger;
 import play.i18n.Lang;
@@ -10,18 +22,6 @@ import play.mvc.Router.ActionDefinition;
 import play.templates.BaseTemplate;
 import play.templates.BaseTemplate.RawData;
 import play.utils.HTML;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-import java.io.File;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 public class JavaExtensions extends play.templates.JavaExtensions {
 
@@ -94,14 +94,18 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	}
 	
 	public static Object md(String mdString) {
-		try {
-		    String html = Markdown.transformMarkdown(HTML.htmlEscape(mdString));
+//      TODO removing play markdown module		    
+//		try {
+//		    String html = Markdown.transformMarkdown(HTML.htmlEscape(mdString));
+		    
+		    String html = HTML.htmlEscape(mdString);
+		    
 		    // workaround https://github.com/ceylon/ceylon-herd/issues/74
 		    html = html.replaceAll("&amp;((\\w+)|(x?[0-9a-fA-F]+));", "&$1;");
 			return new BaseTemplate.RawData(html);
-		} catch (ParseException e) {
-			return e.toString();
-		}
+//		} catch (ParseException e) {
+//			return e.toString();
+//		}
 	}
 	
 	public static String toISO8601(Date date) throws DatatypeConfigurationException{
