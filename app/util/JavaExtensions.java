@@ -109,9 +109,6 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	            .build();
 	    String html = Processor.process(escaped, config);        
 
-	    // workaround https://github.com/ceylon/ceylon-herd/issues/74
-	    html = html.replaceAll("&amp;((\\w+)|(x?[0-9a-fA-F]+));", "&$1;");
-	    
 	    return new BaseTemplate.RawData(html);
 	}
 	
