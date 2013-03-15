@@ -27,6 +27,7 @@ import play.utils.HTML;
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
+import com.github.rjeschke.txtmark.SpanEmitter;
 
 public class JavaExtensions extends play.templates.JavaExtensions {
 
@@ -100,11 +101,11 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	
 	public static Object md(String mdString) {
 	    String escaped = HTML.htmlEscape(mdString);
-
+	    
 	    Configuration config = Configuration.builder()
 	            .forceExtentedProfile()
 	            .setCodeBlockEmitter(MarkdownBlockEmitter.INSTANCE)
-	            // .setSpecialLinkEmitter(...) TODO
+	            .setSpecialLinkEmitter(MarkdownSpanEmitter.INSTANCE)
 	            .build();
 	    String html = Processor.process(escaped, config);        
 
@@ -311,6 +312,18 @@ public class JavaExtensions extends play.templates.JavaExtensions {
                 }
                 out.append("</pre>\n");
             }
+        }
+
+    }
+    
+    private static class MarkdownSpanEmitter implements SpanEmitter {
+
+        private static MarkdownSpanEmitter INSTANCE = new MarkdownSpanEmitter();
+
+        @Override
+        public void emitSpan(StringBuilder out, String content) {
+            // TODO process markdown links
+            out.append("[").append(content).append("]");
         }
 
     }
