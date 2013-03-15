@@ -12,3 +12,5 @@ debian/files
 conf/*.cert
 conf/*.key
 modules
+/eclipse
+/test-result
