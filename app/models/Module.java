@@ -172,7 +172,7 @@ public class Module extends Model {
 	}
 	
 	public ModuleVersion getLastVersion(){
-	    return versions.last();
+	    return versions.isEmpty() ? null : versions.last();
 	}
 	
 	//
