@@ -2,6 +2,21 @@
 #{set title:'Claim new project' /}
 #{set hasForm: true /}
 
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/jquery-ui-1.8.18.autocomplete.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+#{/set}
+
+#{set 'moreStyles'}
+    <style>
+        /* Adapt the Bootstrap style to jQuery UI */
+        .dropdown-menu a.ui-state-hover {
+            color: white;
+            text-decoration: none;
+            background-color: #08C;
+        }
+    </style>
+#{/set}
+
 <div class="alert alert-info">
     <p>
         All of this is purely for reviewing purposes and will never be public.
@@ -28,7 +43,7 @@
     <div class="control-group #{errorClassBootstrap 'license'/}">
         <label class="control-label" for="license">License</label>
         <div class="controls">
-            <input name="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <input name="license" id="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'license'/}</span>
             <p class="help-block">Keep in mind we only accept <a href="http://www.opensource.org">open-source</a> modules</p>
         </div>
@@ -72,3 +87,9 @@
 </fieldset>
 
 #{/form}
+
+<script type="text/javascript">
+jQuery("#license")
+  .autocomplete({ source: ${util.Util.LICENSES_JSON.raw()} })
+  .data("autocomplete").menu.element.addClass("typeahead dropdown-menu");
+</script>

@@ -1,13 +1,19 @@
 package util;
 
 import play.Logger;
+import play.Play;
+import play.libs.IO;
 import play.mvc.Http.Request;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Util {
     
@@ -17,6 +23,12 @@ public class Util {
     public static final int TEXT_SIZE = 8192;
 	// Date Format
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+	
+    public static final String LICENSES_JSON;
+    static {
+        List<String> licenses = IO.readLines(Play.getFile("conf/licenses.conf"));
+        LICENSES_JSON = new Gson().toJson(licenses);
+    }
     
 	public static File getUploadDir(Long id) {
 		return new File("uploads"+File.separator+id);
