@@ -3,11 +3,11 @@
         <div class="moduleDescription">
             <a href="#" data-behaviour="expandable">Expand</a>
             <div class="expandable collapsed">
-                ${_moduleVersion.doc.md()}
+               ${_moduleVersion.doc.md(_moduleVersion)}
             </div>
         </div>
     #{/if}
     #{else }
-        ${_moduleVersion.doc.md()}
+        ${_moduleVersion.doc.md(_moduleVersion)}
     #{/else}
 #{/if}
