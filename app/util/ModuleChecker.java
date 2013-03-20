@@ -45,8 +45,7 @@ import play.libs.XML;
 
 public class ModuleChecker {
     
-    public static final Pattern MODULE_NAME_PATTERN = Pattern.compile("^([a-z]+(\\.[a-z]+)*)$");
-    public static final Pattern MODULE_VERSION_PATTERN = Pattern.compile("^([0-9a-z]+(\\.[0-9a-z]+)*)$");
+    public static final Pattern CEYLON_MODULE_NAME_PATTERN = Pattern.compile("^(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*(\\.(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*)*$");
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
             List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user) {
@@ -181,9 +180,6 @@ public class ModuleChecker {
             }
         }
         
-        checkModuleName(m);
-        checkModuleVersion(m);
-
         models.ModuleVersion publishedModule = models.ModuleVersion.findByVersion(m.name, m.version);
         if (publishedModule != null) {
             m.diagnostics.add(new Diagnostic("error", "Module already published"));
@@ -364,6 +360,10 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("warning", "Missing docs"));
         }
         
+        if (m.hasCar || m.hasJs) {
+            checkCeylonModuleName(m);
+        }
+        
         // second jar check
         
         // if the jar is alone it's good. Otherwise an error was already added
@@ -372,15 +372,9 @@ public class ModuleChecker {
         }
     }
 
-    private static void checkModuleName(Module m) {
-        if (!MODULE_NAME_PATTERN.matcher(m.name).matches()) {
-            m.diagnostics.add(new Diagnostic("error", "Module name must contains only period-separated list of lowercase identifiers"));
-        }
-    }
-    
-    private static void checkModuleVersion(Module m) {
-        if (!MODULE_VERSION_PATTERN.matcher(m.version).matches()) {
-            m.diagnostics.add(new Diagnostic("error", "Module version must contains only digits, periods, and lowercase letters"));
+    private static void checkCeylonModuleName(Module m) {
+        if (!CEYLON_MODULE_NAME_PATTERN.matcher(m.name).matches()) {
+            m.diagnostics.add(new Diagnostic("error", "Module name is not valid"));
         }
     }
     
