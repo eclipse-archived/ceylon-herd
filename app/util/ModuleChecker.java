@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -42,6 +44,9 @@ import org.w3c.dom.NodeList;
 import play.libs.XML;
 
 public class ModuleChecker {
+    
+    public static final Pattern MODULE_NAME_PATTERN = Pattern.compile("^([a-z]+(\\.[a-z]+)*)$");
+    public static final Pattern MODULE_VERSION_PATTERN = Pattern.compile("^([0-9a-z]+(\\.[0-9a-z]+)*)$");
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
             List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user) {
@@ -175,6 +180,9 @@ public class ModuleChecker {
                 }
             }
         }
+        
+        checkModuleName(m);
+        checkModuleVersion(m);
 
         models.ModuleVersion publishedModule = models.ModuleVersion.findByVersion(m.name, m.version);
         if (publishedModule != null) {
@@ -364,6 +372,18 @@ public class ModuleChecker {
         }
     }
 
+    private static void checkModuleName(Module m) {
+        if (!MODULE_NAME_PATTERN.matcher(m.name).matches()) {
+            m.diagnostics.add(new Diagnostic("error", "Module name must contains only period-separated list of lowercase identifiers"));
+        }
+    }
+    
+    private static void checkModuleVersion(Module m) {
+        if (!MODULE_VERSION_PATTERN.matcher(m.version).matches()) {
+            m.diagnostics.add(new Diagnostic("error", "Module version must contains only digits, periods, and lowercase letters"));
+        }
+    }
+    
     private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules) {
         File f = new File(uploadsDir, fileName);
         try {

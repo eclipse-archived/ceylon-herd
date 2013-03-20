@@ -1,8 +1,10 @@
-import org.junit.*;
-import java.util.*;
-import play.test.*;
+import static util.ModuleChecker.MODULE_NAME_PATTERN;
+import static util.ModuleChecker.MODULE_VERSION_PATTERN;
+
+import org.junit.Test;
+
+import play.test.UnitTest;
 import util.Util;
-import models.*;
 
 public class BasicTest extends UnitTest {
 
@@ -45,5 +47,91 @@ public class BasicTest extends UnitTest {
         assertEquals(-1, Util.compareVersions("0.3.1", "0.3.2"));
         assertEquals(1, Util.compareVersions("0.3.2", "0.3.1"));
     }
+    
+    @Test
+    public void shouldAcceptModuleName() {
+        String[] shouldAcceptModuleNames = new String[] {
+                "a",
+                "a.a",
+                "a.a.a",
+                "a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a",
+                "a.b.c.x.y.z",
+                "a.bb.ccc.xxxx.yyyyy.zzzzzz",
+                "aaaaa.bbbbb.ccccc.xxxxx.yyyyy.zzzzz" };
+
+        for (String moduleName : shouldAcceptModuleNames) {
+            assertTrue("Should accept module name : " + moduleName, MODULE_NAME_PATTERN.matcher(moduleName).matches());
+        }
+    }
+    
+    @Test
+    public void shouldRejectModuleName() {
+        String[] shouldRejectModuleNames = new String[] {
+                "",
+                " ",
+                ".",
+                "..",
+                ".a",
+                "a.",
+                ".a.",
+                "a.b.c.",
+                ".a.b.c",
+                ".a.b.c.",
+                "A",
+                "aA",
+                "a.A",
+                "#",
+                "a#",
+                "a.#",
+                "1",
+                "a1",
+                "a.1",
+                "a ",
+                " a"};
+
+        for (String moduleName : shouldRejectModuleNames) {
+            assertFalse("Should reject module name : " + moduleName, MODULE_NAME_PATTERN.matcher(moduleName).matches());
+        }
+    }
+    
+    @Test
+    public void shouldAcceptModuleVersion() {
+        String[] shouldAcceptModuleVersions = new String[] {
+                "1",
+                "1.2",
+                "1.2.3",
+                "1234567890",
+                "1a",
+                "1a.2b",
+                "alfa" };
+
+        for (String moduleVersion : shouldAcceptModuleVersions) {
+            assertTrue("Should accept module version : " + moduleVersion, MODULE_VERSION_PATTERN.matcher(moduleVersion).matches());
+        }
+    }
+    
+    @Test
+    public void shouldRejectModuleVersion() {
+        String[] shouldRejectModuleVersions = new String[] {
+                "",
+                " ",
+                ".",
+                "..",
+                ".1",
+                "1.",
+                ".1.",
+                "1.2.3.",
+                ".1.2.3",
+                ".1.2.3.",
+                "@",
+                "1@",
+                "1.@",
+                "1 ",
+                " 1"};
+
+        for (String moduleVersion : shouldRejectModuleVersions) {
+            assertFalse("Should reject module version : " + moduleVersion, MODULE_NAME_PATTERN.matcher(moduleVersion).matches());
+        }
+    }    
 
 }
