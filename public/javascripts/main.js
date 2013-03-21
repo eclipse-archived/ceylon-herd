@@ -20,11 +20,14 @@ function initSyntaxHighlighter() {
 }
 
 function automaticSyntaxHighlighingPreTags() {
-    $("pre").each(function() {
+    function enableSyntaxHighlighing() {
         var pre = $(this);
         if (!pre.hasClass("brush:")) {
             pre.addClass("brush: ceylon");
             pre.hide();
         }
-    });
+    }
+
+    $(".moduleDescription pre").each(enableSyntaxHighlighing);
+    $(".comment pre").each(enableSyntaxHighlighing);
 }
