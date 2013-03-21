@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -264,8 +265,9 @@ public class ModuleChecker {
                 m.diagnostics.add(checksumDiagnostic("error", "Missing checksum", m.path + carName));
             }
 
-            loadModuleInfo(uploadsDir, m.path+carName, m, modules);
-            checkIsRunnable(uploadsDir,m.path+carName,m, modules);
+            loadModuleInfo(uploadsDir, carPath, m, modules);
+            checkIsRunnable(uploadsDir, carPath, m);
+            checkThatClassesBelongToModule(uploadsDir, carPath, m);
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
         }
@@ -375,6 +377,29 @@ public class ModuleChecker {
     private static void checkCeylonModuleName(Module m) {
         if (!CEYLON_MODULE_NAME_PATTERN.matcher(m.name).matches()) {
             m.diagnostics.add(new Diagnostic("error", "Module name is not valid"));
+        }
+    }
+    
+    private static void checkThatClassesBelongToModule(File uploadsDir, String carPath, Module m) {
+        String modulePackagePath = m.name.replace('.', File.separatorChar);
+        try {
+            ZipFile zipFile = new ZipFile(new File(uploadsDir, carPath));
+            try {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        String fileName = entry.getName();
+                        if (fileName.endsWith(".class") && !fileName.startsWith(modulePackagePath)) {
+                            m.diagnostics.add(new Diagnostic("error", "Class doesn't belong to module: " + fileName));
+                        }
+                    }
+                }
+            } finally {
+                zipFile.close();
+            }
+        } catch (IOException e) {
+            handleIOException(e);
         }
     }
     
@@ -680,7 +705,7 @@ public class ModuleChecker {
         }
     }
 
-    private static void checkIsRunnable(File uploadsDir, String carName, Module m, List<Module> modules) {
+    private static void checkIsRunnable(File uploadsDir, String carName, Module m) {
         // FIXME: do this in one go with the module loading
         try {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
@@ -710,8 +735,7 @@ public class ModuleChecker {
                 car.close();
             }
         } catch (IOException e) {
-            // FIXME
-            e.printStackTrace();
+            handleIOException(e);
         }
         if(m.isRunnable) {
             m.diagnostics.add(new Diagnostic("success", "Module is runnable"));
@@ -811,6 +835,11 @@ public class ModuleChecker {
             throw new RuntimeException(x);
         }
         throw new RuntimeException("Invalid path: "+f.getPath());
+    }
+
+    private static void handleIOException(IOException e) {
+        // FIXME
+        e.printStackTrace();
     }
 
     public static class Diagnostic {
