@@ -381,7 +381,7 @@ public class ModuleChecker {
     }
     
     private static void checkThatClassesBelongToModule(File uploadsDir, String carPath, Module m) {
-        String modulePackagePath = m.name.replace('.', File.separatorChar);
+        String modulePackagePath = m.name.replace('.', File.separatorChar) + File.separatorChar;
         try {
             ZipFile zipFile = new ZipFile(new File(uploadsDir, carPath));
             try {
