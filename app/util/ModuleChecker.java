@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -381,6 +380,8 @@ public class ModuleChecker {
     }
     
     private static void checkThatClassesBelongToModule(File uploadsDir, String carPath, Module m) {
+        // Hack: ceylon.language has special classes, and only we can publish it so we know what we're doing
+        String errorLevel = "ceylon.language".equals(m.name) ? "warning" : "error";
         String modulePackagePath = m.name.replace('.', File.separatorChar) + File.separatorChar;
         try {
             ZipFile zipFile = new ZipFile(new File(uploadsDir, carPath));
@@ -391,7 +392,7 @@ public class ModuleChecker {
                     if (!entry.isDirectory()) {
                         String fileName = entry.getName();
                         if (fileName.endsWith(".class") && !fileName.startsWith(modulePackagePath)) {
-                            m.diagnostics.add(new Diagnostic("error", "Class doesn't belong to module: " + fileName));
+                            m.diagnostics.add(new Diagnostic(errorLevel, "Class doesn't belong to module: " + fileName));
                         }
                     }
                 }
