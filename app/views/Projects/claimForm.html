@@ -14,6 +14,10 @@
             text-decoration: none;
             background-color: #08C;
         }
+        /* Fix license button indention */
+        #license-btn {
+            margin-left: -5px;
+        }
     </style>
 #{/set}
 
@@ -43,7 +47,10 @@
     <div class="control-group #{errorClassBootstrap 'license'/}">
         <label class="control-label" for="license">License</label>
         <div class="controls">
-            <input name="license" id="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <div class="input-append">
+                <input name="license" id="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <button id="license-btn" class="btn" type="button"><span class="caret"></span></button>
+            </div>
             <span class="help-inline">​#{error 'license'/}</span>
             <p class="help-block">Keep in mind we only accept <a href="http://www.opensource.org">open-source</a> modules</p>
         </div>
@@ -90,6 +97,11 @@
 
 <script type="text/javascript">
 jQuery("#license")
-  .autocomplete({ source: ${util.Util.LICENSES_JSON.raw()} })
+  .autocomplete({ source: ${util.Util.LICENSES_JSON.raw()}, minLength: 0 })
   .data("autocomplete").menu.element.addClass("typeahead dropdown-menu");
+  
+jQuery("#license-btn").click(function() {
+    jQuery("#license").autocomplete("search", "");
+    jQuery("#license").focus();
+});
 </script>
