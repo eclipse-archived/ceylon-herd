@@ -1,0 +1,31 @@
+<table class="table table-striped">
+    <caption>
+        #{if caption}${_caption}#{/if} 
+        #{else}List of modules#{/else}
+    </caption>
+    <tbody>
+        #{list items:_modules, as:'module'}
+        <tr>
+            <td class="expand">
+                <a href="@{Repo.versions(module.name)}"	title="View published versions">${module.name}</a>
+            </td>
+            <td class="expand">
+                ${module.friendlyName}
+            </td>
+            <td class="shrink">
+                #{user module.owner, img:true /}
+            </td>
+            #{if module.canEdit(_user)} 
+                <td class="shrink">
+                    <a href="@{LoggedInRepo.editForm(module.name)}" title="Edit this module" class="btn btn-mini"><i class="icon-edit"></i> Edit</a> 
+                </td>
+            #{/if}
+            #{secure.check 'admin'} 
+                <td class="shrink">
+                    <a href="@{LoggedInRepo.removeModule1(module.name)}" title="Remove this module" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> Remove</a> 
+                </td>
+            #{/secure.check}
+        </tr>
+    #{/list}
+    </tbody>
+</table>

@@ -1,0 +1,57 @@
+#{extends 'main.html' /}
+#{set title:'Are you sure you want to remove a module and all its versions?' /}
+
+#{if dependantsMap.isEmpty()}
+    <div class="alert">
+        <h4 class="alert-heading">Are you sure?</h4>
+        <p>
+            Removing a published module from a public repository is very dangerous as it will break existing
+            applications. Make sure you know what you are doing.
+        </p>
+        <p>
+            You should only do this in the following situations:
+        </p>
+        <ul>
+            <li>This is a private repository and you have no users</li>
+            <li>This is a test repository and you have no users</li>
+            <li>You absolutely know nobody depends on this module</li>
+            <li>This module does not conform to the Ceylon Herd publishing policy</li>
+        </ul>
+        
+        #{if !module.versions.isEmpty()}
+            <br/>
+            <p>
+                The following module versions will be removed:
+            </p>
+            <ul>
+                #{list module.versions, as: 'mv'}
+                <li><a href="@{Repo.view(mv.module.name, mv.version)}" title="View module">${mv.module.name} / ${mv.version}</a>
+                #{/list}
+            </ul>
+        #{/if}
+    </div>
+
+    <a href="@{Repo.versions(module.name)}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
+    <a href="@{LoggedInRepo.removeModule2(module.name)}" title="I know what I´m doing" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>
+#{/if}
+#{else}
+    <div class="alert alert-error">
+        <h4 class="alert-heading">This module cannot be deleted!</h4>
+        <p>
+            The following modules depend on this module. You must delete them first.
+        </p>
+        <ul>
+            #{list dependantsMap.keySet(), as: 'version'}
+                <li>on version <a href="@{Repo.view(module.name, version)}" title="View module">${module.name} / ${version}</a> depends 
+                    <ul>
+                    #{list dependantsMap.get(version), as: 'dependant'}
+                        <li><a href="@{Repo.view(dependant.module.name, dependant.version)}" title="View module">${dependant.module.name} / ${dependant.version}</a></li>
+                    #{/list}
+                    </ul>
+                </li>
+            #{/list}
+        </ul>    
+    </div>
+
+    <a href="@{Repo.versions(module.name)}" title="Let´s go back" class="btn">Back</a>
+#{/else}

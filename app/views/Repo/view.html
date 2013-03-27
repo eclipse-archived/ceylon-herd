@@ -5,7 +5,10 @@
     Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
 </div>
 
-#{moduleEditBar module, user: user /}
+#{moduleEditBar 
+    module:module, 
+    moduleVersion:moduleVersion,
+    user:user /}
 
 #{if module.github}
     #{set 'moreScripts'}
@@ -15,14 +18,6 @@
     </script>
     #{/set}
 #{/if}
-
-#{secure.check 'admin'}
-    #{form @LoggedInRepo.remove1(module.name, moduleVersion.version), class: "form-no-margin inline pull-right"}
-    <button type="submit" title="Remove this module"
-            class="btn btn-danger"
-            ><i class="icon-trash icon-white"></i> Remove</button>
-    #{/form}
-#{/secure.check}
 
 #{if module.canEdit(user)}
     #{set 'help'}

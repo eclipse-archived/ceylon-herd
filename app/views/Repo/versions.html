@@ -5,7 +5,7 @@
     Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
 </div>
 
-#{moduleEditBar module, user: user /}
+#{moduleEditBar module:module, user:user /}
 
 #{if module.github}
 #{set 'moreScripts'}
@@ -127,7 +127,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                     </td>
                     <td>
                         #{secure.check 'admin'}
-                            #{form @LoggedInRepo.remove1(module.name, version.version), class: "form-no-margin inline pull-right"}
+                            #{form @LoggedInRepo.removeModuleVersion1(module.name, version.version), class: "form-no-margin inline pull-right"}
                                 <button type="submit" title="Remove this module"
                                     class="btn btn-danger btn-mini"
                                     ><i class="icon-trash icon-white"></i> Remove</button>

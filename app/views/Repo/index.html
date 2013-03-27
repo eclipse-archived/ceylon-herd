@@ -11,26 +11,10 @@
     </div>
 #{/if}
 #{else}
-    <table class="table table-striped">
-        <caption>
-            #{if caption}${caption}#{/if}
-            #{else}List of modules#{/else}
-        </caption>
-        <tbody>
-            #{list items:modules, as:'module'}
-                <tr>
-                    <td><a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a></td>
-                    <td>${module.friendlyName}</td>
-                    <td>#{user module.owner, img:true /}</td>
-                    <td>
-                        #{if module.canEdit(user)}
-                            <a href="@{LoggedInRepo.editForm(module.name)}" 
-                               title="Edit this module"
-                               class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
-                        #{/if}
-                    </td>
-                </tr>
-            #{/list}
-        </tbody>
-    </table>
-#{/else}
+
+    #{moduleTable 
+        caption:caption, 
+        modules:modules, 
+        user:user /}
+ 
+ #{/else}

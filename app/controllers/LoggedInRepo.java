@@ -3,7 +3,11 @@ package controllers;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import models.Category;
 import models.Module;
@@ -12,6 +16,7 @@ import models.ModuleVersion;
 import models.User;
 import notifiers.Emails;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -208,8 +213,45 @@ public class LoggedInRepo extends LoggedInController {
 		Projects.transferOwnership(project.id, newOwner.id);
 	}
 	
-	@Check("admin")
-	public static void remove1(@Required String moduleName, @Required String version){
+    @Check("admin")
+    public static void removeModule1(@Required String moduleName) {
+        Module module = getModule(moduleName);
+        SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = ModuleVersion.findDependants(moduleName);
+        render(module, dependantsMap);
+    }
+
+    @Check("admin")
+    public static void removeModule2(@Required String moduleName) {
+        Module module = getModule(moduleName);
+        removeModuleDependantsCheck(moduleName);
+        render(module);
+    }
+
+    @Check("admin")
+    public static void removeModule3(@Required String moduleName) throws IOException {
+        Module module = getModule(moduleName);
+        removeModuleDependantsCheck(moduleName);
+
+        String path = module.getPath();
+        File repoDir = Util.getRepoDir();
+        File moduleDir = new File(repoDir, path);
+        FileUtils.deleteDirectory(moduleDir);
+        
+        module.delete();
+        
+        Repo.index();
+    }
+
+    private static void removeModuleDependantsCheck(String moduleName) {
+        long dependantsCount = ModuleVersion.findDependantsCount(moduleName);
+        if (dependantsCount > 0) {
+            flash("warning", "Cannot remove module because it has dependencies");
+            Repo.versions(moduleName);
+        }
+    }
+
+    @Check("admin")
+	public static void removeModuleVersion1(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
 		List<ModuleVersion> dependentModuleVersions = moduleVersion.getDependentModuleVersions();
@@ -217,7 +259,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 	
 	@Check("admin")
-	public static void remove2(@Required String moduleName, @Required String version){
+	public static void removeModuleVersion2(@Required String moduleName, @Required String version){
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 		Module module = moduleVersion.module;
 
@@ -230,7 +272,7 @@ public class LoggedInRepo extends LoggedInController {
 	}
 	
 	@Check("admin")
-	public static void remove3(@Required String moduleName, @Required String version) throws IOException{
+	public static void removeModuleVersion3(@Required String moduleName, @Required String version) throws IOException{
 		ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 
 		if (moduleVersion.getDependentModuleVersionCount() > 0) {
@@ -247,8 +289,8 @@ public class LoggedInRepo extends LoggedInController {
 		
 		Repo.index();
 	}
-
-	public static void myModules(@Required String username){
+	
+    public static void myModules(@Required String username){
 		User user = User.find("byUserName", username).first();
 		List<models.Module> modules = models.Module.findByOwner(user);
 		render(modules);

@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
+import play.db.jpa.JPA;
+import play.db.jpa.JPABase;
 import play.db.jpa.Model;
 import util.VersionComparator;
 import controllers.RepoAPI;
@@ -173,6 +175,16 @@ public class Module extends Model {
 	
 	public ModuleVersion getLastVersion(){
 	    return versions.isEmpty() ? null : versions.last();
+	}
+	
+	@Override
+	public <T extends JPABase> T delete() {
+	    JPA.em().createNativeQuery("DELETE FROM dependency d WHERE d.id IN (SELECT d.id FROM dependency d, moduleversion v WHERE d.moduleversion_id = v.id AND v.module_id = :moduleId)").setParameter("moduleId", id).executeUpdate();
+	    JPA.em().createNativeQuery("DELETE FROM moduleversion_author a WHERE a.moduleversion_id IN (SELECT v.id FROM moduleversion v WHERE v.module_id = :moduleId);").setParameter("moduleId", id).executeUpdate();
+	    JPA.em().createNativeQuery("DELETE FROM moduleversion v WHERE v.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
+	    JPA.em().createNativeQuery("DELETE FROM modulecomment c WHERE c.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
+	    JPA.em().createNativeQuery("DELETE FROM module_admin_user u WHERE u.module = :moduleId").setParameter("moduleId", id).executeUpdate();
+	    return super.delete();
 	}
 	
 	//

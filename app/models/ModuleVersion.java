@@ -1,8 +1,14 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -122,6 +128,53 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     
 	//
 	// Static helpers
+    
+    public static SortedMap<String, SortedSet<ModuleVersion>> findDependants(String moduleName) {
+        List<Object[]> results = JPA.em()
+                .createQuery("SELECT d.version, v FROM ModuleVersion v JOIN v.dependencies d LEFT JOIN FETCH v.module WHERE d.name=:name")
+                .setParameter("name", moduleName)
+                .getResultList();
+
+        Comparator<String> versionComparator = new Comparator<String>() {
+            @Override
+            public int compare(String v1, String v2) {
+                return Util.compareVersions(v1, v2);
+            }
+        };
+
+        Comparator<ModuleVersion> dependantComparator = new Comparator<ModuleVersion>() {
+            @Override
+            public int compare(ModuleVersion v1, ModuleVersion v2) {
+                int result = v1.module.name.compareTo(v2.module.name);
+                if (result == 0) {
+                    result = Util.compareVersions(v1.version, v2.version);
+                }
+                return result;
+            }
+        };
+
+        SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = new TreeMap<String, SortedSet<ModuleVersion>>(versionComparator);
+        for (Object[] result : results) {
+            String version = (String) result[0];
+            ModuleVersion dependant = (ModuleVersion) result[1];
+
+            SortedSet<ModuleVersion> dependants = dependantsMap.get(version);
+            if (dependants == null) {
+                dependants = new TreeSet<ModuleVersion>(dependantComparator);
+                dependantsMap.put(version, dependants);
+            }
+            dependants.add(dependant);
+        }
+
+        return dependantsMap;
+    }
+    
+    public static long findDependantsCount(String moduleName) {
+        return JPA.em()
+                .createQuery("SELECT count(v) FROM ModuleVersion v JOIN v.dependencies d WHERE d.name=:name", Long.class)
+                .setParameter("name", moduleName)
+                .getSingleResult().longValue();
+    }
 	
 	public static ModuleVersion findByVersion(String name, String version) {
 		return find("module.name = ? AND version = ?", name, version).first();
