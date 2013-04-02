@@ -127,13 +127,10 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                     </td>
                     <td>
                         #{secure.check 'admin'}
-                            #{form @LoggedInRepo.removeModuleVersion1(module.name, version.version), class: "form-no-margin inline pull-right"}
-                                <button type="submit" title="Remove this module"
-                                    class="btn btn-danger btn-mini"
-                                    ><i class="icon-trash icon-white"></i> Remove</button>
-                            #{/form}
+                           <a href="@{LoggedInRepo.removeModuleVersion1(module.name, version.version)}" title="Remove this module"
+                              class="btn btn-danger btn-mini"
+                              ><i class="icon-trash icon-white"></i> Remove</a>
                         #{/secure.check}
-                    
                     </td>
                 </tr>
             #{/list}
