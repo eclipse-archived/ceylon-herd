@@ -15,12 +15,9 @@ footer {
     margin: 0 2em;
 }
 
-table td.expand {
-    width: 99%
-}
-
 table td.shrink {
-    white-space:nowrap
+    width: 1px;
+    white-space:nowrap;
 }
 
 .nav .user {

@@ -6,10 +6,10 @@
     <tbody>
         #{list items:_modules, as:'module'}
         <tr>
-            <td class="expand">
+            <td>
                 <a href="@{Repo.versions(module.name)}"	title="View published versions">${module.name}</a>
             </td>
-            <td class="expand">
+            <td>
                 ${module.friendlyName}
             </td>
             <td class="shrink">
