@@ -25,6 +25,13 @@ public class Emails extends Mailer {
 		setFrom(FROM);
 		send(user);
 	}
+	
+    public static void resetPassword(User user) {
+        setFrom(FROM);
+        setSubject(SUBJECT_PREFIX + "Please reset your password");
+        addRecipient(user.email);
+        send(user);
+    }
 
 	public static void projectClaimNotification(Project project, User user) {
 		setSubject(SUBJECT_PREFIX + "New project claim for "+project.moduleName+" from "+user.userName);

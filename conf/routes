@@ -15,6 +15,10 @@ OPTIONS /.*                                                Application.options
 GET     /logout                                            Secure.logout
 GET     /login                                             Secure.login
 POST    /login                                             Secure.authenticate
+GET     /reset-password-request                            Security.resetPasswordRequest
+POST    /reset-password-request                            Security.resetPasswordRequest2
+GET     /reset-password-complete/{confirmationCode}        Security.resetPasswordComplete
+POST    /reset-password-complete                           Security.resetPasswordComplete2
 
 GET     /api/1/complete-versions                           RepoAPI.completeVersions
 GET     /api/1/complete-modules                            RepoAPI.completeModules

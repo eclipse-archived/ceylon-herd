@@ -1,13 +1,22 @@
 package models;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.db.jpa.Model;
 import play.libs.Codec;
 import util.MyCache;
-
-import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("serial")
 @Entity
@@ -35,6 +44,10 @@ public class User extends Model {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	public UserStatus status;
+	
+	@Column(unique = true)
+	public String passwordResetConfirmationCode;
+	public Date passwordResetConfirmationDate;
 
 	@Transient
 	public boolean isRegistered(){
@@ -93,11 +106,11 @@ public class User extends Model {
 		return null;
 	}
 
-	public static User findRegisteredByUserName(String username) {
-		return find("LOWER(userName) = ? AND status = ?", username.toLowerCase(), UserStatus.REGISTERED).first();
-	}
+    public static User findRegisteredByUserName(String username) {
+        return find("LOWER(userName) = ? AND status = ?", username.toLowerCase(), UserStatus.REGISTERED).first();
+    }
 
-	public static User findByUserName(String username) {
-		return find("LOWER(userName) = ?", username.toLowerCase()).first();
-	}
+    public static User findByUserName(String username) {
+        return find("LOWER(userName) = ?", username.toLowerCase()).first();
+    }
 }
