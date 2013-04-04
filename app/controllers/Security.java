@@ -44,6 +44,8 @@ public class Security extends Secure.Security {
     }
     
     public static void resetPasswordRequest2(@Required String username, @Required @Email String email) {
+        Util.logSecurityAction("Reset password request: username=%s, email=%s", username, email);
+        
         if (validationFailed()) {
             resetPasswordRequest();
         }
@@ -58,8 +60,6 @@ public class Security extends Secure.Security {
         user.passwordResetConfirmationCode = UUID.randomUUID().toString();
         user.passwordResetConfirmationDate = new Date();
         user.save();
-        
-        Util.logSecurityAction("Reset password request: %s", user.userName);
         
         Emails.resetPassword(user);
         
@@ -88,7 +88,7 @@ public class Security extends Secure.Security {
         user.passwordResetConfirmationDate = null;
         user.save();
 
-        Util.logSecurityAction("Reset password: %s", user.userName);
+        Util.logSecurityAction("Reset password successfull: %s", user.userName);
 
         session.put("username", user.userName);
         response.setCookie("rememberme", Crypto.sign(user.userName) + "-" + user.userName, "30d");
@@ -98,6 +98,8 @@ public class Security extends Secure.Security {
     }
 
     private static User checkConfirmationCodeAndGetUser(String confirmationCode) {
+        Util.logSecurityAction("Reset password attempt: %s", confirmationCode);
+        
         if (StringUtils.isEmpty(confirmationCode)) {
             Validation.addError("confirmationCode", "Can't reset password, missing confirmation code.");
             prepareForErrorRedirect();
