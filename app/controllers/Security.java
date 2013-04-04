@@ -88,7 +88,7 @@ public class Security extends Secure.Security {
         user.passwordResetConfirmationDate = null;
         user.save();
 
-        Util.logSecurityAction("Reset password successfull: %s", user.userName);
+        Util.logSecurityAction("Reset password successful: %s", user.userName);
 
         session.put("username", user.userName);
         response.setCookie("rememberme", Crypto.sign(user.userName) + "-" + user.userName, "30d");
