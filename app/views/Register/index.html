@@ -2,9 +2,12 @@
 #{set title:'Home' /}
 #{set hasForm: true /}
 
-#{if play.configuration["register.enabled"] == "true"}
+<div class="row">
+<div class="span6 offset3">
 
-#{form @Register.register()}
+#{if canRegister}
+
+#{form @Register.register(), class: "form-horizontal"}
 
     <fieldset>
         <legend>Register</legend>
@@ -30,3 +33,6 @@
     </div>
     
 #{/else}
+
+</div>
+</div>

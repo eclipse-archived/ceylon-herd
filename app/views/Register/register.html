@@ -1,14 +1,18 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-#{if play.configuration["register.skip.email"] == "true"}
-    <p>
-        <a href="@@{Register.confirm(user.confirmationCode)}">Click here to continue registration</a>.
-    </p>
-#{/if}
-#{else}
-    <p>
-	    An email has been sent to ${user.email} to verify your email address. Please follow the instructions in this email
-        in order to complete your registration.
-    </p>
-#{/else}
+<div class="row">
+    <div class="span6 offset3">
+        <div class="alert alert-info">
+            <p>
+               An email has been sent to <b>${newUser.email}</b> to verify your email address. 
+               Please follow the instructions in this email in order to complete your registration.
+            </p>
+            #{if play.configuration["register.skip.email"] == "true"}
+                <p>
+                    <a href="@@{Register.confirm(newUser.confirmationCode)}">Click here to continue registration</a>.
+                </p>
+            #{/if}
+        </div>
+    </div>
+</div>

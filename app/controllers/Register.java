@@ -19,36 +19,47 @@ import util.Util;
 
 public class Register extends MyController {
 
-    private static void checkEnabled(){
-        if(!"true".equals(Play.configuration.get("register.enabled"))){
-            badRequest();
+    private static boolean canRegister() {
+        if (Security.isConnected()) {
+            User user = User.findByUserName(Security.connected());
+            if (user != null && user.isAdmin) {
+                renderArgs.put("user", user);
+                return true;
+            }
         }
+        if ("true".equals(Play.configuration.get("register.enabled"))) {
+            return true;
+        }
+        return false;
     }
     
     public static void index() {
-        render();
+        boolean canRegister = canRegister();
+        render(canRegister);
     }
 
     public static void register(@Required @MaxSize(Util.VARCHAR_SIZE) @Email String email) {
-        checkEnabled();
+        if (!canRegister()) {
+            badRequest();
+        }
         
     	if(validationFailed())
     		index();
-    	User user = User.find("email = ? AND status = ?", email, UserStatus.CONFIRMATION_REQUIRED).first();
-    	if(user == null){
-    		user = new User();
-    		user.email = email;
-    		user.confirmationCode = UUID.randomUUID().toString();
-    		user.status = UserStatus.CONFIRMATION_REQUIRED;
-    		user.create();
+    	User newUser = User.find("email = ? AND status = ?", email, UserStatus.CONFIRMATION_REQUIRED).first();
+    	if(newUser == null){
+    		newUser = new User();
+    		newUser.email = email;
+    		newUser.confirmationCode = UUID.randomUUID().toString();
+    		newUser.status = UserStatus.CONFIRMATION_REQUIRED;
+    		newUser.create();
     	}
-    	Emails.confirm(user);
-    	render(user);
+    	Emails.confirm(newUser);
+    	render(newUser);
     }
 
 	public static void confirm(String confirmationCode){
-		User user = checkConfirmationCode(confirmationCode);
-    	render(user);
+		User newUser = checkConfirmationCode(confirmationCode);
+    	render(newUser);
     }
 
     private static User checkConfirmationCode(String confirmationCode) {
@@ -72,7 +83,6 @@ public class Register extends MyController {
     		String password2, 
     		String firstName, 
     		String lastName) {
-        checkEnabled();
 
         User user = checkConfirmationCode(confirmationCode);
 		validation.required(userName);

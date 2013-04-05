@@ -2,10 +2,10 @@
 #{set title:'Complete registration' /}
 #{set hasForm: true /}
 
-#{form @Register.complete(user.confirmationCode)}
+#{form @Register.complete(newUser.confirmationCode), class: "form-horizontal"}
 
 <fieldset>
-    <legend>Complete registration for ${user.email}</legend>
+    <legend>Complete registration for ${newUser.email}</legend>
     <div class="control-group #{errorClassBootstrap 'userName'/}">
         <label class="control-label" for="userName">User name</label>
         <div class="controls">
