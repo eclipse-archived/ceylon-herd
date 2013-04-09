@@ -15,6 +15,10 @@
             <td>
                 #{if module.getLastVersion()}
                     <a href="@{Repo.view(module.name, module.getLastVersion().version)}" title="View last version">${module.getLastVersion().version}</a>
+                #{/if}
+            </td>
+            <td>
+                #{if module.getLastVersion()}
                     #{moduleBackends module.getLastVersion()/}
                 #{/if}
             </td>
