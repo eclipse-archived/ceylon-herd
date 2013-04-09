@@ -30,9 +30,24 @@ public class Security extends Secure.Security {
 
     static boolean check(String profile) {
         if ("admin".equals(profile)) {
-            return User.find("byUserName", connected()).<User> first().isAdmin;
+            User user = getCurrentUser();
+            if (user != null) {
+                return user.isAdmin;
+            }
         }
         return false;
+    }
+
+    private static User getCurrentUser() {
+        User user = null;
+        String username = connected();
+        if (StringUtils.isNotEmpty(username)) {
+            user = (User) renderArgs.get("user");
+            if (user == null || !username.equalsIgnoreCase(user.userName)) {
+                user = User.findByUserName(username);
+            }
+        }
+        return user;
     }
 
     static void onDisconnected() {
