@@ -35,22 +35,19 @@ public class Repo extends MyController {
 		render(categories);
 	}
 	
-	public static void category(String categoryName) {
-		notFoundIfNull(categoryName);
-		Category category = Category.findByName(categoryName);
-		notFoundIfNull(category);
-		List<Module> modules = category.modules;
-		
-		
-		render(category, modules);
-	}
-	
-	
-	public static void index(){
-		List<models.Module> modules = models.Module.find("ORDER BY name").fetch();
-		
-		render(modules);
-	}
+    public static void category(String categoryName) {
+        notFoundIfNull(categoryName);
+        Category category = Category.findByName(categoryName);
+        notFoundIfNull(category);
+
+        List<Module> modules = Module.findByCategoryFetchOwnerAndVersions(category);
+        render(category, modules);
+    }
+
+    public static void index() {
+        List<Module> modules = Module.findAllFetchOwnerAndVersions();
+        render(modules);
+    }
 
 	public static void versions(@Required String moduleName){
 		if(validationFailed()){

@@ -12,19 +12,25 @@
             <td>
                 ${module.friendlyName}
             </td>
+            <td>
+                #{if module.getLastVersion()}
+                    <a href="@{Repo.view(module.name, module.getLastVersion().version)}" title="View last version">${module.getLastVersion().version}</a>
+                    #{moduleBackends module.getLastVersion()/}
+                #{/if}
+            </td>
             <td class="shrink">
                 #{user module.owner, img:true /}
             </td>
-            #{if module.canEdit(_user)} 
-                <td class="shrink">
+            <td class="shrink">
+                #{if module.canEdit(_user)}
                     <a href="@{LoggedInRepo.editForm(module.name)}" title="Edit this module" class="btn btn-mini"><i class="icon-edit"></i> Edit</a> 
-                </td>
-            #{/if}
-            #{secure.check 'admin'} 
-                <td class="shrink">
+                #{/if}
+            </td>
+            <td class="shrink">
+                #{secure.check 'admin'}
                     <a href="@{LoggedInRepo.removeModule1(module.name)}" title="Remove this module" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> Remove</a> 
-                </td>
-            #{/secure.check}
+                #{/secure.check}
+            </td>
         </tr>
     #{/list}
     </tbody>
