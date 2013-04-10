@@ -28,17 +28,28 @@ import util.Util;
 
 public class LoggedInRepo extends LoggedInController {
 
-	private static ModuleVersion getModuleVersion(String moduleName, String version) {
-		if(validationFailed())
-			Repo.index();
-		models.ModuleVersion moduleVersion = models.ModuleVersion.findByVersion(moduleName, version);
-		if(moduleVersion == null){
-			Validation.addError(null, "Unknown module version");
-			prepareForErrorRedirect();
-			Repo.index();
-		}
-		return moduleVersion;
-	}
+    private static ModuleVersion getModuleVersion(String moduleName, String version) {
+        if (validationFailed())
+            Repo.index();
+        ModuleVersion moduleVersion = ModuleVersion.findByVersion(moduleName, version);
+        if (moduleVersion == null) {
+            Validation.addError(null, "Unknown module version");
+            prepareForErrorRedirect();
+            Repo.index();
+        }
+        return moduleVersion;
+    }
+	
+    private static ModuleVersion getModuleVersionForEdit(String moduleName, String version) {
+        ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
+        User user = getUser();
+        if (!moduleVersion.module.canEdit(user)) {
+            Validation.addError(null, "Unauthorised");
+            prepareForErrorRedirect();
+            Repo.index();
+        }
+        return moduleVersion;
+    }
 
 	private static Module getModule(String moduleName) {
 	    if(moduleName == null){
@@ -379,4 +390,25 @@ public class LoggedInRepo extends LoggedInController {
 	    }
 	    return c;
 	}
+	
+    public static void editChangelog(@Required String moduleName, @Required String version) {
+        ModuleVersion moduleVersion = getModuleVersionForEdit(moduleName, version);
+        render(moduleVersion);
+    }
+
+    public static void editChangelog2(@Required String moduleName, @Required String version, String changelog) {
+        ModuleVersion moduleVersion = getModuleVersionForEdit(moduleName, version);
+
+        Validation.maxSize("changelog", changelog, Util.TEXT_SIZE);
+        if (Validation.hasErrors()) {
+            prepareForErrorRedirect();
+            editChangelog(moduleName, version);
+        }
+
+        moduleVersion.changelog = changelog;
+        moduleVersion.save();
+
+        Repo.view(moduleName, version);
+    }
+    
 }

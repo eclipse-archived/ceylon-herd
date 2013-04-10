@@ -29,5 +29,6 @@ function automaticSyntaxHighlighingPreTags() {
     }
 
     $(".moduleDescription pre").each(enableSyntaxHighlighing);
+    $(".moduleChangelog pre").each(enableSyntaxHighlighing);
     $(".comment pre").each(enableSyntaxHighlighing);
 }

@@ -117,6 +117,32 @@
                 </td>
             </tr>
         #{/if}
+        #{if moduleVersion.changelog || module.canEdit(user)}
+            <tr>
+                <th>Change Log</th>
+                <td>
+                    #{if module.canEdit(user)}
+                        <a href="@{LoggedInRepo.editChangelog(module.name, moduleVersion.version)}" 
+                            class="btn btn-mini pull-right" title="Edit change log for this version">
+                            <i class="icon-list"></i> Edit change log
+                        </a>
+                    #{/if}
+                    #{if moduleVersion.changelog}
+                        #{if moduleVersion.changelog.size() > 150}
+                            <div class="moduleChangelog">
+                                <a href="#" data-behaviour="expandable">Expand</a>
+                                <div class="expandable collapsed">
+                                   ${moduleVersion.changelog.md(moduleVersion)}
+                                </div>
+                            </div>
+                        #{/if}
+                        #{else }
+                            ${moduleVersion.changelog.md(moduleVersion)}
+                        #{/else}
+                    #{/if}
+                </td>
+            </tr>
+        #{/if}
         #{if moduleVersion.dependencies}
             <tr>
                 <th>Dependencies</th>

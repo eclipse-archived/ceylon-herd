@@ -95,6 +95,8 @@ GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.removeModuleVersion1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.removeModuleVersion2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.removeModuleVersion3
+GET     /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChangelog
+POST    /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChangelog2
 
 GET     /search                                            Repo.search
                                                            

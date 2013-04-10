@@ -55,12 +55,12 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public long jsdownloads;
 	public long sourceDownloads;
 
-    // Hibernate would map @Lob to a CLOB instead of TEXT
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT") // Hibernate would map @Lob to a CLOB instead of TEXT
 	public String doc;
-    // Hibernate would map @Lob to a CLOB instead of TEXT
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT") // Hibernate would map @Lob to a CLOB instead of TEXT
 	public String license;
+    @Column(columnDefinition = "TEXT") // Hibernate would map @Lob to a CLOB instead of TEXT
+    public String changelog;
 	
     public int ceylonMajor;
     public int ceylonMinor;
