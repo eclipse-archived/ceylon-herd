@@ -18,6 +18,7 @@ import notifiers.Emails;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import play.data.validation.MaxSize;
@@ -98,6 +99,9 @@ public class LoggedInRepo extends LoggedInController {
 			category = Category.findById(categoryId);
 			Validation.required("categoryId", category);
 		}
+        if (!getUser().isAdmin && ObjectUtils.notEqual(categoryId, module.category != null ? module.category.id : null)) {
+            Validation.addError("categoryId", "Unauthorized category editing");
+        }
 		
 		if(validationFailed()){
 		    editForm(moduleName);

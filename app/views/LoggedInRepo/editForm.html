@@ -23,19 +23,22 @@
             <span class="help-inline">​#{error 'friendlyName'/}</span>
         </div>
     </div>
-    <div class="control-group #{errorClassBootstrap 'category'/}">
-        <label class="control-label" for="category">Category</label>
+    <div class="control-group #{errorClassBootstrap 'categoryId'/}">
+        <label class="control-label" for="categoryId">Category</label>
         <div class="controls">
-            <select name="categoryId">
+            <select name="categoryId" #{if !user?.isAdmin}disabled="true"#{/if}>
             	<option value="">No category</option>
             	#{list categories, as: 'c'}
             	<option value="${c.id}" #{if module.category?.id == c.id}selected="selected"#{/if}>${c.name}</option>
             	#{/list}
             </select>
-            <span class="help-inline">​#{error 'category'/}</span>
+            <span class="help-inline">​#{error 'categoryId'/}</span>
             #{if user != null && user.isAdmin}
                 <span class="help-block"><a href="@{AdminCategories.index()}">Edit categories</a></span>
             #{/if}
+            #{else}
+                <span class="muted">Only administrator can edit category</span>
+            #{/else}
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'url'/}">
