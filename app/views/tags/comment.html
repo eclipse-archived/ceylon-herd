@@ -7,7 +7,10 @@
     </a>
     <div class="data">
         <div class="header">
-            <span class="author"><i class="icon-comment"></i> #{user _comment.owner /} <span class="small">commented</span></span>
+            <span class="author">
+                <i class="icon-comment"></i> #{user _comment.owner /} <span class="small">commented</span> 
+                #{if _rating?.mark >= 0} - Rating: ${_rating.mark} / 5#{/if}
+            </span>
             <span class="date"><a href="#comment-${_comment.id}">${_comment.date.sinceInUserTZ(true)}</a></span>
         </div>
         <div class="text" id="comment-${_comment.id}-view">

@@ -2,14 +2,16 @@
     #{comment comment: comment,
               deleteAction: _deleteAction,
               editAction: _editAction,
-              user: _user 
+              user: _user,
+              rating: _rating 
     /}
 #{/list}
 
 #{if _user != null}
     #{addComment addAction: _addAction,
                  user: _user,
-                 title: _title
+                 title: _title,
+                 rating: _rating
     /}
 #{/if}
 #{else}
