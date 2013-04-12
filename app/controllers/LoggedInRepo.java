@@ -321,6 +321,7 @@ public class LoggedInRepo extends LoggedInController {
 	        Repo.versions(moduleName);
 	    }
 	    Validation.maxSize("text", text, Util.TEXT_SIZE);
+	    Validation.range("rating", rating, 0, 5);
 	    if(Validation.hasErrors()){
 	        prepareForErrorRedirect();
 	        Repo.versions(moduleName);
