@@ -3,7 +3,7 @@
               deleteAction: _deleteAction,
               editAction: _editAction,
               user: _user,
-              rating: _rating 
+              module: _module
     /}
 #{/list}
 
@@ -11,7 +11,7 @@
     #{addComment addAction: _addAction,
                  user: _user,
                  title: _title,
-                 rating: _rating
+                 rating: _module.getRatingFor(_user)
     /}
 #{/if}
 #{else}

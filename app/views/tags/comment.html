@@ -8,8 +8,9 @@
     <div class="data">
         <div class="header">
             <span class="author">
-                <i class="icon-comment"></i> #{user _comment.owner /} <span class="small">commented</span> 
-                #{if _rating?.mark >= 0} - Rating: ${_rating.mark} / 5#{/if}
+                <i class="icon-comment"></i> #{user _comment.owner /} <span class="small">commented</span>
+                %{def rating = _module.getRatingFor(_comment.owner)}%
+                #{if rating?.mark >= 0} - Rating: ${rating.mark} / 5#{/if}
             </span>
             <span class="date"><a href="#comment-${_comment.id}">${_comment.date.sinceInUserTZ(true)}</a></span>
         </div>

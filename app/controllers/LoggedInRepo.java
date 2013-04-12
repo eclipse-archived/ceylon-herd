@@ -335,9 +335,14 @@ public class LoggedInRepo extends LoggedInController {
 	    comment.module = module;
 	    comment.create();
 	    
-	    ModuleRating moduleRating = user.getRatingFor(module);
-	    moduleRating.mark = rating;
-	    moduleRating.save();
+        ModuleRating moduleRating = module.getRatingFor(user);
+        if (moduleRating == null) {
+            moduleRating = new ModuleRating();
+            moduleRating.module = module;
+            moduleRating.owner = user;
+        }
+        moduleRating.mark = rating;
+        moduleRating.save();
 	    
 	    flash("commentMessage2", "Comment added");
 	    Repo.versions(moduleName);

@@ -153,10 +153,8 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 #{comments addAction: addAction,
            editAction: editAction,
            deleteAction: deleteAction,
+           module: module,
            comments: module.comments,
            user: user,
-           title: "module",
-           rating: user.getRatingFor(module)
+           title: "module"
  /}
-
-

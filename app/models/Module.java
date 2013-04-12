@@ -65,6 +65,9 @@ public class Module extends Model {
 	@OrderBy("date")
 	@OneToMany(mappedBy="module")
 	public List<ModuleComment> comments = new ArrayList<ModuleComment>();
+	
+    @OneToMany(mappedBy="module")
+    public List<ModuleRating> ratings = new ArrayList<ModuleRating>();
 
     @ManyToOne
 	public Category category;
@@ -137,6 +140,20 @@ public class Module extends Model {
     @Transient
     public Double getAvgRating() {
     	return find("SELECT AVG(mark) FROM ModuleRating WHERE module = ? AND mark > -1 AND mark < 6", this).first();
+    }
+    
+    @Transient
+    public ModuleRating getRatingFor(User user) {
+        ModuleRating userRating = null;
+        if (user != null && user.id != null) {
+            for (ModuleRating rating : ratings) {
+                if (rating.owner != null && rating.owner.id == user.id) {
+                    userRating = rating;
+                    break;
+                }
+            }
+        }
+        return userRating;
     }
     
     public boolean canEdit(User user){
