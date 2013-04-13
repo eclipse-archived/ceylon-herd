@@ -72,6 +72,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
        	<tr>
        		<th>Rating</th>
        		<td>
+                #{starRating rating: module.getAvgRating() /}
        			${module.getAvgRating()}
        		</td>
         <tr>

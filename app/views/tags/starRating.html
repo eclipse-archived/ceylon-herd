@@ -1,0 +1,36 @@
+#{if _editable || (_rating != null && _rating > 0 && _rating <= 5) }
+
+    #{if _editable}
+        <span class='star-rating star-rating-editable'>
+        <span class='small'>your module rating </span>
+    #{/if}
+    #{else}
+        #{if _user}
+            <span class='star-rating' title='User ${_user.userName} rated this module with ${_rating} ${_rating > 1 ? "stars" : "star"}'>
+        #{/if}
+        #{else}
+            <span class='star-rating'>
+        #{/else}
+    #{/else}
+
+    %{
+        for(int starIndex = 0; starIndex < 5; starIndex++) {
+            if( starIndex < _rating ) {
+                out.print("<span class='star star-full'>");
+            }
+            else {
+                out.print("<span class='star'>");
+            }
+        }
+        for(int starIndex = 0; starIndex < 5; starIndex++) {
+            out.print("</span>");
+        }
+    }%
+
+    #{if _editable}
+        <span class='star-cancel' title='Cancel module rating'></span>
+        <input type="hidden" name="rating" value="${_rating ?: 0}"></input>
+    #{/if}
+    </span>
+
+#{/if}

@@ -6,30 +6,10 @@
     <div class="data">
         <div class="header">
             <span class="author"><i class="icon-comment"></i> Comment on this ${_title}</span>
-			#{if _rating}
-			<div class="rating">
-				<span>Your rating:&nbsp;</span>
-			
-				<span id="rating-edit" #{if _rating.mark >= 0 && _rating.mark <= 5}style="display: none;"#{/if}>
-					<input type="radio" name="rating" value="-1" id="rating-none" #{if _rating.mark < 0 || _rating.mark > 5}checked="checked"#{/if}/>
-					<label for="rating-none">None</label>
-	
-					#{list 0..5, as: '__value'}				
-					<input type="radio" name="rating" value="${__value}" id="rating-${__value}" #{if __value==_rating.mark}checked="checked"#{/if}/>
-					<label for="rating-${__value}">${__value}</label>
-					#{/list}
-					
-				</span>
-				
-				<span id="rating-view" #{if _rating.mark < 0 || _rating.mark > 5}style="display: none;"#{/if}>
-				    ${_rating.mark} / 5
-				    
-					<a href="#" onclick="jQuery('#rating-edit,#rating-view').toggle(); return false;"
-                   				title="Modify this rating" class="btn btn-mini"><i class="icon-edit"></i> Modify</a>
-				</span>
-
-			</div>
-			#{/if}
+            #{starRating 
+                user:_user, 
+                rating:_rating?.mark, 
+                editable: true /}
         </div>
         <div class="text">
             <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>

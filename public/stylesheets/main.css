@@ -113,14 +113,6 @@ background-image: -webkit-gradient(
 	width: 850px;
 }
 
-.comment .rating {
-	float: right;	
-}
-
-.comment .rating label {
-	display: inline;
-}
-
 .user-info {
 	font-size: 24pt;
 }
@@ -282,4 +274,59 @@ form.inline {
     word-wrap: break-word;
     white-space: pre;
     white-space: pre-wrap;
+}
+
+.star-rating .star {
+    color: #555;
+    font-size: 18px;
+    cursor: default;
+    text-decoration: none;
+    line-height: 18px;
+}
+
+.star-rating .star:before {
+    content: "\2606";
+}
+
+.star-rating .star-full:before {
+    content: "\2605";
+}
+
+.star-rating-editable .star {
+    cursor: pointer;
+}
+
+.star-rating-editable .star:hover:before {
+    color: black;
+    content: "\2605";
+}
+
+.star-rating-editable .star-cancel {
+    font-size: 14px;
+    text-decoration: none;
+    line-height: 18px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.star-rating-editable .star-cancel:before {
+    content: "\2716";
+}
+
+.star-rating-editable:hover .star-cancel {
+    color: #A0A0A0;
+    visibility: visible;
+}
+
+.star-rating-editable .star-cancel:hover {
+    color: black;
+}
+
+.comment .star-rating {
+    float: right;
+    padding-right: 12px;
+}
+
+.comment .star-rating-editable {
+    padding-right: 0px;
 }

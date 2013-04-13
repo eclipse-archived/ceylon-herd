@@ -139,7 +139,7 @@ public class Module extends Model {
     
     @Transient
     public Double getAvgRating() {
-    	return find("SELECT AVG(mark) FROM ModuleRating WHERE module = ? AND mark > -1 AND mark < 6", this).first();
+    	return find("SELECT AVG(mark) FROM ModuleRating WHERE module = ? AND mark > 0 AND mark < 6", this).first();
     }
     
     @Transient
