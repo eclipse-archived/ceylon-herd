@@ -11,9 +11,11 @@
                 <i class="icon-comment"></i> #{user _comment.owner /} <span class="small">commented</span>
             </span>
             <span class="date"><a href="#comment-${_comment.id}">${_comment.date.sinceInUserTZ(true)}</a></span>
-            #{starRating 
-                user:_comment.owner, 
-                rating:_module.getRatingFor(_comment.owner)?.mark /}
+            #{if _starRating}
+                #{starRating 
+                    user:_comment.owner, 
+                    rating:_module.getRatingFor(_comment.owner)?.mark /}
+            #{/if}
         </div>
         <div class="text" id="comment-${_comment.id}-view">
             #{if _user != null && (_user.isAdmin || _comment.owner == _user)}

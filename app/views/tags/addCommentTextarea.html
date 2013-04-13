@@ -6,10 +6,12 @@
     <div class="data">
         <div class="header">
             <span class="author"><i class="icon-comment"></i> Comment on this ${_title}</span>
-            #{starRating 
-                user:_user, 
-                rating:_rating?.mark, 
-                editable: true /}
+            #{if _starRating}
+                #{starRating 
+                    user:_user, 
+                    rating:_rating?.mark, 
+                    editable: true /}
+            #{/if}
         </div>
         <div class="text">
             <textarea name="text" rows="5" maxlength="${util.Util.TEXT_SIZE}"></textarea>
