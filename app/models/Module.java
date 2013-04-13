@@ -138,8 +138,27 @@ public class Module extends Model {
     }
     
     @Transient
-    public Double getAvgRating() {
-    	return find("SELECT AVG(mark) FROM ModuleRating WHERE module = ? AND mark > 0 AND mark < 6", this).first();
+    public long getRatingCount() {
+        long count = 0;
+        for (ModuleRating rating : ratings) {
+            if (rating.mark > 0 && rating.mark < 6) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    @Transient
+    public double getRatingAverage() {
+        double sum = 0;
+        long count = 0;
+        for (ModuleRating rating : ratings) {
+            if (rating.mark > 0 && rating.mark < 6) {
+                sum += rating.mark;
+                count++;
+            }
+        }
+        return count != 0 ? sum / count : 0.0;
     }
     
     @Transient

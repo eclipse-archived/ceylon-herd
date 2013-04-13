@@ -69,12 +69,16 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
         	</td>
         </tr>
        	#{/if}
+        #{if module.getRatingCount() > 0}
        	<tr>
        		<th>Rating</th>
        		<td>
-                #{starRating rating: module.getAvgRating() /}
-       			${module.getAvgRating()}
+                #{starRating rating: Math.round(module.getRatingAverage()) /}
+       			<b>${module.getRatingAverage().format('#.00')}</b>
+                (rated by ${module.getRatingCount()} ${module.getRatingCount() > 1 ? "users" : "user"})
        		</td>
+        </tr>
+        #{/if}
         <tr>
             <th>Last Published</th>
             <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
