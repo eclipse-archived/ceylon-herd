@@ -232,14 +232,14 @@ public class Module extends Model {
 	// Static helpers
 	
     public static List<Module> findAllFetchOwnerAndVersions() {
-        return find("SELECT m FROM Module m " +
+        return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
                 "ORDER BY m.name").fetch();
     }
 
     public static List<Module> findByCategoryFetchOwnerAndVersions(Category category) {
-        return find("SELECT m FROM Module m " +
+        return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
                 "WHERE m.category.id = ? " +
