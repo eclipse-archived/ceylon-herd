@@ -309,10 +309,6 @@ form.inline {
     visibility: hidden;
 }
 
-.star-rating-editable .star-cancel:before {
-    content: "\2716";
-}
-
 .star-rating-editable:hover .star-cancel {
     color: #A0A0A0;
     visibility: visible;
