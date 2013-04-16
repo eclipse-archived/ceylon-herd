@@ -1,6 +1,6 @@
 #{extends 'email.txt' /}
 
-You received this email because someone (hopefully you) wants to update your email address on Ceylon Repo.
+You received this email because someone (hopefully you) wants to update your email address on Ceylon Herd.
 
 You need to validate your new email address by going to the following address:
 
