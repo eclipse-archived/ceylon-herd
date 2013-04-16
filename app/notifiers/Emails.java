@@ -25,6 +25,13 @@ public class Emails extends Mailer {
 		setFrom(FROM);
 		send(user);
 	}
+
+    public static void confirmEmailModification(User user) {
+        setSubject(SUBJECT_PREFIX + "Please confirm your email address");
+        addRecipient(user.email);
+        setFrom(FROM);
+        send(user);
+    }
 	
     public static void resetPassword(User user) {
         setFrom(FROM);
