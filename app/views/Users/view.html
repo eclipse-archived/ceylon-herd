@@ -18,6 +18,17 @@
         <th>Name</th>
         <td>${viewedUser.firstName} ${viewedUser.lastName}</td>
     </tr>
+    #{if user?.isAdmin || user?.userName == viewedUser.userName}
+    <tr>
+        <th>Email</th>
+        <td>${viewedUser.email} #{if viewedUser?.isEmailConfirmationNeeded()}(${viewedUser.emailToConfirm} not confirmed)#{/if}
+        *{The new user email has not been validated.}*
+        #{if user?.userName == viewedUser.userName && viewedUser?.isEmailConfirmationNeeded()}
+        <p><em>Your email address has been modify and not confirmed. If you haven't received the confirmation email, Please modify it again.</em></p>
+        #{/if}
+        </td>
+    </tr>
+    #{/if}
     <tr>
         <th>Projects</th>
         <td>${ownedProjects.size()}</td>

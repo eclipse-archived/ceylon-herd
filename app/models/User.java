@@ -84,6 +84,20 @@ public class User extends Model {
 		return MyCache.getModulesForOwner(this);
 	}
 
+    @Transient
+    public boolean isEmailConfirmationNeeded() {
+        return StringUtils.contains(confirmationCode, "|") && StringUtils.contains(confirmationCode, "@");
+    }
+
+    @Transient
+    public String getEmailToConfirm() {
+        String emailToConfirm = null;
+        if (isEmailConfirmationNeeded()) {
+            emailToConfirm = confirmationCode.substring(confirmationCode.indexOf("|") + 1);
+        }
+        return emailToConfirm;
+    }
+
 	public static User connect(String username, String password) {
 	    // sanity check
 	    if(StringUtils.isEmpty(username)

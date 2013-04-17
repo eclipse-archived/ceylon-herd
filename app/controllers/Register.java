@@ -64,7 +64,7 @@ public class Register extends MyController {
 
     private static User checkConfirmationCode(String confirmationCode) {
 		if(StringUtils.isEmpty(confirmationCode)){
-			Validation.addError(confirmationCode, "Missing confirmation code");
+			Validation.addError("confirmationCode", "Missing confirmation code");
 			prepareForErrorRedirect();
 			Application.index();
 		}
