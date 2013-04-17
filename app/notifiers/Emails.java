@@ -26,9 +26,9 @@ public class Emails extends Mailer {
 		send(user);
 	}
 
-    public static void confirmEmailModification(User user) {
+    public static void confirmEmailModification(User user, String recipient) {
         setSubject(SUBJECT_PREFIX + "Please confirm your email address");
-        addRecipient(user.email);
+        addRecipient(recipient);
         setFrom(FROM);
         send(user);
     }

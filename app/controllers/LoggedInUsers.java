@@ -87,7 +87,7 @@ public class LoggedInUsers extends LoggedInController {
                     + email
                     + " to verify your email address."
                     + " Please follow the instructions in this email in order to validate your new email address.");
-            Emails.confirmEmailModification(editedUser);
+            Emails.confirmEmailModification(editedUser, email);
         }
         else {
             flash("message", "User profile modified.");
