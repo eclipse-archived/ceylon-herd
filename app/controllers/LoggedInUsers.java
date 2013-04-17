@@ -44,14 +44,9 @@ public class LoggedInUsers extends LoggedInController {
     public static void edit(@Required String username,
             @MaxSize(Util.VARCHAR_SIZE) String firstName,
             @MaxSize(Util.VARCHAR_SIZE) String lastName,
-            @MaxSize(Util.VARCHAR_SIZE) @Email String email,
+            @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
             boolean isAdmin){
         User currentUser = getUser();
-        
-        if(currentUser.isAdmin){
-            // email required for admins
-            Validation.required("email", email);
-        }
         
         if(validationFailed()){
             editForm(username);
