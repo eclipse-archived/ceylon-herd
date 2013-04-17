@@ -28,6 +28,9 @@
         <div class="controls">
             <input name="email" type="text" value="${flash.email ?: editedUser.email}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'email'/}</span>
+            #{if editedUser?.isEmailConfirmationNeeded()}
+            <span class="help-inline">(New email ${editedUser.emailToConfirm} not confirmed)</span>
+            #{/if}
             #{if !user?.isAdmin && !"true".equals(play.Play.configuration.get("register.skip.email"))}
             <span class="help-block">If you modify your email address, you will receive a message to validate it.</span>
             #{/if}

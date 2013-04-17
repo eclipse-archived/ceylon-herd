@@ -69,6 +69,11 @@ public class LoggedInUsers extends LoggedInController {
                 editedUser.email = email;
             }
         }
+        // In case the user has previously modify its email and not confirmed it,
+        // we delete the confirmation code
+        else if(editedUser.isEmailConfirmationNeeded()) {
+            editedUser.confirmationCode = null;
+        }
 
         // only support setting admin from admins
         if(currentUser.isAdmin){
@@ -80,8 +85,7 @@ public class LoggedInUsers extends LoggedInController {
         if (hasToConfirmEmail) {
             flash("message", "User profile modified. An email has been sent to "
                     + email
-                    + " to verify your email address."
-                    + " Please follow the instructions in this email in order to validate your new email address.");
+                    + ". Please follow the instructions in this email in order to validate your new email address.");
             Emails.confirmEmailModification(editedUser, email);
         }
         else {
