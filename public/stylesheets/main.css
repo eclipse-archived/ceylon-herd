@@ -20,6 +20,10 @@ table td.shrink {
     white-space:nowrap;
 }
 
+.table-selectable tbody tr.tr-selected td {
+    background-color: #d9edf7;
+}
+
 .nav .user {
     margin: 10px 10px 0 10px;
     font-weight: bold;
@@ -238,11 +242,6 @@ form.inline {
     color: blue;
 }
 
-.table-no-hover tbody tr:hover td,
-.table-no-hover tbody tr:hover th {
-    background-color: inherit;
-}
-
 .label-import-keyword {
     background-color: #919191;
 }
@@ -325,4 +324,26 @@ form.inline {
 
 .comment .star-rating-editable {
     padding-right: 0px;
+}
+
+#keyboard-shortcuts-panel {
+    min-width: 300px;
+    padding: 16px;
+}
+
+#keyboard-shortcuts-panel .badge {
+    display: inline-block;
+    text-align: center;
+    margin-right: 10px;
+    min-width: 10px;
+    height: 14px;
+    line-height: 14px;
+}
+
+/* we have old version of bootstrap, which doesn't have these class yet */
+.muted {
+    color: #999999;
+}
+.text-info {
+    color: #3a87ad;
 }

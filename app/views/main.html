@@ -122,9 +122,40 @@ jQuery(function(){
                             <li><a href="@{Secure.logout()}">Logout</a></li>
                         #{/if}
                     </ul>
-                    <form class="navbar-search pull-right" action="@{Repo.search}">
-                        <input name="q" type="text" class="search-query" placeholder="Search module">
-                    </form>
+                    <ul class="nav pull-right">
+                        <form class="navbar-search" action="@{Repo.search}">
+                            <input name="q" type="text" class="search-query" placeholder="Search module">
+                        </form>
+                        <li id="keyboard-shortcuts-dropdown" class="dropdown">
+                            <a href="#" title='Show keyboard shortcuts [Shortcut: ?]' role='button' class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
+                            <ul id="keyboard-shortcuts-panel" class="dropdown-menu">
+                                <h3>Keyboard Shortcuts</h3>
+                                <li class="divider"/></li>
+                                <table>
+                                    <tr class="key-s">
+                                        <td><span class="badge badge-info">s</span></td>
+                                        <td><span class="text-info">Focus search module bar</span></td>
+                                    </tr>
+                                    <tr class="key-?">
+                                        <td><span class="badge badge-info">?</span></td>
+                                        <td><span class="text-info">Open this information panel</span></td>
+                                    </tr>
+                                    <tr class="key-j">
+                                        <td><span class="badge">j</span></td>
+                                        <td><span class="muted">Move selection down</span></td>
+                                    </tr>
+                                    <tr class="key-k">
+                                        <td><span class="badge">k</span></td>
+                                        <td><span class="muted">Move selection up</span></td>
+                                    </tr>
+                                    <tr class="key-enter">
+                                        <td><span class="badge">enter</span></td>
+                                        <td><span class="muted">Open current selection</span></td>
+                                    </tr>
+                                </table>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
