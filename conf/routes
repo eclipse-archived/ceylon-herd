@@ -112,6 +112,7 @@ GET     /users/{username}/edit                             LoggedInUsers.editFor
 POST    /users/{username}/edit                             LoggedInUsers.edit
 GET     /users/{username}/password/edit                    LoggedInUsers.passwordForm
 POST    /users/{username}/password/edit                    LoggedInUsers.passwordEdit
+GET     /users/{username}/confirmEmail                     LoggedInUsers.confirmEmail
                                                            
 # Ignore favicon requests                                  
 GET     /favicon.ico                                       404

@@ -84,6 +84,20 @@ public class User extends Model {
 		return MyCache.getModulesForOwner(this);
 	}
 
+    @Transient
+    public boolean isEmailConfirmationNeeded() {
+        return StringUtils.contains(confirmationCode, "|") && StringUtils.contains(confirmationCode, "@");
+    }
+
+    @Transient
+    public String getEmailToConfirm() {
+        String emailToConfirm = null;
+        if (isEmailConfirmationNeeded()) {
+            emailToConfirm = confirmationCode.substring(confirmationCode.indexOf("|") + 1);
+        }
+        return emailToConfirm;
+    }
+
 	public static User connect(String username, String password) {
 	    // sanity check
 	    if(StringUtils.isEmpty(username)
@@ -113,4 +127,9 @@ public class User extends Model {
     public static User findByUserName(String username) {
         return find("LOWER(userName) = ?", username.toLowerCase()).first();
     }
+    
+    public static User findByUserNameAndConfirmationCode(String username, String confirmationCode) {
+        return find("LOWER(userName) = ? and confirmationCode = ?", username.toLowerCase(), confirmationCode).first();
+    }
+    
 }
