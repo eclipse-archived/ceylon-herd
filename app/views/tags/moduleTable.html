@@ -1,6 +1,6 @@
 <table class="table table-striped">
     <caption>
-        #{if caption}${_caption}#{/if} 
+        #{if _caption}${_caption}#{/if}
         #{else}List of modules#{/else}
     </caption>
     <tbody>
@@ -21,6 +21,9 @@
                 #{if module.getLastVersion()}
                     #{moduleBackends module.getLastVersion()/}
                 #{/if}
+            </td>
+            <td>
+                #{if module.ratingCount > 0} ${module.ratingAverage} (${module.ratingCount} votes)#{/if}
             </td>
             <td class="shrink">
                 #{user module.owner, img:true /}
