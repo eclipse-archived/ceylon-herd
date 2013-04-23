@@ -10,15 +10,7 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Transient;
+import javax.persistence.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Sort;
@@ -251,7 +243,13 @@ public class Module extends Model {
 	}
 
     public static List<Module> searchByName(String q) {
-        return find("LOCATE(?, name) <> 0", q).fetch();
+        return find("SELECT DISTINCT m FROM Module m " +
+                "LEFT JOIN FETCH m.owner " +
+                "LEFT JOIN FETCH m.versions " +
+                "LEFT JOIN FETCH m.ratings " +
+                "LEFT JOIN FETCH m.category " +
+                "WHERE LOCATE(?, m.name) <> 0 " +
+                "ORDER BY m.name", q).fetch();
     }
 
 	public static List<Module> findByOwner(User owner) {
