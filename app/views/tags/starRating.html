@@ -8,6 +8,9 @@
         #{if _user}
             <span class='star-rating' title='User ${_user.userName} rated this module with ${_rating} ${_rating > 1 ? "stars" : "star"}'>
         #{/if}
+        #{elseif _ratingAverage && _ratingCount }
+            <span class='star-rating' title='Average rating is ${_ratingAverage.format("#.00")} (rated by ${_ratingCount} ${_ratingCount > 1 ? "users" : "user"})'>
+        #{/elseif}
         #{else}
             <span class='star-rating'>
         #{/else}

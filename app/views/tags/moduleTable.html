@@ -1,6 +1,6 @@
 <table class="table table-striped table-selectable">
     <caption>
-        #{if caption}${_caption}#{/if} 
+        #{if _caption}${_caption}#{/if} 
         #{else}List of modules#{/else}
     </caption>
     <tbody>
@@ -22,6 +22,12 @@
                     #{moduleBackends module.getLastVersion()/}
                 #{/if}
             </td>
+            <td>
+                #{starRating 
+                    rating: Math.round(module.getRatingAverage()),
+                    ratingAverage: module.getRatingAverage(),
+                    ratingCount: module.getRatingCount() /}
+            </td>            
             <td class="shrink">
                 #{user module.owner, img:true /}
             </td>

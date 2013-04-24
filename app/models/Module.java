@@ -235,6 +235,7 @@ public class Module extends Model {
         return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
+                "LEFT JOIN FETCH m.ratings " +
                 "ORDER BY m.name").fetch();
     }
 
@@ -242,6 +243,7 @@ public class Module extends Model {
         return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
+                "LEFT JOIN FETCH m.ratings " +
                 "WHERE m.category.id = ? " +
                 "ORDER BY m.name", category.id).fetch();
     }
@@ -251,9 +253,13 @@ public class Module extends Model {
 	}
 
     public static List<Module> searchByName(String q) {
-        return find("LOCATE(?, name) <> 0", q).fetch();
+        return find("SELECT DISTINCT m FROM Module m " +
+                "LEFT JOIN FETCH m.owner " +
+                "LEFT JOIN FETCH m.versions " +
+                "LEFT JOIN FETCH m.ratings " +
+                "WHERE LOCATE(?, m.name) <> 0 " +
+                "ORDER BY m.name", q).fetch();
     }
-
 	public static List<Module> findByOwner(User owner) {
 		return find("owner = ? ORDER BY name", owner).fetch();
 	}

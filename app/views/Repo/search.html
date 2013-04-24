@@ -7,14 +7,8 @@
     </div>
 #{/if}
 #{else}
-    <table class="table table-striped table-selectable">
-        <caption>Modules matching '${q}'</caption>
-        <tbody>
-            #{list items:modules, as:'module'}
-                <tr>
-                    <td><a href="@{Repo.versions(module.name)}">${module.name}</a></td>
-                </tr>
-            #{/list}
-        </tbody>
-    </table>
+    #{moduleTable
+        caption:"Modules matching '" + q + "'",
+        modules:modules,
+        user:user /}
 #{/else}
