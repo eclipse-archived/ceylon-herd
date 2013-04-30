@@ -33,7 +33,7 @@ public class Repo extends MyController {
     }
 
 	public static void categories() {
-		List<Category> categories = Category.findAll();
+		List<Category> categories = Category.findAllCategories();
 		render(categories);
 	}
 	
@@ -75,7 +75,7 @@ public class Repo extends MyController {
     }
 	
     public static void searchAdvanced() {
-        List<String> categories = Category.findAllNames();
+        List<String> categories = Category.findAllCategoriesNames();
         String categoriesJson = new Gson().toJson(categories);
         render(categoriesJson);
     }

@@ -26,11 +26,11 @@ public class Category extends Model {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     public List<Module> modules = new ArrayList<Module>();
 
-    public static List<Category> findAll() {
+    public static List<Category> findAllCategories() {
         return find("ORDER BY name").fetch();
     }
     
-    public static List<String> findAllNames() {
+    public static List<String> findAllCategoriesNames() {
         return find("SELECT c.name FROM Category c ORDER BY c.name").fetch();
     }
 
