@@ -99,6 +99,8 @@ GET     /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChan
 POST    /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChangelog2
 
 GET     /search                                            Repo.search
+GET     /search/advanced                                   Repo.searchAdvanced
+POST    /search/advanced                                   Repo.searchAdvanced2
                                                            
 GET     /test/{<.*>path}                                   Repo.viewFile
 GET     /repo/?                                            Repo.noFile

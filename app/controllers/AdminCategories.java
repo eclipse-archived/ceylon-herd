@@ -13,7 +13,7 @@ import util.Util;
 public class AdminCategories extends LoggedInController {
 
     public static void index() {
-        List<Category> categories = Category.allCategories();
+        List<Category> categories = Category.findAll();
         render(categories);
     }
 

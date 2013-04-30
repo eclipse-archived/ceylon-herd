@@ -26,14 +26,16 @@ public class Category extends Model {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     public List<Module> modules = new ArrayList<Module>();
 
-    //
-    // Static helpers
-    
-    public static List<Category> allCategories() {
+    public static List<Category> findAll() {
         return find("ORDER BY name").fetch();
+    }
+    
+    public static List<String> findAllNames() {
+        return find("SELECT c.name FROM Category c ORDER BY c.name").fetch();
     }
 
     public static Category findByName(String name) {
         return find("lower(name) = lower(?)", name).first();
     }
+    
 }

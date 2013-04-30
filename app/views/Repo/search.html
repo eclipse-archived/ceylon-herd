@@ -8,7 +8,7 @@
 #{/if}
 #{else}
     #{moduleTable
-        caption:"Modules matching '" + q + "'",
-        modules:modules,
-        user:user /}
+        caption: q != null ? "Modules matching '" + q + "'" : null,
+        modules: modules,
+        user: user /}
 #{/else}

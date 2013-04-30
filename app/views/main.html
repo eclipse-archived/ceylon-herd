@@ -126,6 +126,11 @@ jQuery(function(){
                         <form class="navbar-search" action="@{Repo.search}">
                             <input name="q" type="text" class="search-query" placeholder="Search module">
                         </form>
+                        <li>
+                            <a href="@{Repo.searchAdvanced}"" title="Advanced search">
+                                <i class="icon-search icon-white"></i>
+                            </a>
+                        </li>
                         <li id="keyboard-shortcuts-dropdown" class="dropdown">
                             <a href="#" title='Show keyboard shortcuts [Shortcut: ?]' role='button' class="dropdown-toggle" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
                             <ul id="keyboard-shortcuts-panel" class="dropdown-menu">

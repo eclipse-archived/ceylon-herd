@@ -1,5 +1,8 @@
 package controllers;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -8,9 +11,6 @@ import models.Category;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
-
-import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -18,6 +18,8 @@ import play.libs.MimeTypes;
 import play.mvc.Before;
 import util.JavaExtensions;
 import util.Util;
+
+import com.google.gson.Gson;
 
 public class Repo extends MyController {
 
@@ -31,7 +33,7 @@ public class Repo extends MyController {
     }
 
 	public static void categories() {
-		List<Category> categories = Category.allCategories();
+		List<Category> categories = Category.findAll();
 		render(categories);
 	}
 	
@@ -64,14 +66,34 @@ public class Repo extends MyController {
 		render(module, versions);
 	}
 
-	public static void search(String q){
-		if(StringUtils.isEmpty(q))
-			index();
-		
-		List<models.Module> modules = models.Module.searchByName(q);
-		
-		render(modules, q);
-	}
+    public static void search(String q) {
+        if (isEmpty(q)) {
+            index();
+        }
+        List<Module> modules = Module.searchByName(q);
+        render(modules, q);
+    }
+	
+    public static void searchAdvanced() {
+        List<String> categories = Category.findAllNames();
+        String categoriesJson = new Gson().toJson(categories);
+        render(categoriesJson);
+    }
+    
+    public static void searchAdvanced2(String name, String friendlyName, String license, String category) {
+        name = trimToNull(name);
+        friendlyName = trimToNull(friendlyName);
+        license = trimToNull(license);
+        category = trimToNull(category);
+        
+        if (isEmpty(name) && isEmpty(friendlyName) && isEmpty(license) && isEmpty(category)) {
+            flash("message", "No search criteria was set.");
+            searchAdvanced();
+        }
+        
+        List<Module> modules = Module.searchByCriteria(name, friendlyName, license, category);
+        renderTemplate("Repo/search.html", modules);
+    }
 
 	public static void view(@Required String moduleName, @Required String version){
 		models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);

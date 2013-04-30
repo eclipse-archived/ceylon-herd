@@ -1,5 +1,8 @@
 package models;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.removeEnd;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -260,6 +263,48 @@ public class Module extends Model {
                 "WHERE LOCATE(?, m.name) <> 0 " +
                 "ORDER BY m.name", q).fetch();
     }
+    
+    public static List<Module> searchByCriteria(String name, String friendlyName, String license, String category) {
+        String q = "SELECT DISTINCT m FROM Module m ";
+        if (isNotEmpty(license)) {
+            q += ",Project p ";
+        }
+        q += "LEFT JOIN FETCH m.owner ";
+        q += "LEFT JOIN FETCH m.versions ";
+        q += "LEFT JOIN FETCH m.ratings ";
+        q += "WHERE ";
+        if (isNotEmpty(name)) {
+            q += "LOCATE(LOWER(:name), LOWER(m.name)) <> 0 AND ";
+        }
+        if (isNotEmpty(friendlyName)) {
+            q += "LOCATE(LOWER(:friendlyName), LOWER(m.friendlyName)) <> 0 AND ";
+        }
+        if (isNotEmpty(license)) {
+            q += "m.name = p.moduleName AND LOCATE(LOWER(:license), LOWER(p.license)) <> 0 AND ";
+        }
+        if (isNotEmpty(category)) {
+            q += "LOCATE(LOWER(:category), LOWER(m.category.name)) <> 0 AND ";
+        }
+        q = removeEnd(q, "AND ");
+        q += "ORDER BY m.name";
+
+        JPAQuery jpaQuery = find(q);
+        if (isNotEmpty(name)) {
+            jpaQuery.bind("name", name);
+        }
+        if (isNotEmpty(friendlyName)) {
+            jpaQuery.bind("friendlyName", friendlyName);
+        }
+        if (isNotEmpty(license)) {
+            jpaQuery.bind("license", license);
+        }
+        if (isNotEmpty(category)) {
+            jpaQuery.bind("category", category);
+        }
+
+        return jpaQuery.fetch();
+    }
+    
 	public static List<Module> findByOwner(User owner) {
 		return find("owner = ? ORDER BY name", owner).fetch();
 	}
