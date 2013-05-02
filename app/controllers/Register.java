@@ -122,6 +122,7 @@ public class Register extends MyController {
     }
 
 	private static void login(User user) {
+	    session.clear();
         session.put("username", user.userName);
         response.setCookie("rememberme", Crypto.sign(user.userName) + "-" + user.userName, "30d");
 	}
