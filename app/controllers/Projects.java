@@ -116,6 +116,16 @@ public class Projects extends LoggedInController {
         project.description = description;
         project.motivation = motivation;
         project.save();
+        
+        User user = getUser();
+        Comment comment = new Comment();
+        comment.status = ProjectStatus.EDITED;
+        comment.owner = user;
+        comment.date = Util.currentTimeInUTC();
+        comment.project = project;
+        comment.create();
+
+        Emails.projectEditedNotification(project, user);
 
         view(id);
     }

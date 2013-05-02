@@ -8,6 +8,9 @@
     }else if(_arg == models.ProjectStatus.CLAIMED){
         labelType = "warning";
         labelTooltip = "This project claim is not confirmed yet";
+    }else if(_arg == models.ProjectStatus.EDITED){
+        labelType = "info";
+        labelTooltip = "This project claim has been edited";
     }
 }%
 <span class="label label-${labelType}" title="${labelTooltip}">${_arg}</span>

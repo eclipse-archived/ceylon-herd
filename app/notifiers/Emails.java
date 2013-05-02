@@ -58,6 +58,15 @@ public class Emails extends Mailer {
 			send(project, status);
 		}
 	}
+	
+    public static void projectEditedNotification(Project project, User user) {
+        setSubject(SUBJECT_PREFIX + "Project claim for " + project.moduleName + " has been edited from " + user.userName);
+        setFrom(FROM);
+        for (String recipient : getNotificationRecipients(project, user)) {
+            setRecipient(recipient);
+            send(project, user);
+        }
+    }
 
 	public static void commentNotification(Comment comment, User user) {
 		Project project = comment.project;
