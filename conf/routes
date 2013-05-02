@@ -37,7 +37,9 @@ POST    /projects/claim                                    Projects.claim
 GET     /projects/{id}                                     Projects.view
 POST    /projects/{id}/comment                             Projects.addComment
 GET     /projects/{id}/needs-transfer                      Projects.cannotDelete
-POST    /projects/{id}/delete                              Projects.delete
+GET     /projects/{id}/edit                                Projects.edit
+POST    /projects/{id}/edit                                Projects.edit2
+GET     /projects/{id}/delete                              Projects.delete
 GET     /projects/{projectId}/transfer                     Projects.transferOwnership
 POST    /projects/{projectId}/transfer                     Projects.transferOwnership2
 POST    /projects/{projectId}/comments/{commentId}/delete  Projects.deleteComment

@@ -1,8 +1,20 @@
 package controllers;
 
-import models.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import models.Comment;
+import models.Module;
+import models.ModuleVersion;
+import models.Project;
+import models.ProjectStatus;
+import models.User;
 import notifiers.Emails;
+
 import org.apache.commons.lang.StringUtils;
+
 import play.Logger;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
@@ -10,11 +22,6 @@ import play.data.validation.URL;
 import play.data.validation.Validation;
 import util.MyCache;
 import util.Util;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class Projects extends LoggedInController {
 
@@ -85,6 +92,33 @@ public class Projects extends LoggedInController {
 		}
 		render(project, otherOwners);
 	}
+	
+    public static void edit(Long id) {
+        Project project = getProject(id);
+        render(project);
+    }
+	
+    public static void edit2(Long id,
+            @Required @MaxSize(Util.VARCHAR_SIZE) @URL String url,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String license,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String role,
+            @Required @MaxSize(Util.TEXT_SIZE) String description,
+            @Required @MaxSize(Util.TEXT_SIZE) String motivation) {
+        Project project = getProject(id);
+
+        if (validationFailed()) {
+            edit(id);
+        }
+
+        project.url = url;
+        project.license = license;
+        project.role = role;
+        project.description = description;
+        project.motivation = motivation;
+        project.save();
+
+        view(id);
+    }
 
 	public static void cannotDelete(Long id){
         models.Project project = getProject(id);

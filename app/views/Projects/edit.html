@@ -1,0 +1,95 @@
+#{extends 'main.html' /}
+#{set title: 'Edit project claim' /}
+#{set hasForm: true /}
+
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/jquery-ui-1.8.18.autocomplete.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+#{/set}
+
+#{set 'moreStyles'}
+    <style>
+        /* Adapt the Bootstrap style to jQuery UI */
+        .dropdown-menu a.ui-state-hover {
+            color: white;
+            text-decoration: none;
+            background-color: #08C;
+        }
+        /* Fix license button indention */
+        #license-btn {
+            margin-left: -5px;
+        }
+    </style>
+#{/set}
+
+#{form action: @Projects.edit2(project.id), class: "form-horizontal"}
+
+<fieldset>
+    <legend>Edit project claim for <a href="@{Projects.view(project.id)}">${project.moduleName}</a> </legend>
+    
+    <div class="control-group #{errorClassBootstrap 'url'/}">
+        <label class="control-label" for="url">URL</label>
+        <div class="controls">
+            <input name="url" value="${flash.url ?: project.url}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'url'/}</span>
+            <p class="help-block">Your project´s home page</p>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'license'/}">
+        <label class="control-label" for="license">License</label>
+        <div class="controls">
+            <div class="input-append">
+                <input name="license" id="license" value="${flash.license ?: project.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <button id="license-btn" class="btn" type="button"><span class="caret"></span></button>
+            </div>
+            <span class="help-inline">​#{error 'license'/}</span>
+            <p class="help-block">Keep in mind we only accept <a href="http://www.opensource.org">open-source</a> modules</p>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'role'/}">
+        <label class="control-label" for="role">Your role in the project</label>
+        <div class="controls">
+            <input name="role" value="${flash.role ?: project.role}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'role'/}</span>
+            <p class="help-block">We need to know what your relation is to the project</p>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'description'/}">
+        <label class="control-label" for="description">Project description</label>
+        <div class="controls">
+            <textarea name="description" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.description ?: project.description}</textarea>
+            <span class="help-inline">​#{error 'description'/}</span>
+            <p class="help-block">Tell us what this project does, we may have not yet heard about it</p>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'motivation'/}">
+        <label class="control-label" for="motivation">Motivation</label>
+        <div class="controls">
+            <textarea name="motivation" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.motivation ?: project.motivation}</textarea>
+            <span class="help-inline">​#{error 'motivation'/}</span>
+            <p class="help-block">Why should this be in Ceylon Herd?</p>
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <a href="@{Projects.index()}" class="btn">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save project claim"/>
+    </div>
+    
+</fieldset>
+
+#{/form}
+
+<script type="text/javascript">
+jQuery("#license")
+  .autocomplete({ source: ${util.Util.LICENSES_JSON.raw()}, minLength: 0 })
+  .data("autocomplete").menu.element.addClass("typeahead dropdown-menu");
+  
+jQuery("#license-btn").click(function() {
+    jQuery("#license").autocomplete("search", "");
+    jQuery("#license").focus();
+});
+</script>

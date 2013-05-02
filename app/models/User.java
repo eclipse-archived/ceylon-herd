@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -35,6 +36,7 @@ public class User extends Model {
 	public boolean isAdmin;
 	
 	@OneToMany(mappedBy = "owner")
+	@OrderBy("moduleName")
 	public List<Project> projects = new ArrayList<Project>();
 	@OneToMany(mappedBy = "owner")
 	public List<Upload> uploads = new ArrayList<Upload>();

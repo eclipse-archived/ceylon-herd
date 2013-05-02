@@ -51,10 +51,10 @@
     <tr>
         <th>Module name</th>
         <td>
-            #{form @Projects.delete(project.id), class:"form-no-margin, pull-right"}
-                <button type="submit" class="btn btn-danger btn-mini action"
-                        title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>
-            #{/form}
+            <div class="pull-right">
+	            <a href="@{Projects.edit(project.id)}" title="Edit project claim" class="btn btn-mini"><i class="icon-edit"></i> Edit</a>
+	            <a href="@{Projects.delete(project.id)}" title="Delete project claim" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> Delete</a>
+            </div>
             %{
                 module = project.module;
             }%
