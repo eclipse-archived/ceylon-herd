@@ -3,7 +3,18 @@
     <link href="@@{Repo.view(_arg.module.name, _arg.version)}" />
     <id>@@{Repo.view(_arg.module.name, _arg.version)}</id>
     <updated>${_arg.published?.toISO8601()}</updated>
-    <summary>Version ${_arg.version} of ${_arg.module.name} has been released.</summary>
+    <summary type="xhtml">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            Version <a href="@@{Repo.view(_arg.module.name, _arg.version)}">${_arg.version}</a> of <a href="@@{Repo.versions(_arg.module.name)}">${_arg.module.name}</a> has been released.
+            
+            #{if _arg.changelog}
+                <p>
+                    <b>Change log:</b>
+                    ${_arg.changelog.md(_arg)}
+                </p>
+            #{/if}
+        </div>
+    </summary>
     <author>
         <name>${_arg.module.owner.userName}</name>
         <uri>@@{Users.view(_arg.module.owner.userName)}</uri>
