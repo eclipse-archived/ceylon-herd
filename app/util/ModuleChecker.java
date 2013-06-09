@@ -698,7 +698,11 @@ public class ModuleChecker {
                 m.diagnostics.add(new Diagnostic("warning", "Dependency "+name+"/"+version+" was not found but is optional"));
                 m.addDependency(name, version, optional, export);
             }else{
-                m.diagnostics.add(new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo and is not optional"));
+                Diagnostic diagnostic = new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo and is not optional");
+                diagnostic.dependencyNotFound = true;
+                diagnostic.dependencyName = name;
+                diagnostic.dependencyVersion = version;
+                m.diagnostics.add(diagnostic);
             }
         }else{
             m.addDependency(name, version, optional, export, dep);
@@ -851,6 +855,9 @@ public class ModuleChecker {
         public boolean projectClaim;
         public boolean missingChecksum;
         public String fileToChecksum;
+        public boolean dependencyNotFound;
+        public String dependencyName;
+        public String dependencyVersion;
 
         Diagnostic(String type, String message){
             this.type = type;

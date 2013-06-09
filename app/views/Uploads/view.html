@@ -228,7 +228,14 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                                     &nbsp;
                                     #{form @UploadAPI.addChecksum(upload.id, diagnostic.fileToChecksum), class:"form-no-margin inline"}
                                         <button type="submit" class="btn btn-mini"
-                                            title="Generate a new checksum for this file"><i class="icon-plus icon-white"></i> Generate Checksum</button>
+                                            title="Generate a new checksum for this file"><i class="icon-plus"></i> Generate Checksum</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyNotFound}
+                                    &nbsp;
+                                    #{form @Uploads.resolveMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Maven Central"><i class="icon-eye-open"></i> Resolve from Maven Central</button>
                                     #{/form}
                                 #{/elseif}
                             </li>

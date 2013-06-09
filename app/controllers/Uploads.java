@@ -5,6 +5,8 @@ import models.User;
 import org.apache.commons.io.FileUtils;
 import play.data.validation.Required;
 import play.data.validation.Validation;
+import play.libs.WS;
+import play.libs.WS.HttpResponse;
 import util.ModuleChecker;
 import util.ModuleChecker.Diagnostic;
 import util.ModuleChecker.Import;
@@ -16,6 +18,7 @@ import util.Util;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,6 +121,43 @@ public class Uploads extends LoggedInController {
 		
 		String base = uploadsDir.getPath();
 		render("Uploads/view.html", upload, uploadInfo, uploadedFiles, base);
+	}
+
+	public static void resolveMavenDependency(Long id, String name, String version) throws IOException {
+	    models.Upload upload = getUpload(id);
+	    
+	    // FIXME: check the parameters
+	    if(name == null || name.isEmpty()){
+	        Validation.addError(null, "Empty name");
+	    }
+        if(version == null || version.isEmpty()){
+            Validation.addError(null, "Empty version");
+        }
+        if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+            view(id);
+        }
+	    
+	    // check if the module in question is really in maven
+	    // ex: http://repo1.maven.org/maven2/io/vertx/vertx-core/2.0.0-beta5/vertx-core-2.0.0-beta5.jar
+	    String namePath = name.replace('.', '/');
+	    int idSep = name.lastIndexOf('.');
+	    if(idSep == -1){
+	        Validation.addError(null, "Module name does not contain any '.' (used to separate the artifact group and ID)");
+            prepareForErrorRedirect();
+            view(id);
+	    }
+	    String idPart = name.substring(idSep+1);
+	    String url = "http://repo1.maven.org/maven2/" + namePath + "/" + version + "/" + idPart + "-" + version + ".jar";
+	    
+	    HttpResponse response = WS.url(url).head();
+	    if(response.getStatus() == HttpURLConnection.HTTP_OK){
+	        flash("message", "Found in Maven central");
+	    }else{
+	        flash("message", "Not found in Maven central: " + response.getStatus() + ": "+response.getString());
+	    }
+	    
+	    view(id);
 	}
 
 	public static void viewDoc(@Required Long id, @Required String moduleName, @Required String version){
