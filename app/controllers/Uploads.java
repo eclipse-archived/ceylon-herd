@@ -1,6 +1,8 @@
 package controllers;
 
 import models.Author;
+import models.MavenDependency;
+import models.Upload;
 import models.User;
 import org.apache.commons.io.FileUtils;
 import play.data.validation.Required;
@@ -58,7 +60,7 @@ public class Uploads extends LoggedInController {
 		collectFiles(uploadsDir, uploadedFiles);
 
 		List<Module> modules = new ArrayList<Module>();
-		List<Diagnostic> diagnostics = ModuleChecker.collectModulesAndDiagnostics(uploadedFiles, modules, uploadsDir, user);
+		List<Diagnostic> diagnostics = ModuleChecker.collectModulesAndDiagnostics(uploadedFiles, modules, uploadsDir, user, upload);
 		
 		return new UploadInfo(upload, modules, diagnostics);
 	}
@@ -115,7 +117,7 @@ public class Uploads extends LoggedInController {
 		collectFiles(uploadsDir, uploadedFiles);
 
 		List<Module> modules = new ArrayList<Module>();
-		List<Diagnostic> diagnostics = ModuleChecker.collectModulesAndDiagnostics(uploadedFiles, modules, uploadsDir, user);
+		List<Diagnostic> diagnostics = ModuleChecker.collectModulesAndDiagnostics(uploadedFiles, modules, uploadsDir, user, upload);
 		
 		UploadInfo uploadInfo = new UploadInfo(upload, modules, diagnostics);
 		
@@ -123,21 +125,30 @@ public class Uploads extends LoggedInController {
 		render("Uploads/view.html", upload, uploadInfo, uploadedFiles, base);
 	}
 
+	public static void removeMavenDependency(Long id, String name, String version) throws IOException {
+	    models.Upload upload = getUpload(id);
+
+	    MavenDependency md = getMavenDependency(upload, name, version);
+	    if(md == null){
+	        Validation.addError(null, "Module was not resolved from Maven");
+	        prepareForErrorRedirect();
+	        view(id);
+	    }
+	    md.delete();
+	    view(upload.id);
+	}
+
 	public static void resolveMavenDependency(Long id, String name, String version) throws IOException {
 	    models.Upload upload = getUpload(id);
-	    
-	    // FIXME: check the parameters
-	    if(name == null || name.isEmpty()){
-	        Validation.addError(null, "Empty name");
-	    }
-        if(version == null || version.isEmpty()){
-            Validation.addError(null, "Empty version");
-        }
-        if(Validation.hasErrors()){
+
+	    MavenDependency md = getMavenDependency(upload, name, version);
+        // check that we didn't already resolve it from Maven
+        if(md != null){
+            Validation.addError(null, "Module already resolved from Maven");
             prepareForErrorRedirect();
             view(id);
         }
-	    
+        
 	    // check if the module in question is really in maven
 	    // ex: http://repo1.maven.org/maven2/io/vertx/vertx-core/2.0.0-beta5/vertx-core-2.0.0-beta5.jar
 	    String namePath = name.replace('.', '/');
@@ -152,15 +163,42 @@ public class Uploads extends LoggedInController {
 	    
 	    HttpResponse response = WS.url(url).head();
 	    if(response.getStatus() == HttpURLConnection.HTTP_OK){
+	        md = new MavenDependency(name, version, upload);
+	        md.create();
 	        flash("message", "Found in Maven central");
+        }else if(response.getStatus() == HttpURLConnection.HTTP_NOT_FOUND){
+            flash("message", "Module could not be found in Maven central");
 	    }else{
-	        flash("message", "Not found in Maven central: " + response.getStatus() + ": "+response.getString());
+	        flash("message", "Module could not be found in Maven central: " + response.getStatus() + ": "+response.getString());
 	    }
 	    
 	    view(id);
 	}
+	
+	public static void clearMavenDependencies(Long id) throws IOException{
+	    models.Upload upload = getUpload(id);
+	    for(MavenDependency md : upload.mavenDependencies)
+	        md.delete();
+	    flash("message", "Maven dependencies cleared");
+	    view(id);
+	}
 
-	public static void viewDoc(@Required Long id, @Required String moduleName, @Required String version){
+	private static MavenDependency getMavenDependency(Upload upload,
+            String name, String version) throws IOException {
+        if(name == null || name.isEmpty()){
+            Validation.addError(null, "Empty name");
+        }
+        if(version == null || version.isEmpty()){
+            Validation.addError(null, "Empty version");
+        }
+        if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+            view(upload.id);
+        }
+        return upload.findMavenDependency(name, version);
+    }
+
+    public static void viewDoc(@Required Long id, @Required String moduleName, @Required String version){
         models.Upload upload = getUpload(id);
         String docPath = moduleName.replace('.', File.separatorChar)
                 + File.separatorChar + version
@@ -226,7 +264,7 @@ public class Uploads extends LoggedInController {
 			modVersion.create();
 
 			for(Import imp : module.dependencies)
-			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export);
+			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null);
 		}
 		
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);
