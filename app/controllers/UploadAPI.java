@@ -9,6 +9,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import models.MavenDependency;
 import models.Upload;
 import models.User;
 
@@ -245,6 +246,9 @@ public class UploadAPI extends LoggedInController {
                 else
                     f.delete();
             }
+            // let's be helpful and remove maven dependencies too
+            for(MavenDependency md : upload.mavenDependencies)
+                md.delete();
             flash("message", "Upload cleared");
         }else if(file.isDirectory()){
 			FileUtils.deleteDirectory(file);
