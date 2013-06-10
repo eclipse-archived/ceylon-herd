@@ -31,7 +31,9 @@ import javassist.bytecode.annotation.BooleanMemberValue;
 import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
+import models.MavenDependency;
 import models.ModuleVersion;
+import models.Upload;
 import models.User;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -48,7 +50,7 @@ public class ModuleChecker {
     public static final Pattern CEYLON_MODULE_NAME_PATTERN = Pattern.compile("^(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*(\\.(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*)*$");
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
-            List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user) {
+            List<File> uploadedFiles, List<Module> modules, File uploadsDir, User user, Upload upload) {
         List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
         Map<String, File> fileByPath = new HashMap<String, File>();
         Set<String> alreadyTreatedArchives = new HashSet<String>(); 
@@ -98,7 +100,7 @@ public class ModuleChecker {
                 }
             }
             for(Module m : modules){
-                checkModule(uploadsDir, fileByPath, m, user, modules);
+                checkModule(uploadsDir, fileByPath, m, user, modules, upload);
             }
             for(Module m : modules){
                 checkModuleDependencyVersions(m);
@@ -146,7 +148,7 @@ public class ModuleChecker {
     }
 
     public static void checkModule(File uploadsDir,
-            Map<String, File> fileByPath, Module m, User user, List<Module> modules) {
+            Map<String, File> fileByPath, Module m, User user, List<Module> modules, Upload upload) {
 
         // check the path first (we always start and end with a separator)
         String expectedPath =
@@ -216,7 +218,7 @@ public class ModuleChecker {
             if(!m.hasJar){
                 m.diagnostics.add(new Diagnostic("error", "module properties file only supported with jar upload"));
             }
-            loadJarModuleProperties(uploadsDir, jarModulePropertiesPath, m, modules);
+            loadJarModuleProperties(uploadsDir, jarModulePropertiesPath, m, modules, upload);
         }
 
         String jarModuleXmlName = "module.xml";
@@ -227,7 +229,7 @@ public class ModuleChecker {
             if(!m.hasJar){
                 m.diagnostics.add(new Diagnostic("error", "module xml file only supported with jar upload"));
             }
-            loadJarModuleXml(uploadsDir, jarModuleXmlPath, m, modules);
+            loadJarModuleXml(uploadsDir, jarModuleXmlPath, m, modules, upload);
             if(hasJarModulesProperties){
                 m.diagnostics.add(new Diagnostic("error", "only one of module xml or properties file supported"));
             }
@@ -264,7 +266,7 @@ public class ModuleChecker {
                 m.diagnostics.add(checksumDiagnostic("error", "Missing checksum", m.path + carName));
             }
 
-            loadModuleInfo(uploadsDir, carPath, m, modules);
+            loadModuleInfo(uploadsDir, carPath, m, modules, upload);
             checkIsRunnable(uploadsDir, carPath, m);
             checkThatClassesBelongToModule(uploadsDir, carPath, m);
         }else if (!m.hasJar) {
@@ -404,7 +406,7 @@ public class ModuleChecker {
         }
     }
     
-    private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules) {
+    private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules, Upload upload) {
         File f = new File(uploadsDir, fileName);
         try {
             BufferedReader reader = new BufferedReader(new FileReader(f));
@@ -438,7 +440,7 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExists(name, version, false, false, m, modules);
+                    checkDependencyExists(name, version, false, false, m, modules, upload);
                 }
             }finally{
                 reader.close();
@@ -449,7 +451,7 @@ public class ModuleChecker {
         }
     }
 
-    private static void loadJarModuleXml(File uploadsDir, String fileName, Module m, List<Module> modules) {
+    private static void loadJarModuleXml(File uploadsDir, String fileName, Module m, List<Module> modules, Upload upload) {
         File f = new File(uploadsDir, fileName);
         try {
             Document document = XML.getDocument(f);
@@ -504,7 +506,7 @@ public class ModuleChecker {
                     String export = dependency.getAttribute("export");
                     boolean isExported = "true".equals(export);
                     // must make sure it exists
-                    checkDependencyExists(name, version, isOptional, isExported, m, modules);
+                    checkDependencyExists(name, version, isOptional, isExported, m, modules, upload);
                 }
             }
         } catch (Exception e) {
@@ -520,7 +522,7 @@ public class ModuleChecker {
         return diagnostic;
     }
 
-    private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules) {
+    private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules, Upload upload) {
         try {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
@@ -616,7 +618,7 @@ public class ModuleChecker {
                     return; // we're good
                 }
                 for(MemberValue dependencyValue : dependencyValues){
-                    checkDependency(dependencyValue, m, modules);
+                    checkDependency(dependencyValue, m, modules, upload);
                 }
             }finally{
                 car.close();
@@ -627,7 +629,7 @@ public class ModuleChecker {
         }
     }
 
-    private static void checkDependency(MemberValue dependencyValue, Module m, List<Module> modules) {
+    private static void checkDependency(MemberValue dependencyValue, Module m, List<Module> modules, Upload upload) {
         if(!(dependencyValue instanceof AnnotationMemberValue)){
             m.diagnostics.add(new Diagnostic("error", "Invalid dependency value (expecting annotation)"));
             return;
@@ -672,11 +674,11 @@ public class ModuleChecker {
         }
         
         // must make sure it exists
-        checkDependencyExists(name, version, optional, export, m, modules);
+        checkDependencyExists(name, version, optional, export, m, modules, upload);
     }
 
     private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
-            Module m, List<Module> modules) {
+            Module m, List<Module> modules, Upload upload) {
         // JDK modules are always available
         if(JDKUtil.isJdkModule(name)){
             m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is a JDK module"));
@@ -688,6 +690,13 @@ public class ModuleChecker {
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is to be uploaded"));
                 m.addDependency(name, version, optional, export, module);
+                if(upload.findMavenDependency(name, version) != null){
+                    Diagnostic diagnostic = new Diagnostic("warning", "Dependency "+name+"/"+version+" resolved from Maven Central but present in your upload");
+                    diagnostic.dependencyResolvedFromMaven = true;
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+                }
                 return;
             }
         }
@@ -697,9 +706,16 @@ public class ModuleChecker {
             if(optional){
                 m.diagnostics.add(new Diagnostic("warning", "Dependency "+name+"/"+version+" was not found but is optional"));
                 m.addDependency(name, version, optional, export);
-            }else{
+            }else if(upload.findMavenDependency(name, version) == null){
                 Diagnostic diagnostic = new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo and is not optional");
                 diagnostic.dependencyNotFound = true;
+                diagnostic.dependencyName = name;
+                diagnostic.dependencyVersion = version;
+                m.diagnostics.add(diagnostic);
+            }else{
+                m.addDependency(name, version, optional, export, upload.findMavenDependency(name, version));
+                Diagnostic diagnostic = new Diagnostic("success", "Dependency "+name+"/"+version+" resolved from Maven Central");
+                diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
                 diagnostic.dependencyVersion = version;
                 m.diagnostics.add(diagnostic);
@@ -707,6 +723,13 @@ public class ModuleChecker {
         }else{
             m.addDependency(name, version, optional, export, dep);
             m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" present in repo"));
+            if(upload.findMavenDependency(name, version) != null){
+                Diagnostic diagnostic = new Diagnostic("warning", "Dependency "+name+"/"+version+" resolved from Maven Central but present in Herd");
+                diagnostic.dependencyResolvedFromMaven = true;
+                diagnostic.dependencyName = name;
+                diagnostic.dependencyVersion = version;
+                m.diagnostics.add(diagnostic);
+            }
         }
     }
 
@@ -856,6 +879,7 @@ public class ModuleChecker {
         public boolean missingChecksum;
         public String fileToChecksum;
         public boolean dependencyNotFound;
+        public boolean dependencyResolvedFromMaven;
         public String dependencyName;
         public String dependencyVersion;
 
@@ -883,10 +907,16 @@ public class ModuleChecker {
         public boolean optional;
         public ModuleVersion existingDependency;
         public Module newDependency;
+        public MavenDependency mavenDependency;
 
         Import(String name, String version, boolean optional, boolean export, ModuleVersion dep){
             this(name, version, optional, export);
             this.existingDependency = dep;
+        }
+
+        Import(String name, String version, boolean optional, boolean export, MavenDependency dep){
+            this(name, version, optional, export);
+            this.mavenDependency = dep;
         }
 
         Import(String name, String version, boolean optional, boolean export, Module dep){
@@ -939,6 +969,10 @@ public class ModuleChecker {
         }
 
         public void addDependency(String name, String version, boolean optional, boolean export, ModuleVersion dep) {
+            dependencies.add(new Import(name, version, optional, export, dep));
+        }
+
+        public void addDependency(String name, String version, boolean optional, boolean export, MavenDependency dep) {
             dependencies.add(new Import(name, version, optional, export, dep));
         }
 
