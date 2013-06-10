@@ -103,8 +103,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 		return getPath() + "/" + module.name + "-" + version + ".src";
 	}
 
-    public void addDependency(String name, String version, boolean optional, boolean export) {
-        Dependency dep = new Dependency(this, name, version, optional, export);
+    public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven) {
+        Dependency dep = new Dependency(this, name, version, optional, export, resolvedFromMaven);
         dep.create();
         dependencies.add(dep);
     }

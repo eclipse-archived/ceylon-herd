@@ -1,9 +1,13 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import play.db.jpa.Model;
@@ -16,6 +20,10 @@ public class Upload extends Model {
 	@ManyToOne
 	public User owner;
 	public Date created;
+
+    @OneToMany(mappedBy = "upload", cascade = CascadeType.REMOVE)
+    public List<MavenDependency> mavenDependencies = new ArrayList<MavenDependency>();
+
 	
 	@Transient
 	public long getSize(){
@@ -32,5 +40,13 @@ public class Upload extends Model {
 	
     public static Long countForOwner(User owner) {
         return count("owner = ?", owner);
+    }
+
+    public MavenDependency findMavenDependency(String name, String version) {
+        for(MavenDependency md : mavenDependencies){
+            if(md.name.equals(name) && md.version.equals(version))
+                return md;
+        }
+        return null;
     }
 }
