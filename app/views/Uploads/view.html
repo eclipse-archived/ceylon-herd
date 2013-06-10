@@ -140,6 +140,27 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
             <th>Created on</th>
             <td>${upload.created.formatInUserTZ("HH:mm dd MMM yyyy")}</td>
         </tr>
+        #{if upload.mavenDependencies.size() > 0}
+        <tr>
+            <th>Dependencies resolved from Maven Central</th>
+            <td>
+                <ul>
+                #{list items:upload.mavenDependencies, as:'md'}
+                    <li>${md.name}/${md.version}
+                        #{form @Uploads.removeMavenDependency(upload.id, md.name, md.version), class:"form-no-margin inline"}
+                             <button type="submit" class="btn btn-mini"
+                                     title="Do not resolve dependency from Maven Central"><i class="icon-remove-sign"></i> Do not resolve from Maven Central</button>
+                        #{/form}
+                    </li>
+                #{/list}
+                </ul>
+                #{form @Uploads.clearMavenDependencies(upload.id), class:"form-no-margin inline"}
+                     <button type="submit" class="btn btn-mini"
+                             title="Do not resolve anything from Maven Central"><i class="icon-fire"></i> Do not resolve anything from Maven Central</button>
+                #{/form}
+            </td>
+        </tr>
+        #{/if}
         <tr>
             <th></th>
             <td>
@@ -236,6 +257,13 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                                     #{form @Uploads.resolveMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
                                         <button type="submit" class="btn btn-mini"
                                             title="Resolve dependency in Maven Central"><i class="icon-eye-open"></i> Resolve from Maven Central</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyResolvedFromMaven}
+                                    &nbsp;
+                                    #{form @Uploads.removeMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Do not resolve dependency from Maven Central"><i class="icon-remove-sign"></i> Do not resolve from Maven Central</button>
                                     #{/form}
                                 #{/elseif}
                             </li>

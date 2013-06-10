@@ -158,6 +158,9 @@
                             #{elseif dep.otherVersions}
                                 <a href="@{Repo.versions(dep.name)}">${dep.name}</a>/${dep.version} <span class="label label-warning">missing</span>
                             #{/elseif}
+                            #{elseif dep.resolvedFromMaven}
+                                <a href="${dep.mavenUrl}" title="View in Maven Central">${dep.name}/${dep.version}</a> <span class="label label-warning">Maven module</span>
+                            #{/elseif}
                             #{else}
                                 ${dep.name}/${dep.version} <span class="label label-warning">missing</span>
                             #{/else}

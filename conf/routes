@@ -70,6 +70,8 @@ POST    /uploads/{id}/delete                               Uploads.delete
 POST    /uploads/{id}/delete-file                          UploadAPI.deleteFile
 POST    /uploads/{id}/add-checksum                         UploadAPI.addChecksum
 POST    /uploads/{id}/resolve-from-maven                   Uploads.resolveMavenDependency
+POST    /uploads/{id}/resolve-from-herd                    Uploads.removeMavenDependency
+POST    /uploads/{id}/clear-maven-dependencies             Uploads.clearMavenDependencies
                                                            
 GET     /uploads/{id}/repo/{<.*>path}                      UploadAPI.viewFile
 PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
