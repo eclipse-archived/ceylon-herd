@@ -19,7 +19,7 @@ Source0:	ceylon-herd-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:  noarch
 
-Requires:	play-1.2, postgresql, redhat-lsb
+Requires:	play-1.2.6, postgresql, redhat-lsb
 
 %description
 Ceylon Herd module repository

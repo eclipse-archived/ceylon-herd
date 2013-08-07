@@ -28,7 +28,7 @@ USER=ceylherd
 CLUSTER=
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
-PLAY=/usr/share/play/1.2.4/play
+PLAY=/usr/share/play/1.2.6/play
 PLAY_ID=
 PLAY_ARGS=
 
