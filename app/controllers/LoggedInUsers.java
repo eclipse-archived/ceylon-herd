@@ -118,7 +118,7 @@ public class LoggedInUsers extends LoggedInController {
 
         // old password check for non-admins
         if(!currentUser.isAdmin){
-            if(!Codec.hexSHA1(editedUser.salt + oldPassword).equals(editedUser.password)){
+            if(!editedUser.checkPassword(oldPassword)){
                 Validation.addError("oldPassword", "Wrong Password");
                 prepareForErrorRedirect();
                 passwordForm(username);
@@ -137,7 +137,7 @@ public class LoggedInUsers extends LoggedInController {
             passwordForm(username);
         }
 
-        editedUser.password = Codec.hexSHA1(editedUser.salt + password);
+        editedUser.changePassword(password);
         editedUser.save();
 
         flash("message", "Password modified.");

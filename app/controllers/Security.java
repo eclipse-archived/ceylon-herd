@@ -98,7 +98,7 @@ public class Security extends Secure.Security {
             resetPasswordComplete(confirmationCode);
         }
 
-        user.password = Codec.hexSHA1(user.salt + password);
+        user.changePassword(password);
         user.passwordResetConfirmationCode = null;
         user.passwordResetConfirmationDate = null;
         user.save();

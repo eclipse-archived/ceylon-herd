@@ -15,8 +15,10 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
+import play.Logger;
 import play.db.jpa.Model;
 import play.libs.Codec;
+import util.BCrypt;
 import util.MyCache;
 
 @SuppressWarnings("serial")
@@ -34,6 +36,7 @@ public class User extends Model {
 	public String lastName;
 	@Column(name = "admin")
 	public boolean isAdmin;
+    public boolean isBCrypt;
 	
 	@OneToMany(mappedBy = "owner")
 	@OrderBy("moduleName")
@@ -100,6 +103,19 @@ public class User extends Model {
         return emailToConfirm;
     }
 
+    public boolean checkPassword(String password) {
+        if(isBCrypt){
+            return BCrypt.checkpw(password, this.password);
+        }else{
+            return Codec.hexSHA1(this.salt+password).equals(this.password);
+        }
+    }
+
+    public void changePassword(String newPassword) {
+        this.isBCrypt = true;
+        this.password = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+    }
+
 	public static User connect(String username, String password) {
 	    // sanity check
 	    if(StringUtils.isEmpty(username)
@@ -114,9 +130,8 @@ public class User extends Model {
 	    if(StringUtils.isEmpty(nonVerifiedUser.password)
 	            || StringUtils.isEmpty(nonVerifiedUser.salt))
 	        return null;
-	    // now check the password
-	    if(Codec.hexSHA1(nonVerifiedUser.salt+password).equals(nonVerifiedUser.password))
-	        // all good!
+        // now check the password
+	    if(nonVerifiedUser.checkPassword(password))
 	        return nonVerifiedUser;
 	    // password fail!
 		return null;
@@ -133,5 +148,4 @@ public class User extends Model {
     public static User findByUserNameAndConfirmationCode(String username, String confirmationCode) {
         return find("LOWER(userName) = ? and confirmationCode = ?", username.toLowerCase(), confirmationCode).first();
     }
-    
 }
