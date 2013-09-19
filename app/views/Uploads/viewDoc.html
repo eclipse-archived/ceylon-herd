@@ -43,6 +43,6 @@ function fullscreen(){
         </div>
     </div>
     <div id="wrap">
-        <iframe src="@{UploadAPI.viewFile(upload.id, docPath)}" frameborder="0" id="iframe"></iframe>
+        <iframe src="${util.Util.viewUploadUrl(upload.id, docPath)}" frameborder="0" id="iframe"></iframe>
     </div>
 </html>

@@ -103,7 +103,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{if module.issueTrackerURL}
                     <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
                 #{/if}
-                <a href="@{Repo.viewFile(module.path)}" title="Browse module repository"><i class="icon-folder-open"></i> Browse</a>
+                <a href="${util.Util.viewRepoUrl(module.path)}" title="Browse module repository"><i class="icon-folder-open"></i> Browse</a>
             </td>
         </tr>
     </tbody>
@@ -128,7 +128,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                         #{/if}
                     </td>
                     <td>
-                        <a href="@{Repo.viewFile(version.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
+                        <a href="${util.Util.viewRepoUrl(version.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
                     </td>
                     <td>
                         #{if version.isAPIPresent}

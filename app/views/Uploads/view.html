@@ -66,7 +66,7 @@
             <th>Repo URL</th>
             <td>
                 <p>
-                    <a href="@{UploadAPI.viewFile(upload.id, '')}" title="Browse uploaded files">@{UploadAPI.viewFile(upload.id, "")}</a>
+                    <a href="${util.Util.viewUploadUrl(upload.id, '')}" title="Browse uploaded files">${util.Util.viewUploadUrl(upload.id, "")}</a>
                 </p>
                 <form class="form-horizontal">
                     <fieldset>
@@ -208,7 +208,7 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                                 title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
                         #{/form}
                         Unknown file:
-                        <a href="@{UploadAPI.viewFile(upload.id, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
+                        <a href="${util.Util.viewUploadUrl(upload.id, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
                     #{/if}
                     #{else}
                         ${diagnostic.message}
@@ -269,7 +269,7 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                             </li>
                         #{/list}
                     </ul>
-                    <a href="@{UploadAPI.viewFile(upload.id, module.path.substring(1))}"
+                    <a href="${util.Util.viewUploadUrl(upload.id, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
                     #{if module.hasDocs}
                         <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
@@ -298,7 +298,7 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                     %{
                         path = file.relativeTo(upload); 
                     }%
-                    <td><a href="@{UploadAPI.viewFile(upload.id, path)}" title="View file">/${path}</a></td>
+                    <td><a href="${util.Util.viewUploadUrl(upload.id, path)}" title="View file">/${path}</a></td>
                     <td>${file.length().formatSize()}</td>
                     <td>
                         #{form @UploadAPI.deleteFile(upload.id, path), class:"form-no-margin inline"}

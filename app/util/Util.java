@@ -4,12 +4,15 @@ import play.Logger;
 import play.Play;
 import play.libs.IO;
 import play.mvc.Http.Request;
+import play.mvc.Router;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import com.google.gson.Gson;
@@ -145,5 +148,18 @@ public class Util {
     private static boolean isAlphabetic(char c) {
         return c >= 'A' && c <= 'Z'
                 || c >= 'a' && c <= 'z';
+    }
+    
+    public static String viewUploadUrl(Long id, String path){
+        Map<String, Object> args = new HashMap<String,Object>();
+        args.put("path", path);
+        args.put("id", id);
+        return Router.reverse("UploadAPI.viewFile", args).toString().replace("%2F", "/");
+    }
+
+    public static String viewRepoUrl(String path){
+        Map<String, Object> args = new HashMap<String,Object>();
+        args.put("path", path);
+        return Router.reverse("Repo.viewFile", args).toString().replace("%2F", "/");
     }
 }

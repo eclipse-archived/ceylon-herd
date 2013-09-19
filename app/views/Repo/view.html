@@ -226,24 +226,24 @@
                 #{if module.issueTrackerURL}
                     <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
                 #{/if}
-                <a href="@{Repo.viewFile(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
+                <a href="${util.Util.viewRepoUrl(moduleVersion.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
                 #{if moduleVersion.isJarPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.jarPath)}" title="Download legacy Jar archive"><i class="icon-download"></i> Download .jar</a><br/>
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.jarPath)}" title="Download legacy Jar archive"><i class="icon-download"></i> Download .jar</a><br/>
                 #{/if}
                 #{if moduleVersion.isCarPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.carPath)}" title="Download module JVM archive"><i class="icon-download"></i> Download .car</a><br/>
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.carPath)}" title="Download module JVM archive"><i class="icon-download"></i> Download .car</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No .car archive<br/>
                 #{/else}
                 #{if moduleVersion.isJsPresent}
-                    <a href="@{Repo.viewFile(moduleVersion.jsPath)}" title="Download module JavaScript archive"><i class="icon-download"></i> Download .js</a><br/>
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.jsPath)}" title="Download module JavaScript archive"><i class="icon-download"></i> Download .js</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No .js archive<br/>
                 #{/else}
                 #{if moduleVersion.isSourcePresent}
-                    <a href="@{Repo.viewFile(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No source archive<br/>

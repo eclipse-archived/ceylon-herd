@@ -25,12 +25,12 @@
         <caption>Browse ${file.relative() ?: 'root'}</caption>
         #{if !file.isRoot()}
         <tr>
-            <td colspan="3"><a href="@{Repo.viewFile(file.parentFile.relative())}" title="Browse parent folder"><i class="icon-folder-open"></i> Parent</a></td>
+            <td colspan="3"><a href="${util.Util.viewRepoUrl(file.parentFile.relative())}" title="Browse parent folder"><i class="icon-folder-open"></i> Parent</a></td>
         </tr>
         #{/if}
         #{list items:file.listFiles(), as:'child'}
         <tr>
-            <td><a href="@{Repo.viewFile(child.relative())}" title="${child.directory ? 'Browse folder' : 'View file'}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td><a href="${util.Util.viewRepoUrl(child.relative())}" title="${child.directory ? 'Browse folder' : 'View file'}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
             <td>
                 #{if child.directory}${child.folderSize().formatSize()}#{/if}
                 #{else}${child.length().formatSize()}#{/else}

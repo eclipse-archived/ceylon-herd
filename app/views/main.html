@@ -84,7 +84,7 @@ jQuery(function(){
                             <ul class="dropdown-menu">
                                 <li><a href="@{Repo.categories()}">By category</a></li>
                                 <li><a href="@{Repo.index()}">By name</a>
-                                <li><a href="@{Repo.viewFile('')}">Repository</a>
+                                <li><a href="${util.Util.viewRepoUrl('')}">Repository</a>
                             </ul>
                         </li>
                         #{if session.username != null && user}
