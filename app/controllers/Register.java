@@ -95,6 +95,7 @@ public class Register extends MyController {
         validation.maxSize(firstName, Util.VARCHAR_SIZE);
 		validation.required(lastName);
         validation.maxSize(lastName, Util.VARCHAR_SIZE);
+        User.validatePasswordComplexity(password);
         
         if(validationFailed())
 			confirm(confirmationCode);

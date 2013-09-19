@@ -6,16 +6,15 @@ import static controllers.MyController.validationFailed;
 import java.util.Date;
 import java.util.UUID;
 
+import models.User;
+import notifiers.Emails;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
-import models.User;
-import models.UserStatus;
-import notifiers.Emails;
 import play.data.validation.Email;
 import play.data.validation.Required;
 import play.data.validation.Validation;
-import play.libs.Codec;
 import play.libs.Crypto;
 import util.Util;
 
@@ -93,7 +92,8 @@ public class Security extends Secure.Security {
         validation.maxSize(password, Util.VARCHAR_SIZE);
         validation.required(password2);
         validation.maxSize(password2, Util.VARCHAR_SIZE);
-        validation.equals("password", password, "password confirmation", password2);
+        Validation.equals("password", password, "password confirmation", password2);
+        User.validatePasswordComplexity(password);
         if (validationFailed()) {
             resetPasswordComplete(confirmationCode);
         }

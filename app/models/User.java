@@ -15,7 +15,7 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
-import play.Logger;
+import play.data.validation.Validation;
 import play.db.jpa.Model;
 import play.libs.Codec;
 import util.BCrypt;
@@ -147,5 +147,30 @@ public class User extends Model {
     
     public static User findByUserNameAndConfirmationCode(String username, String confirmationCode) {
         return find("LOWER(userName) = ? and confirmationCode = ?", username.toLowerCase(), confirmationCode).first();
+    }
+
+    public static void validatePasswordComplexity(String password) {
+        // size is already checked
+        if(StringUtils.isEmpty(password))
+            return;
+        if(password.length() < 8
+                || !hasLetterAndDigit(password))
+            Validation.addError("password", "Passwords should be at least 8 characters long and contain at least one letter and one digit");
+    }
+
+    private static boolean hasLetterAndDigit(String str) {
+        char[] charArray = str.toCharArray();
+        boolean hasLetter = false, hasDigit = false;
+        for (int i = 0; i < charArray.length; i++) {
+            char c = charArray[i];
+            if((c >= 'a' && c <= 'z')
+                    || (c >= 'A' && c <= 'Z'))
+                hasLetter = true;
+            else if(c >= '0' && c <= '9')
+                hasDigit = true;
+            if(hasLetter && hasDigit)
+                return true;
+        }
+        return false;
     }
 }

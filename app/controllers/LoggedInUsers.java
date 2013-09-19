@@ -111,6 +111,7 @@ public class LoggedInUsers extends LoggedInController {
             Validation.required("oldPassword", oldPassword);
         }
         
+        User.validatePasswordComplexity(password);
         if(validationFailed()){
             passwordForm(username);
         }
