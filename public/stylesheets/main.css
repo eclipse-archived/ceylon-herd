@@ -347,3 +347,7 @@ form.inline {
 .text-info {
     color: #3a87ad;
 }
+
+.alert-change-password {
+    margin-bottom: 0;
+}

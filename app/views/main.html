@@ -63,6 +63,11 @@ jQuery(function(){
     </head>
     <body>
         <div class="pre-footer">
+        #{if session.username != null && user && !user.isBCrypt}
+            <div class="alert alert-error alert-change-password">
+                We have changed the way we store passwords: you need to <a href="@{LoggedInUsers.passwordForm(user.userName)}">change your password</a> soon or your password will be reset for you.
+            </div>
+        #{/if}
         <div class="navbar">
             <div class="navbar-inner">
                 <div class="container">
