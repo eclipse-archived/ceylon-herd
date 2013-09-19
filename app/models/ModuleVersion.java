@@ -220,6 +220,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
             return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
         case SRC:
             return prefix+"isSourcePresent = true";
+        case ALL:
+            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true OR "+prefix+"isJsPresent = true OR "+prefix+"isSourcePresent = true";
         default:
             // ouch
             throw new RuntimeException("Invalid switch statement: missing enum cases");    

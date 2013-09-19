@@ -38,7 +38,7 @@ import controllers.RepoAPI;
 public class Module extends Model {
 
     public enum Type {
-        JVM, JS, SRC;
+        JVM, JS, SRC, ALL;
     }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");

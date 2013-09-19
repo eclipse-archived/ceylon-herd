@@ -3,15 +3,7 @@
  {
   "module": "${version.module.name?.jsonEscape()}",
   "version": "${version.version?.jsonEscape()}",
-  "doc": "${version.doc?.jsonEscape()}",
-  "license": "${version.license?.jsonEscape()}",
-#{if version.authors}
-  "authors": [
-#{list version.authors, as: 'author'}
-   "${author.name?.jsonEscape()}"#{if !author_isLast}, #{/if} 
-#{/list}
-  ]
-#{/if}
- #{if !version_isLast}, #{/if}
+#{apiModuleInfoJson version, apiVersion: apiVersion/}
+ }#{if !version_isLast}, #{/if} 
 #{/list}
 ]}

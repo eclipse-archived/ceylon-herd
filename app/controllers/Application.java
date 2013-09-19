@@ -1,6 +1,8 @@
 package controllers;
 
 import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -11,6 +13,7 @@ import play.mvc.Controller;
 import play.mvc.Http.Header;
 import play.mvc.Router;
 import play.mvc.results.Status;
+import util.ApiVersion;
 
 public class Application extends Controller {
 
@@ -43,8 +46,17 @@ public class Application extends Controller {
     public final static String COMPLETE_VERSIONS_REL = "http://modules.ceylon-lang.org/rel/complete-versions";
     public final static String SEARCH_MODULES_REL = "http://modules.ceylon-lang.org/rel/search-modules";
     
-    public static void options() {
-        response.setHeader("X-Herd-Version", "1");
+    public static void options(String version) {
+        String returnedVersion;
+        // since the version query param is new in M6, M5 installs will not request it and would barf with API2 so we return API1
+        // unless explicitly asked for API2
+        if(StringUtils.isEmpty(version) || version.equals(ApiVersion.API1.version))
+            returnedVersion = ApiVersion.API1.version;
+        else // all versions >1 will be 2 for now
+            returnedVersion = ApiVersion.API2.version;
+        response.setHeader("X-Herd-Version", returnedVersion);
+        response.setHeader("X-Herd-Current-Version", ApiVersion.API2.version);
+        response.setHeader("X-Herd-Supported-Versions", ApiVersion.API1.version + "," + ApiVersion.API2.version);
         
         // Publish our API via Link headers
         
@@ -52,16 +64,17 @@ public class Application extends Controller {
         // don't set more than one Link header but concatenate with commas, like the HTTP spec allows
         
         // Format = Link: </>; rel="http://example.net/foo"
-        String completeURL = Router.getFullUrl("RepoAPI.completeModules");
-        String listVersionsURL = Router.getFullUrl("RepoAPI.completeVersions");
-        String searchModulesURL = Router.getFullUrl("RepoAPI.searchModules");
+        Map<String,Object> args = new HashMap<String,Object>();
+        args.put("apiVersion", returnedVersion);
+        String completeURL = Router.getFullUrl("RepoAPI.completeModules", args);
+        String listVersionsURL = Router.getFullUrl("RepoAPI.completeVersions", args);
+        String searchModulesURL = Router.getFullUrl("RepoAPI.searchModules", args);
         String[] links = new String[]{
                 "<" + completeURL + ">; rel=\"" + COMPLETE_MODULES_REL + "\"",
                 "<" + listVersionsURL + ">; rel=\"" + COMPLETE_VERSIONS_REL + "\"",
                 "<" + searchModulesURL + ">; rel=\"" + SEARCH_MODULES_REL + "\"",
         };
         response.setHeader("Link", StringUtils.join(links, ", "));
-        
         throw new Status(HttpURLConnection.HTTP_OK);
     }
 }

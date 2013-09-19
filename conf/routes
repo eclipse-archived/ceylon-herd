@@ -20,9 +20,9 @@ POST    /reset-password-request                            Security.resetPasswor
 GET     /reset-password-complete/{confirmationCode}        Security.resetPasswordComplete
 POST    /reset-password-complete                           Security.resetPasswordComplete2
 
-GET     /api/1/complete-versions                           RepoAPI.completeVersions
-GET     /api/1/complete-modules                            RepoAPI.completeModules
-GET     /api/1/search-modules                              RepoAPI.searchModules
+GET     /api/{apiVersion}/complete-versions                RepoAPI.completeVersions
+GET     /api/{apiVersion}/complete-modules                 RepoAPI.completeModules
+GET     /api/{apiVersion}/search-modules                   RepoAPI.searchModules
 
 GET     /feed.atom                                         Feed.repo
                                                            

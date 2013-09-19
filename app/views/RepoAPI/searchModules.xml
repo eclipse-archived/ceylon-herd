@@ -7,11 +7,7 @@
   <versions>${version.version?.xmlEscape()}</versions>
 #{/list}
 #{if module.lastVersion}
-  <doc>${module.lastVersion.doc?.xmlEscape()}</doc>
-  <license>${module.lastVersion.license?.xmlEscape()}</license>
-#{list module.lastVersion.authors, as: 'author'}
-  <authors>${author.name?.xmlEscape()}</authors>
-#{/list}
+#{apiModuleInfoXml module.lastVersion, apiVersion: apiVersion/}
 #{/if}
  </module>
 #{/list}

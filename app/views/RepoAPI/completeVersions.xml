@@ -4,11 +4,7 @@
  <module-version>
   <module>${version.module.name?.xmlEscape()}</module>
   <version>${version.version?.xmlEscape()}</version>
-  <doc>${version.doc?.xmlEscape()}</doc>
-  <license>${version.license?.xmlEscape()}</license>
-#{list version.authors, as: 'author'}
-  <authors>${author.name?.xmlEscape()}</authors>
-#{/list}
+#{apiModuleInfoXml version, apiVersion: apiVersion/}
  </module-version>
 #{/list}
 </results>
