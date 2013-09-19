@@ -54,10 +54,18 @@ public class Security extends Secure.Security {
     }
     
     public static void resetPasswordRequest() {
+        if(getCurrentUser() != null){
+            flash("warning", "Cannot reset password while logged in.");
+            Application.index();
+        }
         render();
     }
     
     public static void resetPasswordRequest2(@Required String username, @Required @Email String email) {
+        if(getCurrentUser() != null){
+            flash("warning", "Cannot reset password while logged in.");
+            Application.index();
+        }
         Util.logSecurityAction("Reset password request: username=%s, email=%s", username, email);
         
         if (validationFailed()) {
@@ -81,11 +89,19 @@ public class Security extends Secure.Security {
     }
     
     public static void resetPasswordComplete(String confirmationCode) {
+        if(getCurrentUser() != null){
+            flash("warning", "Cannot reset password while logged in.");
+            Application.index();
+        }
         User user = checkConfirmationCodeAndGetUser(confirmationCode);
         render(user);
     }
 
     public static void resetPasswordComplete2(String confirmationCode, String password, String password2) {
+        if(getCurrentUser() != null){
+            flash("warning", "Cannot reset password while logged in.");
+            Application.index();
+        }
         User user = checkConfirmationCodeAndGetUser(confirmationCode);
 
         validation.required(password);
