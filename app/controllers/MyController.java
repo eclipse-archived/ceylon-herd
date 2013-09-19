@@ -2,6 +2,8 @@ package controllers;
 
 import java.net.HttpURLConnection;
 
+import org.apache.commons.lang.StringUtils;
+
 import models.User;
 import play.Logger;
 import play.data.validation.Validation;
@@ -15,6 +17,14 @@ public class MyController extends Controller {
     @Before
     static void before(){
         Logger.info("[%s] %s %s", Security.connected(), request.method, request.path);
+        // Make sure there's no CSRF for website forms
+        if(request.method.equals("POST")
+           || request.method.equals("PUT")
+           // Don't check that for the REST API which requires user basic auth
+           // This should work since web users can't use basic auth in theory
+           && StringUtils.isEmpty(request.user)){
+            checkAuthenticity();
+        }
     }
 	
     protected static boolean validationFailed() {
