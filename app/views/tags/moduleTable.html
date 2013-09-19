@@ -6,6 +6,11 @@
     <tbody>
         #{list items:_modules, as:'module'}
         <tr>
+            #{if _downloads}
+            <td>
+                <span class="label" title="Total downloads">${module.totalDownloads}</span>
+            </td>           
+            #{/if} 
             <td>
                 <a href="@{Repo.versions(module.name)}"	title="View published versions">${module.name}</a>
             </td>

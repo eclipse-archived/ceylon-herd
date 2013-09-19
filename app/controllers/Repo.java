@@ -51,6 +51,16 @@ public class Repo extends MyController {
         render(modules);
     }
 
+    public static void popular() {
+        List<Module> modules = Module.findMostPopular();
+        render(modules);
+    }
+
+    public static void downloaded() {
+        List<Module> modules = Module.findMostDownloaded();
+        render(modules);
+    }
+
 	public static void versions(@Required String moduleName){
 		if(validationFailed()){
 			index();

@@ -79,6 +79,8 @@ PUT     /uploads/{id}/repo/{<.*>path}                      UploadAPI.addFile
 
 GET     /categories                                        Repo.categories
 GET     /categories/{categoryName}                         Repo.category
+GET     /most-popular                                      Repo.popular
+GET     /most-downloaded                                   Repo.downloaded
 GET     /modules                                           Repo.index
 GET     /modules/{moduleName}                              Repo.versions
 GET     /modules/{moduleName}/feed.atom                    Feed.module

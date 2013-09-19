@@ -135,6 +135,17 @@ public class Module extends Model {
 	    return ret;
 	}
 
+	@Transient
+	public long getTotalDownloads(){
+	    long ret = 0;
+	    for(ModuleVersion version : versions){
+	        ret += version.downloads;
+            ret += version.jsdownloads;
+            ret += version.sourceDownloads;
+	    }
+	    return ret;
+	}
+
     @Transient
     public String getPath(){
         return name.replace('.', '/');
@@ -240,6 +251,20 @@ public class Module extends Model {
                 "LEFT JOIN FETCH m.versions " +
                 "LEFT JOIN FETCH m.ratings " +
                 "ORDER BY m.name").fetch();
+    }
+
+    public static List<Module> findMostPopular() {
+        return find("SELECT m FROM Module m " +
+                "RIGHT OUTER JOIN m.ratings AS ratings " +
+                "GROUP BY m.id, m.category, m.codeURL, m.friendlyName, m.homeURL, m.issueTrackerURL, m.name, m.owner " +
+                "ORDER BY SUM(ratings.mark) DESC").fetch();
+    }
+
+    public static List<Module> findMostDownloaded() {
+        return find("SELECT m FROM Module m " +
+                "RIGHT OUTER JOIN m.versions AS versions " +
+                "GROUP BY m.id, m.category, m.codeURL, m.friendlyName, m.homeURL, m.issueTrackerURL, m.name, m.owner " +
+                "ORDER BY SUM(versions.downloads + versions.jsdownloads + versions.sourceDownloads) DESC").fetch();
     }
 
     public static List<Module> findByCategoryFetchOwnerAndVersions(Category category) {
