@@ -221,6 +221,12 @@ public class Module extends Model {
             case SRC:
                 include = version.isSourcePresent;
                 break;
+            case ALL:
+                include = (version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
+                        || version.isJarPresent
+                        || version.isJsPresent
+                        || version.isSourcePresent;
+                break;
 	        }
 	        if(include)
 	            ret.add(version);
