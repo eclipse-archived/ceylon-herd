@@ -198,15 +198,16 @@
                             </div>
                             <div class="tab-pane" id="tab3">
                                 <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                                    <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
+                            <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
-  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/repo/com/redhat/ceylon/ant/0.4/com.redhat.ceylon.ant-0.4.jar"</span><span class="xml-tag">/&gt;</span>
-<span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
-  <span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
-    <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">location</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
-  <span class="xml-tag">&lt;/path&gt;</span>
-  <span class="xml-tag">&lt;taskdef</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon"</span> <span class="xml-attr">classname</span>=<span class="xml-val">"com.redhat.ceylon.ant.Ceylon"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
-  <span class="xml-tag">&lt;ceylon</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
+  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/lib/ceylon-ant.jar"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">path</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/path&gt;</span>
+<span class="xml-tag">&lt;typedef</span> <span class="xml-attr">resource</span>=<span class="xml-val">"com/redhat/ceylon/ant/antlib.xml"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
+
+<span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"run"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-run</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
                             </div>
                         #{/if}
