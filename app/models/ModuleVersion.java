@@ -46,6 +46,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
     public boolean isCarPresent;
     public boolean isJarPresent;
+    public boolean isDocPresent;
     public boolean isJsPresent;
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
@@ -101,6 +102,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	@Transient
 	public String getSourcePath(){
 		return getPath() + "/" + module.name + "-" + version + ".src";
+	}
+
+	@Transient
+	public String getDocPath(){
+	    return getPath() + "/" + module.name + "-" + version + ".doc.zip";
 	}
 
     public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven) {

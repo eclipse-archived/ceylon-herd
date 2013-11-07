@@ -244,16 +244,22 @@
                     <i class="icon-remove"></i> No .js archive<br/>
                 #{/else}
                 #{if moduleVersion.isSourcePresent}
-                    <a href="${util.Util.viewRepoUrl(moduleVersion.sourcePath)}" title="Browse module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.sourcePath)}" title="Download module source archive"><i class="icon-heart"></i> Download source archive</a><br/>
                 #{/if}
                 #{else}
                     <i class="icon-remove"></i> No source archive<br/>
                 #{/else}
-                #{if moduleVersion.isAPIPresent}
-                    <a href="@{Repo.viewDoc(module.name, moduleVersion.version)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
+                #{if moduleVersion.isDocPresent}
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.docPath)}" title="Download module documentation"><i class="icon-book"></i> Download module documentation</a><br/>
                 #{/if}
                 #{else}
-                    <i class="icon-remove"></i> No API docs<br/>
+                    <i class="icon-remove"></i> No module documentation<br/>
+                #{/else}
+                #{if moduleVersion.isAPIPresent}
+                    <a href="@{Repo.viewDoc(module.name, moduleVersion.version)}" title="Browse module API documentation"><i class="icon-book"></i> View API documentation</a><br/>
+                #{/if}
+                #{else}
+                    <i class="icon-remove"></i> No API documentation<br/>
                 #{/else}
             </td>
         </tr>

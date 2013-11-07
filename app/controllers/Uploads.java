@@ -250,6 +250,7 @@ public class Uploads extends LoggedInController {
 			modVersion.isJsPresent = module.hasJs;
 			modVersion.isSourcePresent = module.hasSource;
 			modVersion.isAPIPresent = module.hasDocs;
+			modVersion.isDocPresent = module.hasDocArchive;
             modVersion.isRunnable = module.isRunnable;
 			modVersion.ceylonMajor = module.ceylonMajor;
             modVersion.ceylonMinor = module.ceylonMinor;
