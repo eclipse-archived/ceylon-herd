@@ -158,19 +158,52 @@ public class UploadAPI extends LoggedInController {
 			request.body.close();
 			
 			// explode it if it's a module zip
-			if(file.getName().equals("module-doc.zip")){
+			if(file.getName().toLowerCase().equals("module-doc.zip")){
+			    // this is the pre-1.0 way where the doc archive was not yet created and the CMR zipped module-doc
 			    File moduleDoc = new File(file.getParentFile(), "module-doc");
 			    moduleDoc.mkdirs();
-			    uploadZip(file, moduleDoc);
+			    uploadZip(file, null, moduleDoc);
 			    file.delete();
-			}
+			}else if(isDocArchive(path)){
+			    // the >1.0 way has the CMR skip the module-doc folder and we extract it from the doc archive
+                File moduleDoc = new File(file.getParentFile(), "module-doc");
+                moduleDoc.mkdirs();
+                uploadZip(file, "api/", moduleDoc);
+            }
 			
 			created();
 		}
 		error(HttpURLConnection.HTTP_BAD_REQUEST, "Empty file");
 	}
 
-	private static Upload getUpload(Long id) {
+	private static boolean isDocArchive(String path) {
+	    if(!path.toLowerCase().endsWith(".doc.zip"))
+	        return false;
+	    int lastSlash = path.lastIndexOf('/');
+	    if(lastSlash == -1)
+	        return false;
+	    String lastPart = path.substring(lastSlash+1, path.length()-8);
+	    int sep = lastPart.indexOf('-');
+	    String module;
+	    String version = null;
+	    if(sep == -1){
+	        if(!lastPart.equals("default"))
+	            return false;
+	        module = lastPart;
+	    }else{
+	        module = lastPart.substring(0, sep);
+            version = lastPart.substring(sep+1);
+            if(module.isEmpty() || version.isEmpty())
+                return false;
+	    }
+	    String prefix = "/" + module.replace('.', '/');
+	    if(version != null)
+	        prefix += "/" + version;
+	    String match = prefix + "/" + lastPart + ".doc.zip";
+	    return match.equals(path);
+    }
+
+    private static Upload getUpload(Long id) {
 	    if(isInteractive())
 	        return Uploads.getUpload(id);
 	    if(id == null){
@@ -294,7 +327,7 @@ public class UploadAPI extends LoggedInController {
 		String name = repo.getName().toLowerCase();
 		
 		if(name.endsWith(".zip"))
-		    uploadZip(repo, uploadsDir);
+		    uploadZip(repo, null, uploadsDir);
 		else{
 		    boolean found = false;
 		    for(String postfix : SupportedExtensions){
@@ -356,7 +389,7 @@ public class UploadAPI extends LoggedInController {
         }
     }
 
-    private static void uploadZip(File repo, File uploadsDir) throws ZipException, IOException {
+    private static void uploadZip(File repo, String prefixFilter, File uploadsDir) throws ZipException, IOException {
         ZipFile zip = new ZipFile(repo);
         try{
             // first check them all
@@ -365,6 +398,8 @@ public class UploadAPI extends LoggedInController {
                 ZipEntry entry = entries.nextElement();
                 // skip directories
                 if(entry.isDirectory())
+                    continue;
+                if(prefixFilter != null && !entry.getName().toLowerCase().startsWith(prefixFilter))
                     continue;
                 File file = new File(uploadsDir, entry.getName());
                 checkUploadPath(file, uploadsDir);
@@ -379,7 +414,13 @@ public class UploadAPI extends LoggedInController {
                 // skip directories
                 if(entry.isDirectory())
                     continue;
-                File file = new File(uploadsDir, entry.getName());
+                String targetName = entry.getName();
+                if(prefixFilter != null){
+                    if(!targetName.toLowerCase().startsWith(prefixFilter))
+                        continue;
+                    targetName = targetName.substring(prefixFilter.length());
+                }
+                File file = new File(uploadsDir, targetName);
 
                 files++;
                 file.getParentFile().mkdirs();
