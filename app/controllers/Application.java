@@ -48,15 +48,19 @@ public class Application extends Controller {
     
     public static void options(String version) {
         String returnedVersion;
-        // since the version query param is new in M6, M5 installs will not request it and would barf with API2 so we return API1
-        // unless explicitly asked for API2
+        // since the version query param is new in M6, M5 installs will not request it and would barf with API3 so we return API1
+        // unless explicitly asked for API3
         if(StringUtils.isEmpty(version) || version.equals(ApiVersion.API1.version))
             returnedVersion = ApiVersion.API1.version;
-        else // all versions >1 will be 2 for now
+        else if(version.equals(ApiVersion.API2.version))
             returnedVersion = ApiVersion.API2.version;
+        else // all versions >3 will be 3 for now
+            returnedVersion = ApiVersion.API3.version;
         response.setHeader("X-Herd-Version", returnedVersion);
-        response.setHeader("X-Herd-Current-Version", ApiVersion.API2.version);
-        response.setHeader("X-Herd-Supported-Versions", ApiVersion.API1.version + "," + ApiVersion.API2.version);
+        response.setHeader("X-Herd-Current-Version", ApiVersion.API3.version);
+        response.setHeader("X-Herd-Supported-Versions", ApiVersion.API1.version 
+                + "," + ApiVersion.API2.version
+                + "," + ApiVersion.API3.version);
         
         // Publish our API via Link headers
         
