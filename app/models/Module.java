@@ -38,7 +38,7 @@ import controllers.RepoAPI;
 public class Module extends Model {
 
     public enum Type {
-        JVM, JS, SRC, ALL;
+        JVM, JS, SRC, ALL, CODE;
     }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
@@ -217,6 +217,11 @@ public class Module extends Model {
             case JVM:
                 include = (version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
                         || version.isJarPresent;
+                break;
+            case CODE:
+                include = ((version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
+                           || version.isJarPresent)
+                           && version.isJsPresent;
                 break;
             case SRC:
                 include = version.isSourcePresent;

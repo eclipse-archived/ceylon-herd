@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -23,7 +22,6 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
 import models.Module.Type;
-
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.Util;
@@ -224,6 +222,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
             return prefix+"isJsPresent = true";
         case JVM:
             return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
+        case CODE:
+            return "("+prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true) AND "+prefix+"isJsPresent = true";
         case SRC:
             return prefix+"isSourcePresent = true";
         case ALL:

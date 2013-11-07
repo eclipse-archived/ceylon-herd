@@ -54,7 +54,9 @@ public class RepoAPI extends MyController {
             return Type.SRC;
         if(type.equalsIgnoreCase("all"))
             return Type.ALL;
-        error(HttpURLConnection.HTTP_BAD_REQUEST, "Unknown type, must be one of: jvm,javascript,source,all");
+        if(type.equalsIgnoreCase("code"))
+            return Type.CODE;
+        error(HttpURLConnection.HTTP_BAD_REQUEST, "Unknown type, must be one of: jvm,javascript,source,all,code");
         // never reached
         return null;
     }
