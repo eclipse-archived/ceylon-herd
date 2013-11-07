@@ -339,6 +339,37 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
         }
 
+        // doc archive check
+
+        String docZipName = m.name + "-" + m.version + ".doc.zip";
+        File docZipFile = new File(uploadsDir, m.path + docZipName);
+        if(docZipFile.exists()){
+            m.hasDocArchive = true;
+            if (!m.hasJar) {
+                m.diagnostics.add(new Diagnostic("success", "Has doc archive"));
+            } else {
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
+            fileByPath.remove(m.path + docZipName); // source archive
+            String docZipChecksumPath = m.path + docZipName + ".sha1";
+            m.hasDocArchiveChecksum = fileByPath.containsKey(docZipChecksumPath);
+            if(m.hasDocArchiveChecksum){
+                fileByPath.remove(docZipChecksumPath); // car checksum
+                m.docArchiveChecksumValid = checkChecksum(uploadsDir, docZipChecksumPath, docZipFile);
+                if (m.docArchiveChecksumValid) {
+                    if (!m.hasJar) {
+                        m.diagnostics.add(new Diagnostic("success", "Doc archive checksum valid"));
+                    }
+                } else {
+                    m.diagnostics.add(checksumDiagnostic("error", "Invalid doc archive checksum", m.path + srcName));
+                }
+            }else if (!m.hasJar) {
+                m.diagnostics.add(checksumDiagnostic("error", "Missing doc archive checksum", m.path + srcName));
+            }
+        }else if (!m.hasJar) {
+            m.diagnostics.add(new Diagnostic("warning", "Missing doc archive archive"));
+        }
+
         // doc check
 
         String docName = m.path + "module-doc" + File.separator + "index.html";
@@ -953,6 +984,9 @@ public class ModuleChecker {
         public boolean hasSourceChecksum;
         public boolean sourceChecksumValid;
         public boolean hasDocs;
+        public boolean hasDocArchive;
+        public boolean hasDocArchiveChecksum;
+        public boolean docArchiveChecksumValid;
         public int ceylonMajor;
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
