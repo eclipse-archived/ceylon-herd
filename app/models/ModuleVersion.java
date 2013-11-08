@@ -21,9 +21,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
+
 import models.Module.Type;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
+import util.CeylonElementType;
 import util.Util;
 import controllers.RepoAPI;
 
@@ -68,6 +72,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
     private List<Dependency> dependencies = new ArrayList<Dependency>();
 
+    @Sort(comparator = ModuleMemberComparator.class, type = SortType.COMPARATOR)
+    @OrderBy("packageName,name")
+	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
+	private SortedSet<ModuleMember> members = new TreeSet<ModuleMember>();
+
     @OrderBy("name")
     @ManyToMany
     public List<Author> authors = new ArrayList<Author>();
@@ -111,6 +120,12 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         Dependency dep = new Dependency(this, name, version, optional, export, resolvedFromMaven);
         dep.create();
         dependencies.add(dep);
+    }
+
+    public void addMember(String packageName, String name, CeylonElementType type) {
+        ModuleMember member = new ModuleMember(this, packageName, name, type);
+        member.create();
+        members.add(member);
     }
 
     public int getDependentModuleVersionCount() {

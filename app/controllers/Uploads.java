@@ -266,6 +266,8 @@ public class Uploads extends LoggedInController {
 
 			for(Import imp : module.dependencies)
 			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null);
+			for(ModuleChecker.Member member : module.members)
+			    modVersion.addMember(member.packageName, member.name, member.type);
 		}
 		
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);
