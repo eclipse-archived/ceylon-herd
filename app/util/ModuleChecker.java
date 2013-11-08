@@ -16,6 +16,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -47,6 +49,30 @@ import play.libs.XML;
 
 public class ModuleChecker {
     
+    public static class Member implements Comparable<Member> {
+        public final CeylonElementType type;
+        public final String name;
+        public final String packageName;
+        
+        public Member(CeylonElementType type, String packageName, String name) {
+            this.type = type;
+            this.packageName = packageName;
+            this.name = name;
+        }
+
+        @Override
+        public int compareTo(Member other) {
+            int pkg = packageName.compareTo(other.packageName);
+            if(pkg != 0)
+                return pkg;
+            int typea = type.typeWeight();
+            int typeb = other.type.typeWeight();
+            if(typea != typeb)
+                return typea < typeb ? -1 : 1;
+            return name.compareTo(other.name);
+        }
+    }
+
     public static final Pattern CEYLON_MODULE_NAME_PATTERN = Pattern.compile("^(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*(\\.(\\p{Ll}|_)(\\p{L}|\\p{Digit}|_)*)*$");
 
     public static List<Diagnostic> collectModulesAndDiagnostics(
@@ -269,6 +295,7 @@ public class ModuleChecker {
             loadModuleInfo(uploadsDir, carPath, m, modules, upload);
             checkIsRunnable(uploadsDir, carPath, m);
             checkThatClassesBelongToModule(uploadsDir, carPath, m);
+            loadClassNames(uploadsDir, carPath, m);
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
         }
@@ -436,6 +463,110 @@ public class ModuleChecker {
             handleIOException(e);
         }
     }
+    
+    private static void loadClassNames(File uploadsDir, String carPath, Module m){
+        try {
+            ZipFile zipFile = new ZipFile(new File(uploadsDir, carPath));
+            try {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        String fileName = entry.getName();
+                        if (fileName.endsWith(".class")) {
+                            loadClassName(zipFile, entry, m);
+                        }
+                    }
+                }
+            } finally {
+                zipFile.close();
+            }
+        } catch (IOException e) {
+            handleIOException(e);
+        }
+    }
+    
+    private static void loadClassName(ZipFile zip, ZipEntry entry, Module m) throws IOException {
+        DataInputStream inputStream = new DataInputStream(zip.getInputStream(entry));
+        ClassFile classFile = new ClassFile(inputStream);
+        inputStream.close();
+
+        AnnotationsAttribute visible = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.visibleTag);
+        AnnotationsAttribute invisible = (AnnotationsAttribute) classFile.getAttribute(AnnotationsAttribute.invisibleTag);
+        
+        // ignore what we must ignore
+        if(visible != null && visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ignore") != null)
+            return;
+
+        String name = classFile.getName();
+        int lastDot = name.lastIndexOf('.');
+        String packageName = lastDot != -1 ? name.substring(0, lastDot) : ""; 
+        String simpleName = lastDot != -1 ? name.substring(lastDot+1) : name; 
+
+        boolean ceylon = visible != null && visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ceylon") != null;
+        boolean removeTrailingUnderscore = false;
+        CeylonElementType type = null;
+        if(ceylon){
+            // ignore local types
+            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.LocalContainer") != null)
+                return;
+            // ignore module and package descriptors
+            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Module") != null
+                    || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Package") != null)
+                return;
+            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Attribute") != null
+                    || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Object") != null
+                    || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method") != null)
+                removeTrailingUnderscore = true;
+            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Attribute") != null)
+                type = CeylonElementType.Value;
+            else if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method") != null){
+                if(invisible != null && invisible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.AnnotationInstantiation") != null)
+                    type = CeylonElementType.AnnotationConstructor;
+                else
+                    type = CeylonElementType.Function;
+            }else if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Object") != null)
+                type = CeylonElementType.Object;
+            else if(visible.getAnnotation("ceylon.language.AnnotationAnnotation$annotation$") != null)
+                type = CeylonElementType.Annotation;
+            // FIXME: temporarily filter generated annotations like this because I don't think we should see them
+            if(simpleName.endsWith("$annotation$") || simpleName.endsWith("$annotations$"))
+                return;
+            // remove any leading dollar
+            if(simpleName.startsWith("$"))
+                simpleName = simpleName.substring(1);
+            // ceylon names have mangling for interface members that we pull to toplevel
+            simpleName = simpleName.replace("$impl$", ".");
+            // remove trailing underscore if required
+            if(removeTrailingUnderscore && simpleName.endsWith("_"))
+                simpleName = simpleName.substring(0, simpleName.length()-1);
+        }
+        if(type == null){
+            if((classFile.getAccessFlags() & ANNOTATION_BIT) != 0)
+                type = CeylonElementType.Annotation;
+            else if(classFile.isInterface())
+                type = CeylonElementType.Interface;
+            else
+                type = CeylonElementType.Class;
+        }
+        // skip local types
+        if(classFile.getAttribute("EnclosingMethod") != null)
+            return;
+        // turn any dollar sep into a dot
+        simpleName = simpleName.replace('$', '.');
+        if(simpleName.equals("Ignore") || simpleName.equals("MemberClass")){
+            System.err.println(simpleName+": "+classFile.getAccessFlags() +" "+((classFile.getAccessFlags() & ANNOTATION_BIT) != 0));
+            for(Object attr : classFile.getAttributes()){
+                System.err.println(attr);
+            }
+        }
+        // special fix for ceylon.language
+        if(m.name.equals("ceylon.language") && !packageName.startsWith("ceylon.language"))
+            return;
+        m.addMember(type, packageName, simpleName);
+    }
+
+    private static final int ANNOTATION_BIT = 1 << 13;
     
     private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules, Upload upload) {
         File f = new File(uploadsDir, fileName);
@@ -991,11 +1122,16 @@ public class ModuleChecker {
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
         public boolean isRunnable;
+        public SortedSet<Member> members = new TreeSet<Member>();
 
         Module(String name, String version, String path){
             this.name = name;
             this.version = version;
             this.path = path;
+        }
+
+        public void addMember(CeylonElementType type, String packageName, String className) {
+            members.add(new Member(type, packageName, className));
         }
 
         public void addDependency(String name, String version, boolean optional, boolean export) {

@@ -188,6 +188,7 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
 <ul class="nav nav-tabs">
   <li class="active"><a href="#status" data-toggle="tab" title="View upload diagnostics information">Status</a></li>
   <li><a href="#files" data-toggle="tab" title="View uploaded files">Files</a></li>
+  <li><a href="#members" data-toggle="tab" title="View module members">Module members</a></li>
 </ul>
 
 <div class="tab-content">
@@ -310,6 +311,29 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
             #{/list}
         </tbody>
     </table>
+#{/else}
+
+</div>
+<div class="tab-pane" id="members">
+
+#{if uploadInfo.modules.empty}
+    <div class="alert alert-info">
+        No module uploaded yet.
+    </div>
+#{/if}
+#{else}
+    #{list items:uploadInfo.modules, as:'module'}
+        <table class="table table-bordered">
+            <caption>Members for ${module.name}/${module.version}</caption>
+            <tbody>
+                #{list items:module.members, as:'member'}
+                    <tr>
+                        <td>#{ceylondoc-member-icon member.type/} ${member.packageName}::${member.name}</td>
+                    </tr>
+                #{/list}
+            </tbody>
+        </table>
+    #{/list}
 #{/else}
 
 </div>
