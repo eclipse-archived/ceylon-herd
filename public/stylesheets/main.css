@@ -351,3 +351,99 @@ form.inline {
 .alert-change-password {
     margin-bottom: 0;
 }
+
+/* Stolen from ceylondoc.css */
+
+[class^='ceylondoc-icon-'] {
+    display: inline-block;
+    background-image: url("../images/ceylondoc-icons.png");
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    vertical-align: baseline;
+    margin-right: 4px;
+}
+
+td [class^='ceylondoc-icon-'] {
+    vertical-align: text-top;
+}
+
+.ceylondoc-icon-none {
+    background-image: none;
+}
+
+.ceylondoc-icon-local-member {
+    background-position: 0px 0px;
+}
+
+.ceylondoc-icon-shared-member {
+    background-position: -16px 0px;
+}
+
+.ceylondoc-icon-Interface {
+    background-position: -32px 0px;
+}
+
+.ceylondoc-icon-Class {
+    background-position: -48px 0px;
+}
+
+.ceylondoc-icon-Object {
+    background-position: -64px 0px;
+}
+
+.ceylondoc-icon-package {
+    background-position: -80px 0px;
+}
+
+.ceylondoc-icon-decoration-local {
+    background-position: 4px 4px;
+}
+
+.ceylondoc-icon-decoration-abstract {
+    background-position: -96px 0px;
+}
+
+.ceylondoc-icon-decoration-formal {
+    background-position: -112px 0px;
+}
+
+.ceylondoc-icon-decoration-impl {
+    background-position: -128px 0px;
+}
+
+.ceylondoc-icon-decoration-over {
+    background-position: -144px 0px;
+}
+
+.ceylondoc-icon-decoration-deprecated {
+    background-position: -160px 0px;
+}
+
+.ceylondoc-icon-link {
+    background-position: -336px 0px;
+}
+
+.ceylondoc-icon-type-alias {
+    background-position: -512px 0px;
+}
+
+.ceylondoc-icon-module {
+    background-position: -528px 0px;
+}
+
+.ceylondoc-icon-module-exported-decoration {
+    background-position: -544px -4px;
+}
+
+.ceylondoc-icon-module-optional-decoration {
+    background-position: -560px -1px;
+}
+
+.ceylondoc-icon-decoration-annotation {
+    background-position: -576px 0px;
+}
+
+.ceylondoc-icon-decoration-variable {
+    background-position: -592px 0px;
+}
