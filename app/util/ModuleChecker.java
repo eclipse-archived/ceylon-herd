@@ -592,6 +592,16 @@ public class ModuleChecker {
                         continue;
                     }
                     String name = line.substring(0, equalsPos);
+                    boolean shared = false;
+                    boolean optional = false;
+                    if(name.startsWith("+")){
+                        shared = true;
+                        name = name.substring(1);
+                    }
+                    if(name.endsWith("?")){
+                        optional = true;
+                        name = name.substring(0,name.length()-1);
+                    }
                     String version = line.substring(equalsPos+1);
                     if(name.isEmpty()){
                         m.diagnostics.add(new Diagnostic("error", "Invalid modules.properties line "+nr+" (name is empty): "+line));
@@ -602,7 +612,7 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExists(name, version, false, false, m, modules, upload);
+                    checkDependencyExists(name, version, optional, shared, m, modules, upload);
                 }
             }finally{
                 reader.close();
@@ -841,19 +851,29 @@ public class ModuleChecker {
 
     private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
             Module m, List<Module> modules, Upload upload) {
+        String lead;
+        if(optional && export)
+            lead = "Shared and optional dependency";
+        else if(optional)
+            lead = "Optional dependency";
+        else if(export)
+            lead = "Shared dependency";
+        else
+            lead = "Dependency";
+        lead = lead + " "+name+"/"+version;
         // JDK modules are always available
         if(JDKUtil.isJdkModule(name)){
-            m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is a JDK module"));
+            m.diagnostics.add(new Diagnostic("success", lead+" is a JDK module"));
             m.addDependency(name, version, optional, export);
             return;
         }
         // try to find it in the list of uploaded modules
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
-                m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" is to be uploaded"));
+                m.diagnostics.add(new Diagnostic("success", lead+" is to be uploaded"));
                 m.addDependency(name, version, optional, export, module);
                 if(upload.findMavenDependency(name, version) != null){
-                    Diagnostic diagnostic = new Diagnostic("warning", "Dependency "+name+"/"+version+" resolved from Maven Central but present in your upload");
+                    Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in your upload");
                     diagnostic.dependencyResolvedFromMaven = true;
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
@@ -866,17 +886,17 @@ public class ModuleChecker {
         models.ModuleVersion dep = models.ModuleVersion.findByVersion(name, version);
         if(dep == null){
             if(optional){
-                m.diagnostics.add(new Diagnostic("warning", "Dependency "+name+"/"+version+" was not found but is optional"));
+                m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
                 m.addDependency(name, version, optional, export);
             }else if(upload.findMavenDependency(name, version) == null){
-                Diagnostic diagnostic = new Diagnostic("error", "Dependency "+name+"/"+version+" cannot be found in upload or repo and is not optional");
+                Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
                 diagnostic.dependencyNotFound = true;
                 diagnostic.dependencyName = name;
                 diagnostic.dependencyVersion = version;
                 m.diagnostics.add(diagnostic);
             }else{
                 m.addDependency(name, version, optional, export, upload.findMavenDependency(name, version));
-                Diagnostic diagnostic = new Diagnostic("success", "Dependency "+name+"/"+version+" resolved from Maven Central");
+                Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
                 diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
                 diagnostic.dependencyVersion = version;
@@ -884,9 +904,9 @@ public class ModuleChecker {
             }
         }else{
             m.addDependency(name, version, optional, export, dep);
-            m.diagnostics.add(new Diagnostic("success", "Dependency "+name+"/"+version+" present in repo"));
+            m.diagnostics.add(new Diagnostic("success", lead+" present in repo"));
             if(upload.findMavenDependency(name, version) != null){
-                Diagnostic diagnostic = new Diagnostic("warning", "Dependency "+name+"/"+version+" resolved from Maven Central but present in Herd");
+                Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in Herd");
                 diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
                 diagnostic.dependencyVersion = version;
