@@ -293,7 +293,9 @@ public class UploadAPI extends LoggedInController {
 		if(returnToBrowse){
 			File parent = file.getParentFile();
 			String parentPath = JavaExtensions.relativeTo(parent, upload);
-			viewFile(upload.id, parentPath);
+			System.err.println("parent path: "+parentPath);
+			// if we do viewFile directly we get silly %2F escapes in the URL
+			redirect(Util.viewUploadUrl(upload.id, parentPath));
 		}else
 			Uploads.view(id);
 	}
