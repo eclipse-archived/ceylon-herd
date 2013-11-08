@@ -86,6 +86,14 @@ public class Emails extends Mailer {
 		send(module, admin, user);
 	}
 
+    public static void askForParticipation(Project ownedProject, User requestingUser) {
+        setSubject(SUBJECT_PREFIX + requestingUser.userName+" is requesting permission from you to participate on module "+ownedProject.moduleName);
+        setFrom(FROM);
+        addRecipient(ownedProject.owner.email);
+        
+        send(ownedProject, requestingUser);
+    }
+
 	private static String[] getNotificationRecipients(Project project, User user) {
 		// every admin except current user
 		Set<User> users = new HashSet<User>(); 

@@ -1,0 +1,10 @@
+#{extends 'email.txt' /}
+
+${requestingUser.userName} would like to participate on your module ${ownedProject.moduleName}:
+ 
+ @@{Repo.versions(ownedProject.moduleName)}
+
+You can add him by granting him administration permission, if you want to:
+
+ @@{LoggedInRepo.permissionsForm(ownedProject.moduleName)} 
+

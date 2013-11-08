@@ -1,0 +1,11 @@
+#{extends 'main.html' /}
+#{set title:'We have just sent an email to '+existingOwner.userName /}
+#{set hasForm: true /}
+
+<div class="alert alert-info">
+    <p>
+        We have just sent an email to #{user existingOwner/} on your behalf.
+    </p>
+</div>
+
+<a class="btn btn-primary" href="@{Projects.claimForm()}"><i class="icon-plus icon-white"></i> Claim another project?</a>

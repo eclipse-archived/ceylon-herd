@@ -46,19 +46,24 @@ public class Projects extends LoggedInController {
 			@Required @MaxSize(Util.VARCHAR_SIZE) String license, 
 			@Required @MaxSize(Util.VARCHAR_SIZE) String role, 
 			@Required @MaxSize(Util.TEXT_SIZE) String motivation, 
-			@Required @MaxSize(Util.TEXT_SIZE) String description) {
+			@Required @MaxSize(Util.TEXT_SIZE) String description,
+			boolean force) {
 		if(validationFailed())
 			claimForm(null);
-		models.Project project = models.Project.find("moduleName = ?", module).first();
+		models.Project projectOwner = models.Project.findOwner(module);
 		User user = getUser();
-		if(project != null){
-			if(project.owner == user)
-				Validation.addError("module", "You already claimed this project");
+		models.Project userClaim = models.Project.findForOwner(module, user);
+		// did we already claim it?
+		if(userClaim != null){
+		    Validation.addError("module", "You already claimed this project");
+		}else if(projectOwner != null && !force){
+		    // if not, does it belong to someone?
+		    alreadyClaimed(module, url, license, role, motivation, description);
 		}
 		if(validationFailed())
 			claimForm(null);
 		
-		project = new models.Project();
+		models.Project project = new models.Project();
 		project.moduleName = module;
 		project.url = url;
 		project.owner = user;
@@ -77,6 +82,35 @@ public class Projects extends LoggedInController {
 		flash("message", "Your project has been claimed, we will examine the claim shortly and let you know by email.");
 		view(project.id);
     }
+
+	public static void alreadyClaimed(@Required @MaxSize(Util.VARCHAR_SIZE) String module, 
+	        @Required @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
+	        @Required @MaxSize(Util.VARCHAR_SIZE) String license, 
+	        @Required @MaxSize(Util.VARCHAR_SIZE) String role, 
+	        @Required @MaxSize(Util.TEXT_SIZE) String motivation, 
+	        @Required @MaxSize(Util.TEXT_SIZE) String description) {
+        if(validationFailed())
+            claimForm(null);
+        models.Project projectOwner = models.Project.findOwner(module);
+        if(projectOwner == null)
+            claimForm(null);
+        User existingOwner = projectOwner.owner;
+        
+        render(module, url, license, role, motivation, description, existingOwner);
+	}
+
+	public static void askForParticipation(@Required @MaxSize(Util.VARCHAR_SIZE) String module){
+        if(validationFailed())
+            claimForm(null);
+        models.Project projectOwner = models.Project.findOwner(module);
+        if(projectOwner == null)
+            claimForm(null);
+        User user = getUser();
+        Emails.askForParticipation(projectOwner, user);
+        
+        User existingOwner = projectOwner.owner;
+        render(existingOwner);
+	}
 
 	public static void view(Long id){
 		models.Project project = getProject(id);

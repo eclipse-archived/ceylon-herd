@@ -34,6 +34,8 @@ POST    /register/welcome                                  Register.complete
 GET     /projects                                          Projects.index
 GET     /projects/claim                                    Projects.claimform
 POST    /projects/claim                                    Projects.claim
+GET     /projects/alreadyClaimed                           Projects.alreadyClaimed
+POST    /projects/askForParticipation                      Projects.askForParticipation
 GET     /projects/{id}                                     Projects.view
 POST    /projects/{id}/comment                             Projects.addComment
 GET     /projects/{id}/needs-transfer                      Projects.cannotDelete
