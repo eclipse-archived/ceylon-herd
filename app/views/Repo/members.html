@@ -1,0 +1,33 @@
+#{extends 'main.html' /}
+#{set title:'View module members' /}
+
+<div class="alert">
+    Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
+</div>
+
+#{moduleEditBar 
+    module:module, 
+    moduleVersion:moduleVersion,
+    user:user /}
+
+<p>
+#{user module.owner, img:true /} / 
+ <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a> /
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version">${moduleVersion.version}</a> /
+ Members
+</p>
+
+<p>
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version"><i class="icon-home"></i> Back to module version</a>
+</p>
+
+<table class="table table-bordered">
+    <caption>Module Members</caption>
+    <tbody>
+        #{list items:moduleVersion.members, as:'member'}
+            <tr>
+                <td>#{ceylondoc-member-icon member.type/} ${member.packageName}::${member.name}</td>
+            </tr>
+        #{/list}
+    </tbody>
+</table>

@@ -112,6 +112,13 @@ public class Repo extends MyController {
 		render(module, moduleVersion);
 	}
 
+	public static void members(@Required String moduleName, @Required String version){
+	    models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
+	    models.Module module = moduleVersion.module;
+	    
+	    render(module, moduleVersion);
+	}
+
 	public static void viewDoc(@Required String moduleName, @Required String version){
 	    models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 	    models.Module module = moduleVersion.module;
