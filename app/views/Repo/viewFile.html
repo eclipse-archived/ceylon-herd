@@ -1,10 +1,6 @@
 #{extends 'main.html' /}
 #{set title:'Browse repo' /}
 
-<div class="alert">
-    Note that this is a test Ceylon repo, which will be dropped after Ceylon hits 1.0.
-</div>
-
 #{if file.isRoot() && file.listFiles().length == 0}
     <div class="alert alert-info">
         No file yet.
