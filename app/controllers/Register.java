@@ -22,9 +22,10 @@ public class Register extends MyController {
     private static boolean canRegister() {
         if (Security.isConnected()) {
             User user = User.findByUserName(Security.connected());
-            if (user != null && user.isAdmin) {
+            if (user != null) {
                 renderArgs.put("user", user);
-                return true;
+                if(user.isAdmin)
+                    return true;
             }
         }
         if ("true".equals(Play.configuration.get("register.enabled"))) {
