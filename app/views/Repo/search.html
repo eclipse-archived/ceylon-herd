@@ -1,14 +1,39 @@
 #{extends 'main.html' /}
 #{set title:'Search modules' /}
 
+%{
+    def caption = null;
+    if(q){
+        caption = "matching '" + q + "'";
+    }else if(name || friendlyName || member || category || license){
+        caption = "with ";
+        if(name){
+            caption += " name matching '"+ name +"', and";
+        }
+        if(friendlyName){
+            caption += " friendly name matching '"+ friendlyName +"', and";
+        }
+        if(member){
+            caption += " member matching '"+ member +"', and";
+        }
+        if(category){
+            caption += " category matching '"+ category +"', and";
+        }
+        if(license){
+            caption += " license matching '"+ license +"', and";
+        }
+        caption = caption.substring(0, caption.length()-5);
+    }
+}%
+
 #{if modules.empty}
     <div class="alert alert-info">
-        No module found.
+        Your search for modules ${caption} did not return any result.
     </div>
 #{/if}
 #{else}
     #{moduleTable
-        caption: q != null ? "Modules matching '" + q + "'" : null,
+        caption: 'Modules ' + caption,
         modules: modules,
         user: user /}
 #{/else}

@@ -312,13 +312,18 @@ public class Module extends Model {
                 "ORDER BY m.name", q).fetch();
     }
     
-    public static List<Module> searchByCriteria(String name, String friendlyName, String license, String category) {
+    public static List<Module> searchByCriteria(String name, String friendlyName, String member, String license, String category) {
         String q = "SELECT DISTINCT m FROM Module m ";
+        if(isNotEmpty(member)){
+            q += "LEFT OUTER JOIN m.versions as v LEFT OUTER JOIN v.members as memb ";
+        }
         if (isNotEmpty(license)) {
             q += ",Project p ";
         }
         q += "LEFT JOIN FETCH m.owner ";
-        q += "LEFT JOIN FETCH m.versions ";
+        if(!isNotEmpty(member)){
+            q += "LEFT JOIN FETCH m.versions ";
+        }
         q += "LEFT JOIN FETCH m.ratings ";
         q += "WHERE ";
         if (isNotEmpty(name)) {
@@ -326,6 +331,9 @@ public class Module extends Model {
         }
         if (isNotEmpty(friendlyName)) {
             q += "LOCATE(LOWER(:friendlyName), LOWER(m.friendlyName)) <> 0 AND ";
+        }
+        if (isNotEmpty(member)) {
+            q += "(LOCATE(LOWER(:member), LOWER(memb.packageName)) <> 0 OR LOCATE(LOWER(:member), LOWER(memb.name)) <> 0) AND ";
         }
         if (isNotEmpty(license)) {
             q += "m.name = p.moduleName AND LOCATE(LOWER(:license), LOWER(p.license)) <> 0 AND ";
@@ -348,6 +356,9 @@ public class Module extends Model {
         }
         if (isNotEmpty(category)) {
             jpaQuery.bind("category", category);
+        }
+        if (isNotEmpty(member)) {
+            jpaQuery.bind("member", member);
         }
 
         return jpaQuery.fetch();

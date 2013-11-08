@@ -90,19 +90,20 @@ public class Repo extends MyController {
         render(categoriesJson);
     }
     
-    public static void searchAdvanced2(String name, String friendlyName, String license, String category) {
+    public static void searchAdvanced2(String name, String friendlyName, String member, String license, String category) {
         name = trimToNull(name);
         friendlyName = trimToNull(friendlyName);
         license = trimToNull(license);
         category = trimToNull(category);
+        member = trimToNull(member);
         
-        if (isEmpty(name) && isEmpty(friendlyName) && isEmpty(license) && isEmpty(category)) {
+        if (isEmpty(name) && isEmpty(friendlyName) && isEmpty(license) && isEmpty(category) && isEmpty(member)) {
             flash("message", "No search criteria was set.");
             searchAdvanced();
         }
         
-        List<Module> modules = Module.searchByCriteria(name, friendlyName, license, category);
-        renderTemplate("Repo/search.html", modules);
+        List<Module> modules = Module.searchByCriteria(name, friendlyName, member, license, category);
+        renderTemplate("Repo/search.html", name, friendlyName, member, license, category, modules);
     }
 
 	public static void view(@Required String moduleName, @Required String version){

@@ -61,6 +61,14 @@
             <span class="help-inline">​#{error 'friendlyName'/}</span>
         </div>
     </div>
+
+    <div class="control-group #{errorClassBootstrap 'member'/}">
+        <label class="control-label" for="name">Member name</label>
+        <div class="controls">
+            <input type="text" name="member" value="${flash.member}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'member'/}</span>
+        </div>
+    </div>
     
     <div class="control-group #{errorClassBootstrap 'license'/}">
 	    <label class="control-label" for="license">License</label>
