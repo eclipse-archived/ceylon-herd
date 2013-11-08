@@ -112,9 +112,9 @@ GET     /search                                            Repo.search
 GET     /search/advanced                                   Repo.searchAdvanced
 GET     /search/advanced/results                           Repo.searchAdvanced2
                                                            
-GET     /test/{<.*>path}                                   Repo.viewFile
-GET     /repo/?                                            Repo.noFile
-GET     /repo/{<.*>path}                                   404
+GET     /repo/1/{<.*>path}                                 Repo.viewFile
+GET     /test/                                             404
+GET     /test/{<.*>path}                                   404
                                                            
 GET     /users/{username}                                  Users.view
 GET     /users/{username}/feed.atom                        Feed.user
