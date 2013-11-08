@@ -242,7 +242,19 @@ public class Module extends Model {
 	public ModuleVersion getLastVersion(){
 	    return versions.isEmpty() ? null : versions.last();
 	}
-	
+
+	public ModuleVersion getLastVersion(Integer binaryMajor, Integer binaryMinor){
+	    // we can't use NavigableSet interface because Hibernate's SortedSet does not implement it
+	    ModuleVersion[] array = new ModuleVersion[versions.size()];
+	    versions.toArray(array);
+	    for(int i=array.length-1;i>=0;i--){
+	        ModuleVersion version = array[i];
+	        if(version.matchesBinaryVersion(binaryMajor, binaryMinor))
+	            return version;
+	    }
+	    return null;
+	}
+
 	@Override
 	public <T extends JPABase> T delete() {
 	    JPA.em().createNativeQuery("DELETE FROM dependency d WHERE d.id IN (SELECT d.id FROM dependency d, moduleversion v WHERE d.moduleversion_id = v.id AND v.module_id = :moduleId)").setParameter("moduleId", id).executeUpdate();

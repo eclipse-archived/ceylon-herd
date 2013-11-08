@@ -9,8 +9,8 @@
    "${version.version?.jsonEscape()}"#{if !version_isLast},#{/if} 
 #{/list}
   ],
-#{if module.lastVersion}
-#{apiModuleInfoJson module.lastVersion, apiVersion: apiVersion/}
+#{if module.getLastVersion(binaryMajor,binaryMinor)}
+#{apiModuleInfoJson module.getLastVersion(binaryMajor,binaryMinor), apiVersion: apiVersion/}
 #{/if}
  }#{if !module_isLast},#{/if} 
 #{/list}
