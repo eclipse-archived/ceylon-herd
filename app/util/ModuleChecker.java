@@ -261,6 +261,12 @@ public class ModuleChecker {
             }
         }
 
+        if(m.hasJar && !hasJarXmlProperties && !hasJarModulesProperties){
+            Diagnostic diag = new Diagnostic("warning", "jar file with no module descriptor");
+            diag.noModuleDescriptor = true;
+            m.diagnostics.add(diag);
+        }
+        
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
@@ -1064,6 +1070,7 @@ public class ModuleChecker {
         public boolean dependencyResolvedFromMaven;
         public String dependencyName;
         public String dependencyVersion;
+        public boolean noModuleDescriptor;
 
         Diagnostic(String type, String message){
             this.type = type;

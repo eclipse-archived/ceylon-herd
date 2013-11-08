@@ -267,6 +267,10 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                                             title="Do not resolve dependency from Maven Central"><i class="icon-remove-sign"></i> Do not resolve from Maven Central</button>
                                     #{/form}
                                 #{/elseif}
+                                #{elseif diagnostic.noModuleDescriptor}
+                                   &nbsp;<a href='http://ceylon-lang.org/documentation/1.0/reference/structure/module/#legacy_modules'
+                                            title='View documentation about this on ceylon-lang.org'>Learn how to describe these dependencies</a>
+                                #{/elseif}
                             </li>
                         #{/list}
                     </ul>
