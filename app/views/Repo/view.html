@@ -180,7 +180,7 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab1">
-                            <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} '${moduleVersion.version}'<span class="xml-tag">;</span></span></pre>
+                            <pre> <span class="xml-tag">import</span><span class="xml-attr"> ${module.name} "${moduleVersion.version}"<span class="xml-tag">;</span></span></pre>
                         </div>
                         #{if moduleVersion.isCarPresent && moduleVersion.isRunnable}
                             <div class="tab-pane" id="tab2">
