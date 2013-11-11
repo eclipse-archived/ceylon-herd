@@ -6,7 +6,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -512,4 +514,22 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 
     }
 
+    private static class FileComparator implements Comparator<File>{
+        private final static FileComparator Instance = new FileComparator();
+        @Override
+        public int compare(File a, File b) {
+            if(a.isDirectory()){
+                if(!b.isDirectory())
+                    return -1;
+            }else if(b.isDirectory())
+                return 1;
+            return a.getName().compareTo(b.getName());
+        }
+    }
+    
+    public static File[] listFilesSorted(File file){
+        File[] files = file.listFiles();
+        Arrays.sort(files, FileComparator.Instance);
+        return files;
+    }
 }

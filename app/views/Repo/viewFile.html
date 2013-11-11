@@ -24,7 +24,7 @@
             <td colspan="3"><a href="${util.Util.viewRepoUrl(file.parentFile.relative())}" title="Browse parent folder"><i class="icon-folder-open"></i> Parent</a></td>
         </tr>
         #{/if}
-        #{list items:file.listFiles(), as:'child'}
+        #{list items:file.listFilesSorted(), as:'child'}
         <tr>
             <td><a href="${util.Util.viewRepoUrl(child.relative())}" title="${child.directory ? 'Browse folder' : 'View file'}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
             <td>
