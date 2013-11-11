@@ -560,12 +560,6 @@ public class ModuleChecker {
             return;
         // turn any dollar sep into a dot
         simpleName = simpleName.replace('$', '.');
-        if(simpleName.equals("Ignore") || simpleName.equals("MemberClass")){
-            System.err.println(simpleName+": "+classFile.getAccessFlags() +" "+((classFile.getAccessFlags() & ANNOTATION_BIT) != 0));
-            for(Object attr : classFile.getAttributes()){
-                System.err.println(attr);
-            }
-        }
         // special fix for ceylon.language
         if(m.name.equals("ceylon.language") && !packageName.startsWith("ceylon.language"))
             return;
