@@ -1,6 +1,7 @@
 package controllers;
 
 import models.Project;
+import models.User;
 import play.data.validation.Required;
 import play.mvc.Before;
 
@@ -12,7 +13,7 @@ public class Users extends MyController {
 	@Before
     static void setConnectedUser() {
         if(Security.isConnected()) {
-        	models.User user = models.User.find("byUserName", Security.connected()).first();
+            User user = User.findRegisteredByUserName(Security.connected());
             renderArgs.put("user", user);
         }
     }

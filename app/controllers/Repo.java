@@ -27,7 +27,7 @@ public class Repo extends MyController {
 	@Before
     static void setConnectedUser() {
         if(Security.isConnected()) {
-            User user = User.find("byUserName", Security.connected()).first();
+            User user = User.findRegisteredByUserName(Security.connected());
             renderArgs.put("user", user);
         }
     }

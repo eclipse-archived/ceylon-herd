@@ -43,7 +43,7 @@ public class Security extends Secure.Security {
         if (StringUtils.isNotEmpty(username)) {
             user = (User) renderArgs.get("user");
             if (user == null || !username.equalsIgnoreCase(user.userName)) {
-                user = User.findByUserName(username);
+                user = User.findRegisteredByUserName(username);
             }
         }
         return user;
