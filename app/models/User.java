@@ -122,13 +122,14 @@ public class User extends Model {
 	            || StringUtils.isEmpty(password))
 	        return null;
 	    // find the user
-	    User nonVerifiedUser = find("userName = ?", username).first();
+	    User nonVerifiedUser = findRegisteredByUserName(username);
 	    // doesn't exist?
 	    if(nonVerifiedUser == null)
 	        return null;
 	    // check for invalid users
 	    if(StringUtils.isEmpty(nonVerifiedUser.password)
-	            || StringUtils.isEmpty(nonVerifiedUser.salt))
+	            // only nonBCrypt users need a salt
+	            || (!nonVerifiedUser.isBCrypt && StringUtils.isEmpty(nonVerifiedUser.salt)))
 	        return null;
         // now check the password
 	    if(nonVerifiedUser.checkPassword(password))
