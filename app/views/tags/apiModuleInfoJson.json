@@ -29,17 +29,17 @@
 #{/if}
 #{if _arg.isJarPresent}
    {
-    "suffix": ".jar",
+    "suffix": ".jar"
    }#{if _arg.isJsPresent || _arg.isSourcePresent},#{/if} 
 #{/if}
 #{if _arg.isJsPresent}
    {
-    "suffix": ".js",
+    "suffix": ".js"
    }#{if _arg.isSourcePresent},#{/if} 
 #{/if}
 #{if _arg.isSourcePresent}
    {
-    "suffix": ".src",
+    "suffix": ".src"
    }
 #{/if}
   ]
