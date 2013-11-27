@@ -20,6 +20,7 @@ import play.db.jpa.Model;
 import play.libs.Codec;
 import util.BCrypt;
 import util.MyCache;
+import util.Util;
 
 @SuppressWarnings("serial")
 @Entity
@@ -164,14 +165,44 @@ public class User extends Model {
         boolean hasLetter = false, hasDigit = false;
         for (int i = 0; i < charArray.length; i++) {
             char c = charArray[i];
-            if((c >= 'a' && c <= 'z')
-                    || (c >= 'A' && c <= 'Z'))
+            if(isAlpha(c))
                 hasLetter = true;
-            else if(c >= '0' && c <= '9')
+            else if(isDigit(c))
                 hasDigit = true;
             if(hasLetter && hasDigit)
                 return true;
         }
         return false;
+    }
+
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    private static boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z');
+    }
+
+    public static void validateUserName(String userName) {
+        // size is already checked
+        if(StringUtils.isEmpty(userName) || userName.length() > Util.USER_NAME_SIZE)
+            return;
+        if(!isValidUserName(userName))
+            Validation.addError("userName", "User name may only contain alphanumeric characters or dashes and cannot begin with a dash");
+    }
+    
+    private static boolean isValidUserName(String userName) {
+        // same as GitHub: only alphanum and dashes but cannot start with dash
+        char[] charArray = userName.toCharArray();
+        for (int i = 0; i < charArray.length; i++) {
+            char c = charArray[i];
+            if(isAlpha(c) || isDigit(c))
+                continue;
+            if(c == '-' && i > 0)
+                continue;
+            return false;
+        }
+        return true;
     }
 }

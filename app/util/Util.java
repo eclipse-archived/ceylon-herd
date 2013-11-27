@@ -1,11 +1,5 @@
 package util;
 
-import play.Logger;
-import play.Play;
-import play.libs.IO;
-import play.mvc.Http.Request;
-import play.mvc.Router;
-
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -15,11 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import play.Logger;
+import play.Play;
+import play.libs.IO;
+import play.mvc.Http.Request;
+import play.mvc.Router;
+
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Util {
-    
+
+    // Same as GitHub
+    public static final int USER_NAME_SIZE = 39;
+
     // postgres default limit for varchar
     public static final int VARCHAR_SIZE = 255;
     // artificial limit, since for @Lob String, there's no limit (text in DB)

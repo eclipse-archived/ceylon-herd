@@ -13,7 +13,6 @@ import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
-import play.libs.Codec;
 import play.libs.Crypto;
 import util.Util;
 
@@ -87,7 +86,8 @@ public class Register extends MyController {
 
         User user = checkConfirmationCode(confirmationCode);
 		validation.required(userName);
-		validation.maxSize(userName, Util.VARCHAR_SIZE);
+		validation.maxSize(userName, Util.USER_NAME_SIZE);
+		User.validateUserName(userName);
 		validation.required(password);
         validation.maxSize(password, Util.VARCHAR_SIZE);
 		validation.required(password2);
