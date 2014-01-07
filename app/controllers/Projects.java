@@ -16,6 +16,7 @@ import notifiers.Emails;
 import org.apache.commons.lang.StringUtils;
 
 import play.Logger;
+import play.data.validation.Match;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.URL;
@@ -41,7 +42,7 @@ public class Projects extends LoggedInController {
 		render(module);
 	}
 	
-	public static void claim(@Required @MaxSize(Util.VARCHAR_SIZE) String module, 
+	public static void claim(@Required @Match(message = "validation.moduleName", value = Util.MODULE_NAME_PATTERN) @MaxSize(Util.VARCHAR_SIZE) String module, 
 			@Required @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 			@Required @MaxSize(Util.VARCHAR_SIZE) String license, 
 			@Required @MaxSize(Util.VARCHAR_SIZE) String role, 

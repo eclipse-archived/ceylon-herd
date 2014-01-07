@@ -2,3 +2,4 @@
 # For example, for French create a messages.fr file
 #
 validation.required=Required
+validation.moduleName=Invalid module name

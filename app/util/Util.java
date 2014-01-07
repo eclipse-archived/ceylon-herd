@@ -30,11 +30,15 @@ public class Util {
 	public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 	
     public static final String LICENSES_JSON;
+
     static {
         List<String> licenses = IO.readLines(Play.getFile("conf/licenses.conf"));
         LICENSES_JSON = new Gson().toJson(licenses);
     }
-    
+
+    // Pattern for module names checking
+    public static final String MODULE_NAME_PATTERN = "[a-zA-Z][-a-zA-Z0-9]*(\\.[a-zA-Z][-a-zA-Z0-9]*)+";
+
 	public static File getUploadDir(Long id) {
 		return new File("uploads"+File.separator+id);
 	}
