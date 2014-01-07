@@ -30,6 +30,10 @@
         publish this module. You will be informed by email of the outcome of the review as soon as
         possible.
     </p>
+    <p>
+        Once you are allowed to publish a module, you can publish as many versions of this module
+        as you want, and can grant other people permission to publish new versions on your behalf.
+    </p>
 </div>
 
 #{form action: @Projects.claim(), class: "form-horizontal"}
@@ -41,7 +45,8 @@
         <div class="controls">
             <input name="module" value="${module ?: flash.module}" maxlength="${util.Util.VARCHAR_SIZE}"/>
             <span class="help-inline">​#{error 'module'/}</span>
-            <p class="help-block">This is the fully-qualified name of your module</p>
+            <p class="help-block">This is the fully-qualified name of your module, without the version. 
+                See our <a href="@{Application.guidelines}"><i class="icon-info-sign"></i> Module naming guidelines</a>.</p>
         </div>
     </div>
     <div class="control-group #{errorClassBootstrap 'license'/}">

@@ -40,7 +40,11 @@ public class Application extends Controller {
     public static void publish() {
         render();
     }
-    
+
+    public static void guidelines() {
+        render();
+    }
+
     // Our HTTP Link header relations
     public final static String COMPLETE_MODULES_REL = "http://modules.ceylon-lang.org/rel/complete-modules";
     public final static String COMPLETE_VERSIONS_REL = "http://modules.ceylon-lang.org/rel/complete-versions";

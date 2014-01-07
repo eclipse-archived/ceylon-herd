@@ -10,6 +10,7 @@ GET     /                                                  Application.index
 GET     /about                                             Application.about
 GET     /usage                                             Application.usage
 GET     /publish                                           Application.publish
+GET     /guidelines                                        Application.guidelines
 OPTIONS /.*                                                Application.options
 
 GET     /logout                                            Secure.logout
