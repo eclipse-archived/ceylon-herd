@@ -12,7 +12,6 @@
         <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="@{'/public/images/favicon.ico'}">
         <script src="@{'/public/javascripts/jquery-1.7.1.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/bootstrap/js/bootstrap.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
-        <script src="@{'/public/bootstrap/js/bootstrap-tab.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/javascripts/jstz.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/javascripts/shCore.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         <script src="@{'/public/javascripts/shBrushCeylon.js'}" type="text/javascript" charset="${_response_encoding}"></script>
@@ -68,9 +67,9 @@ jQuery(function(){
                 We have changed the way we store passwords: you need to <a href="@{LoggedInUsers.passwordForm(user.userName)}">change your password</a> soon or your password will be reset for you.
             </div>
         #{/if}
-        <div class="navbar">
+        <div class="navbar navbar-inverse navbar-static-top">
             <div class="navbar-inner">
-                <div class="container">
+                <div class="container" id="menubar-container">
                     <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"/> Ceylon Herd</a>
                     <ul class="nav">
                         #{if session.username != null && user}
