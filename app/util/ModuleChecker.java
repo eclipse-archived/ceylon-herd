@@ -106,6 +106,10 @@ public class ModuleChecker {
                             diagnostics.add(new Diagnostic("error", "Module artifact has no version: " + name));
                         }
                         continue;
+                    }else if(name.lastIndexOf('-') != sep){
+                        // we have more than one dash, it could be a jar with a dash in the module name and/or a dash in the version, let's
+                        // try to guess the best separator location from the path
+                        sep = guessBestDashSeparatorFromPath(sep, path);
                     }
                     int dot = name.lastIndexOf('.');
                     String module = name.substring(0, sep);
@@ -142,6 +146,34 @@ public class ModuleChecker {
         }
 
         return diagnostics;
+    }
+
+    private static int guessBestDashSeparatorFromPath(int sep, String path) {
+        int lastPathSep = path.lastIndexOf(File.separatorChar);
+        if(lastPathSep == -1)
+            return sep;
+        // path starts with a slash: /foo/bar-gee/2-beta/foo.bar-gee-2-beta.jar
+        if(path.length() < 2 || lastPathSep < 2)
+            return sep;
+        // get rid of the initial slash and up to the last slash not included
+        String firstPart = path.substring(1, lastPathSep);
+        // should have foo/bar-gee/2-beta now, extract the name part
+        if(firstPart.isEmpty())
+            return sep;
+        int startOfVersion = firstPart.lastIndexOf(File.separatorChar);
+        if(startOfVersion == -1)
+            return sep;
+        // should be foo/bar-gee now
+        String moduleNamePath = firstPart.substring(0, startOfVersion);
+        // now convert it to module name: should be foo.bar-gee
+        String moduleName = moduleNamePath.replace(File.separatorChar, '.');
+        // now extract the last part: foo.bar-gee-2-beta.jar
+        String lastPart = path.substring(lastPathSep+1);
+        // check that the last part starts with moduleName + "-"
+        if(lastPart.startsWith(moduleName+"-"))
+            return moduleName.length(); // this should be pointing at the right dash
+        // we failed our assumptions
+        return sep;
     }
 
     private static void checkModuleDependencyVersions(Module m) {
