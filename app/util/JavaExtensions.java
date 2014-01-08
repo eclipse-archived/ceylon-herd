@@ -121,11 +121,16 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	            .setSpecialLinkEmitter(module == null ? MarkdownSpanEmitter.INSTANCE : new MarkdownSpanEmitter(module))
 	            .build();
 	    String html = Processor.process(escaped, config);        
+	    html = cleanupEscapingMess(html);
 
 	    return new BaseTemplate.RawData(html);
 	}
 	
-	public static String toISO8601(Date date) throws DatatypeConfigurationException{
+	private static String cleanupEscapingMess(String html) {
+	    return html.replaceAll("&amp;(quot|lt|gt|amp);", "&$1;");
+    }
+
+    public static String toISO8601(Date date) throws DatatypeConfigurationException{
         final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTime(date);
         final XMLGregorianCalendar xmlCalendar = DatatypeFactory.newInstance()
