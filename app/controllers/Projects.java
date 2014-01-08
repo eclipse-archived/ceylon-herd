@@ -1,8 +1,10 @@
 package controllers;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import models.Comment;
@@ -21,6 +23,7 @@ import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.URL;
 import play.data.validation.Validation;
+import play.mvc.Router;
 import util.MyCache;
 import util.Util;
 
@@ -300,7 +303,7 @@ public class Projects extends LoggedInController {
 		models.Project project = getProject(id);
 		if(StringUtils.isEmpty(text) && StringUtils.isEmpty(projectAction)){
 			flash("commentWarning", "Empty comment");
-			view(id);
+			viewWithAnchor(id, "#comment-add");
 		}
 		Validation.maxSize("text", text, Util.TEXT_SIZE);
 		if(Validation.hasErrors()){
@@ -334,6 +337,7 @@ public class Projects extends LoggedInController {
 			flash("commentMessage", "Project reclaimed");
 		}
 
+		String anchor;
 		if(!StringUtils.isEmpty(text)){
 			Comment comment = new Comment();
 			comment.text = text;
@@ -344,12 +348,25 @@ public class Projects extends LoggedInController {
 
 			Emails.commentNotification(comment, user);
 			flash("commentMessage2", "Comment added");
+			
+            anchor = "#comment-"+comment.id;
+		}else{
+		    anchor = "#comment-add";
 		}
 
-		view(id);
+		viewWithAnchor(id, anchor);
 	}
 
-	private static void newStatus(models.Project project,
+	private static void viewWithAnchor(Long id, String anchor) {
+        // construct the url ourselves to be able to add the anchor
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("id", id);
+        String url = Router.getFullUrl("Projects.view", args) + anchor;
+        redirect(url, false);
+        view(id);
+    }
+
+    private static void newStatus(models.Project project,
 			ProjectStatus status, User user) {
 		project.status = status;
 		project.save();
@@ -366,13 +383,13 @@ public class Projects extends LoggedInController {
 	}
 
 	public static void editComment(Long projectId, Long commentId, String text){
-		models.Project project = getProject(projectId);
 		models.Comment comment = getComment(projectId, commentId);
+		String anchor = "#comment-"+commentId;
 		
 		if(StringUtils.isEmpty(text)){
 			flash("commentWarning", "Empty comment");
 			flash("commentId", comment.id);
-			view(projectId);
+			viewWithAnchor(projectId, anchor);
 		}
         Validation.maxSize("text", text, Util.TEXT_SIZE);
         if(Validation.hasErrors()){
@@ -386,7 +403,7 @@ public class Projects extends LoggedInController {
 		flash("commentMessage", "Comment edited");
 		flash("commentId",comment.id);
 
-		view(projectId);
+		viewWithAnchor(projectId, anchor);
 	}
 
 	public static void transferOwnership(Long projectId, Long userId) {
