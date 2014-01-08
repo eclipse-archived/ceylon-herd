@@ -1,0 +1,14 @@
+<div class="navbar">
+    <div class="navbar-inner">
+        <a class="brand" href="@{Projects.index()}">Project claims</a>
+        <ul class="nav">
+            <li><a href="@{Projects.claimForm()}"><i class="icon-plus"></i> Claim new project</a></li>
+            
+            #{if _user.isAdmin}
+                <li><a href="@{Projects.claims()}">Pending project claims</a></li>
+                <li><a href="#">List of project claims</a></li>
+            #{/if}
+        </ul>
+    </div>
+</div>
+

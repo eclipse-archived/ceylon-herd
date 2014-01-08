@@ -34,6 +34,8 @@
     #{/else}
 #{/set}
 
+#{projectsMenuBar user: user/}
+
 #{if projects.empty}
     <div class="alert alert-info">
         No project claims yet.
@@ -68,5 +70,3 @@
         </tbody>
     </table>
 #{/else}
-
-<a class="btn btn-primary" href="@{Projects.claimForm()}"><i class="icon-plus icon-white"></i> Claim new project</a>
