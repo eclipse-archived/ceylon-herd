@@ -52,7 +52,12 @@
         <th>Module name</th>
         <td>
             <div class="pull-right">
-	            <a href="@{Projects.edit(project.id)}" title="Edit project claim" class="btn btn-mini"><i class="icon-edit"></i> Edit</a>
+                #{if project.canBeEdited() || user.isAdmin}
+    	            <a href="@{Projects.edit(project.id)}" title="Edit project claim" class="btn btn-mini"><i class="icon-edit"></i> Edit</a>
+    	        #{/if}
+    	        #{else}
+    	           <button title="Only claimed projects can be edited" class="btn btn-mini disabled disabled-action"><i class="icon-edit"></i> Edit</button>
+    	        #{/else}
                 #{form @Projects.delete(project.id), class:"form-no-margin inline"}
                     <button type="submit" class="btn btn-danger btn-mini action"
                             title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>

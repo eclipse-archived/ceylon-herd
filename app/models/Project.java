@@ -50,6 +50,9 @@ public class Project extends Model {
 	public boolean canBeRejected(){
 		return status != ProjectStatus.REJECTED;
 	}
+    public boolean canBeEdited(){
+        return status == ProjectStatus.CLAIMED;
+    }
 	
 	@Transient
 	public Module getModule(){

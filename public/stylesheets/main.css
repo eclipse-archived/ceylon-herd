@@ -447,3 +447,8 @@ td [class^='ceylondoc-icon-'] {
 .ceylondoc-icon-decoration-variable {
     background-position: -592px 0px;
 }
+
+.disabled-action,
+.disabled-action:hover {
+    text-decoration: line-through;
+}

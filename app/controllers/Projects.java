@@ -134,6 +134,7 @@ public class Projects extends LoggedInController {
     }
 	
     public static void edit2(Long id,
+            @Required @Match(message = "validation.moduleName", value = Util.MODULE_NAME_PATTERN) String moduleName,
             @Required @MaxSize(Util.VARCHAR_SIZE) @URL String url,
             @Required @MaxSize(Util.VARCHAR_SIZE) String license,
             @Required @MaxSize(Util.VARCHAR_SIZE) String role,
@@ -141,10 +142,20 @@ public class Projects extends LoggedInController {
             @Required @MaxSize(Util.TEXT_SIZE) String motivation) {
         Project project = getProject(id);
 
+        // only admin can edit projects in other than claimed status
+        User user = getUser();
+        if(!project.canBeEdited()
+                && !user.isAdmin){
+            Validation.addError(null, "Only claimed projects can be edited");
+            prepareForErrorRedirect();
+            index();
+        }
+        
         if (validationFailed()) {
             edit(id);
         }
 
+        project.moduleName = moduleName;
         project.url = url;
         project.license = license;
         project.role = role;
@@ -152,7 +163,6 @@ public class Projects extends LoggedInController {
         project.motivation = motivation;
         project.save();
         
-        User user = getUser();
         Comment comment = new Comment();
         comment.status = ProjectStatus.EDITED;
         comment.owner = user;

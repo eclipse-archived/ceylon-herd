@@ -26,6 +26,16 @@
 <fieldset>
     <legend>Edit project claim for <a href="@{Projects.view(project.id)}">${project.moduleName}</a> </legend>
     
+    <div class="control-group #{errorClassBootstrap 'moduleName'/}">
+        <label class="control-label" for="moduleName">Module name</label>
+        <div class="controls">
+            <input name="moduleName" value="${flash.moduleName ?: project.moduleName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'moduleName'/}</span>
+            <p class="help-block">This is the fully-qualified name of your module, without the version. 
+                See our <a href="@{Application.guidelines}"><i class="icon-info-sign"></i> Module naming guidelines</a>.</p>
+        </div>
+    </div>
+
     <div class="control-group #{errorClassBootstrap 'url'/}">
         <label class="control-label" for="url">URL</label>
         <div class="controls">
