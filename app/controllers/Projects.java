@@ -33,9 +33,32 @@ public class Projects extends LoggedInController {
     }
 
     @Check("admin")
-    public static void claims() {
-    	List<models.Project> projects = models.Project.findClaims();
+    public static void userClaims(@Required String userName) {
+        User viewedUser = User.findRegisteredByUserName(userName);
+        notFoundIfNull(viewedUser);
+        
+        List<models.Project> projects = viewedUser.projects;
+        render(viewedUser, projects);
+    }
+
+    @Check("admin")
+    public static void pendingClaims() {
+    	List<models.Project> projects = models.Project.findPendingClaims();
         render(projects);
+    }
+
+    @Check("admin")
+    public static void allClaims() {
+        List<models.Project> projects = models.Project.findAllClaims();
+        render(projects);
+    }
+
+    @Check("admin")
+    public static void search(String q) {
+        if(StringUtils.isEmpty(q))
+            allClaims();
+        List<models.Project> projects = models.Project.findAllMatchingClaims(q);
+        render(q, projects);
     }
 
 	public static void claimForm(String module) {
@@ -456,7 +479,7 @@ public class Projects extends LoggedInController {
 
 		newStatus(project, ProjectStatus.CONFIRMED, getUser());
 		flash("message", "Project confirmed");
-		claims();
+		pendingClaims();
 	}
 
 	private static void checkBeforeAccept(models.Project project) {
@@ -472,6 +495,6 @@ public class Projects extends LoggedInController {
 		newStatus(project, ProjectStatus.REJECTED, getUser());
 		
 		flash("message", "Project rejected");
-		claims();
+		pendingClaims();
 	}
 }

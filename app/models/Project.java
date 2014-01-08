@@ -78,10 +78,18 @@ public class Project extends Model {
         return count("status = ?", ProjectStatus.CLAIMED);
     }
     
-    public static List<Project> findClaims() {
-        return find("status = ?", ProjectStatus.CLAIMED).fetch();
+    public static List<Project> findPendingClaims() {
+        return find("status = ? ORDER BY moduleName", ProjectStatus.CLAIMED).fetch();
     }
-    
+
+    public static List<Project> findAllClaims() {
+        return find("ORDER BY moduleName").fetch();
+    }
+
+    public static List<Project> findAllMatchingClaims(String q) {
+        return find("LOCATE(?, moduleName) <> 0 ORDER BY moduleName", q).fetch();
+    }
+
     public static List<Project> findForOwner(User owner) {
         return find("owner = ? AND status = ? ORDER BY moduleName", owner, ProjectStatus.CONFIRMED).fetch();
     }

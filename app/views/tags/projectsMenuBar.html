@@ -2,13 +2,19 @@
     <div class="navbar-inner">
         <a class="brand" href="@{Projects.index()}">Project claims</a>
         <ul class="nav">
+            <li #{if _selected == 'mine'}class="active"#{/if}><a href="@{Projects.index()}">My project claims</a></li>
             <li><a href="@{Projects.claimForm()}"><i class="icon-plus"></i> Claim new project</a></li>
             
             #{if _user.isAdmin}
-                <li><a href="@{Projects.claims()}">Pending project claims</a></li>
-                <li><a href="#">List of project claims</a></li>
+                <li #{if _selected == 'pending'}class="active"#{/if}><a href="@{Projects.pendingClaims()}">Pending project claims <span class="badge">${util.MyCache.getClaims()}</span></a></li>
+                <li #{if _selected == 'all'}class="active"#{/if}><a href="@{Projects.allClaims()}">All project claims</a></li>
             #{/if}
         </ul>
+        #{if _user.isAdmin}
+            <form class="navbar-search pull-right" action="@{Projects.search}">
+                <input name="q" type="text" class="search-query" placeholder="Search project claims">
+            </form>
+        #{/if}
     </div>
 </div>
 

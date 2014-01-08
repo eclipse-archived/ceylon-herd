@@ -48,9 +48,12 @@ POST    /projects/{projectId}/transfer                     Projects.transferOwne
 POST    /projects/{projectId}/comments/{commentId}/delete  Projects.deleteComment
 POST    /projects/{projectId}/comments/{commentId}/edit    Projects.editComment
 
-GET     /admin/projects/claims                             Projects.claims
+GET     /admin/projects/claims/pending                     Projects.pendingClaims
+GET     /admin/projects/claims/search                      Projects.search
+GET     /admin/projects/claims                             Projects.allClaims
 POST    /admin/projects/{id}/accept                        Projects.accept
 POST    /admin/projects/{id}/reject                        Projects.reject
+GET     /users/{userName}/claims                           Projects.userClaims(userName)
 
 GET     /admin/categories                                  AdminCategories.index
 GET     /admin/categories/new                              AdminCategories.addForm
