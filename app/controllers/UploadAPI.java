@@ -20,6 +20,7 @@ import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.mvc.Before;
+import play.mvc.Scope;
 import play.mvc.Http.Header;
 import util.JavaExtensions;
 import util.ModuleChecker;
@@ -260,46 +261,66 @@ public class UploadAPI extends LoggedInController {
 			forbidden("Path is not in your uploads repository");
 	}
 	
-	public static void deleteFile(Long id, String path, boolean returnToBrowse) throws IOException{
-		models.Upload upload = Uploads.getUpload(id);
-		File uploadsDir = Util.getUploadDir(upload.id);
-		File file = new File(uploadsDir, path);
-		checkUploadPath(file, uploadsDir);
+    public static void deleteFile(Long id, String path, boolean returnToBrowse) throws IOException {
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
 
-		if(!file.exists())
-			notFound(path);
+        deleteFileImpl(path, file, uploadsDir, upload);
 
-		Logger.info("delete: %s exists: %s", path, file.exists());
-		
-        if(uploadsDir.getCanonicalPath().equals(file.getCanonicalPath())){
+        if (returnToBrowse) {
+            File parent = file.getParentFile();
+            String parentPath = JavaExtensions.relativeTo(parent, upload);
+            System.err.println("parent path: " + parentPath);
+            // if we do viewFile directly we get silly %2F escapes in the URL
+            redirect(Util.viewUploadUrl(upload.id, parentPath));
+        } else {
+            Uploads.view(id);
+        }
+    }
+
+    public static void deleteFileAsync(Long id, String path) throws IOException {
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+
+        deleteFileImpl(path, file, uploadsDir, upload);
+
+        String message = Scope.Flash.current().get("message");
+        renderJSON("{\"message\":\"" + message + "\"}");
+    }
+
+    private static void deleteFileImpl(String path, File file, File uploadsDir, Upload upload) throws IOException {
+        checkUploadPath(file, uploadsDir);
+
+        if (!file.exists()) {
+            notFound(path);
+        }
+
+        Logger.info("delete: %s exists: %s", path, file.exists());
+
+        if (uploadsDir.getCanonicalPath().equals(file.getCanonicalPath())) {
             // clear the entire repo
-            for(File f : uploadsDir.listFiles()){
-                if(f.isDirectory())
+            for (File f : uploadsDir.listFiles()) {
+                if (f.isDirectory())
                     FileUtils.deleteDirectory(f);
                 else
                     f.delete();
             }
             // let's be helpful and remove maven dependencies too
-            for(MavenDependency md : upload.mavenDependencies)
+            for (MavenDependency md : upload.mavenDependencies) {
                 md.delete();
+            }
             flash("message", "Upload cleared");
-        }else if(file.isDirectory()){
-			FileUtils.deleteDirectory(file);
-			flash("message", "Directory deleted");
-		}else{
-			file.delete();
-			flash("message", "File deleted");
-		}
-		if(returnToBrowse){
-			File parent = file.getParentFile();
-			String parentPath = JavaExtensions.relativeTo(parent, upload);
-			System.err.println("parent path: "+parentPath);
-			// if we do viewFile directly we get silly %2F escapes in the URL
-			redirect(Util.viewUploadUrl(upload.id, parentPath));
-		}else
-			Uploads.view(id);
-	}
-
+        } else if (file.isDirectory()) {
+            FileUtils.deleteDirectory(file);
+            flash("message", "Directory deleted");
+        } else {
+            file.delete();
+            flash("message", "File deleted");
+        }
+    }
+	
 	public static void addChecksum(Long id, String path) throws IOException{
 	    models.Upload upload = Uploads.getUpload(id);
 	    File uploadsDir = Util.getUploadDir(upload.id);

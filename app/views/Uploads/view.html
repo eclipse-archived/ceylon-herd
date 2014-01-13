@@ -1,6 +1,30 @@
 #{extends 'main.html' /}
 #{set title:'View upload' /}
 
+#{set 'moreScripts'}
+<script type="text/javascript">
+function deleteFileAsync(source) {
+    var btn = $(source);
+    var form = btn.parent();
+    var tr = form.parent().parent();
+    var label = $("<strong>Deleting...</strong>");
+    
+    btn.hide().before(label);
+    tr.css('background-color', 'whitesmoke');
+    
+    $.post(form.attr("action"), form.serialize())
+        .done(function(data) {
+             label.text(data.message);
+             tr.delay(3000).fadeOut("slow");
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            label.text("Deletion failed! ").addClass("text-error");
+            btn.show();
+        });
+}
+</script>
+#{/set}
+
 #{set 'help'}
     <p>
         This is the <em>upload detail</em> page, where you can review your current upload, and fix any eventual
@@ -204,9 +228,10 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                 </td>
                 <td>
                     #{if diagnostic.unknownPath}
-                        #{form @UploadAPI.deleteFile(upload.id, diagnostic.unknownPath), class:"form-no-margin inline pull-right"}
-                            <button type="submit" class="btn btn-danger btn-mini"
-                                title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
+                        #{form @UploadAPI.deleteFileAsync(upload.id, diagnostic.unknownPath), class:"form-no-margin inline pull-right"}
+                            <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
+                                <i class="icon-trash icon-white"></i> Delete
+                            </button>
                         #{/form}
                         Unknown file:
                         <a href="${util.Util.viewUploadUrl(upload.id, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
@@ -227,9 +252,10 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                     #{uploadStatus type /}
                 </td>
                 <td>
-                    #{form @UploadAPI.deleteFile(upload.id, module.path.substring(1)), class:"form-no-margin inline pull-right"}
-                        <button type="submit" class="btn btn-danger btn-mini"
-                            title="Remove this module from upload"><i class="icon-trash icon-white"></i> Delete</button>
+                    #{form @UploadAPI.deleteFileAsync(upload.id, module.path.substring(1)), class:"form-no-margin inline pull-right"}
+                        <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this module from upload"><i class="icon-trash icon-white">
+                            </i> Delete
+                        </button>
                     #{/form}
                     ${module.name}/${module.version}
                     <ul>
@@ -306,9 +332,10 @@ $ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <s
                     <td><a href="${util.Util.viewUploadUrl(upload.id, path)}" title="View file">/${path}</a></td>
                     <td>${file.length().formatSize()}</td>
                     <td>
-                        #{form @UploadAPI.deleteFile(upload.id, path), class:"form-no-margin inline"}
-                            <button type="submit" class="btn btn-danger btn-mini"
-                                title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
+                        #{form @UploadAPI.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}
+                            <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
+                                <i class="icon-trash icon-white"></i> Delete
+                            </button>
                         #{/form}
                     </td>
                 </tr>

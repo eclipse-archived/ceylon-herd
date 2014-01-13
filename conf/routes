@@ -74,6 +74,7 @@ POST    /uploads/{id}/upload                               UploadAPI.uploadRepo
 POST    /uploads/{id}/publish                              Uploads.publish
 POST    /uploads/{id}/delete                               Uploads.delete
 POST    /uploads/{id}/delete-file                          UploadAPI.deleteFile
+POST    /uploads/{id}/delete-file-async                    UploadAPI.deleteFileAsync
 POST    /uploads/{id}/add-checksum                         UploadAPI.addChecksum
 POST    /uploads/{id}/resolve-from-maven                   Uploads.resolveMavenDependency
 POST    /uploads/{id}/resolve-from-herd                    Uploads.removeMavenDependency
