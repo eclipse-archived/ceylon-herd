@@ -98,6 +98,24 @@ public class RepoAPI extends MyController {
 
         renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
     }
+    
+    public static void searchModulesByPackage(String apiVersion, String packageName, Boolean exactMatch, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor) {
+        if (isEmpty(packageName)) {
+            badRequest("packageName parameter is required");
+        }
+        if (exactMatch == null) {
+            exactMatch = false;
+        }
+        start = checkStartParam(start);
+        count = checkCountParam(count);
+        Type t = getType(type);
+        ApiVersion v = getApiVersion(apiVersion);
+        
+        List<Module> modules = Module.searchByPackageForBackend(packageName, exactMatch, t, start, count, binaryMajor, binaryMinor);
+        long total = Module.searchByPackageForBackendCount(packageName, exactMatch, t, binaryMajor, binaryMinor);
+
+        renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
+    }
 
     private static void renderModulesTemplate(ApiVersion v, Type t, List<Module> modules, Integer start, long total, Integer binaryMajor, Integer binaryMinor) {
         // we need to put those in renderArgs rather than render() because they may be null

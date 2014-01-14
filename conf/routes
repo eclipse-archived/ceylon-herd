@@ -25,6 +25,7 @@ GET     /api/{apiVersion}/complete-versions                RepoAPI.completeVersi
 GET     /api/{apiVersion}/complete-modules                 RepoAPI.completeModules
 GET     /api/{apiVersion}/search-modules                   RepoAPI.searchModules
 GET     /api/{apiVersion}/search-by-member                 RepoAPI.searchModulesByMember
+GET     /api/{apiVersion}/search-by-package                RepoAPI.searchModulesByPackage
 
 GET     /feed.atom                                         Feed.repo
                                                            
