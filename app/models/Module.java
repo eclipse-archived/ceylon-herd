@@ -451,4 +451,43 @@ public class Module extends Model {
         return jpaQuery.first();
     }
 
+    public static List<Module> searchByMemberForBackend(String member, Type t, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor) {
+        if (count == 0) {
+            return Collections.<Module> emptyList();
+        }
+        JPAQuery q = createSearchByMemberQuery(false, member, t, binaryMajor, binaryMinor);
+        return q.from(start).fetch(count);
+    }
+
+    public static long searchByMemberForBackendCount(String member, Type t, Integer binaryMajor, Integer binaryMinor) {
+        JPAQuery query = createSearchByMemberQuery(true, member, t, binaryMajor, binaryMinor);
+        return query.first();
+    }
+
+    private static JPAQuery createSearchByMemberQuery(boolean selectCount, String member, Type t, Integer binaryMajor, Integer binaryMinor) {
+        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        
+        String q = "";
+        if (selectCount) {
+            q += "SELECT COUNT(DISTINCT m) ";
+        } else {
+            q += "SELECT DISTINCT m ";
+        }
+        q += "FROM Module m " +
+             "    LEFT JOIN m.versions as v " +
+             "    LEFT JOIN v.members as memb " +
+             " WHERE" +
+             "    (LOCATE(LOWER(:member), LOWER(memb.packageName)) <> 0 OR LOCATE(LOWER(:member), LOWER(memb.name)) <> 0) AND " +
+             "    (" + typeQuery + ")" + binaryQuery;
+        if( !selectCount ) {
+            q += " ORDER BY m.name";
+        }
+
+        JPAQuery jpaQuery = Module.find(q).bind("member", member);
+        ModuleVersion.addBinaryQueryParameters(jpaQuery, binaryMajor, binaryMinor);
+
+        return jpaQuery;
+    }
+
 }
