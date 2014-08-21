@@ -24,8 +24,7 @@ POST    /reset-password-complete                           Security.resetPasswor
 GET     /api/{apiVersion}/complete-versions                RepoAPI.completeVersions
 GET     /api/{apiVersion}/complete-modules                 RepoAPI.completeModules
 GET     /api/{apiVersion}/search-modules                   RepoAPI.searchModules
-GET     /api/{apiVersion}/search-by-member                 RepoAPI.searchModulesByMember
-GET     /api/{apiVersion}/search-by-package                RepoAPI.searchModulesByPackage
+GET     /api/{apiVersion}/search-modules2                  RepoAPI.searchModules2
 
 GET     /feed.atom                                         Feed.repo
                                                            

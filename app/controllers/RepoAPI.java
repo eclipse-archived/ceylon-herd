@@ -84,36 +84,22 @@ public class RepoAPI extends MyController {
         renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
     }
     
-    public static void searchModulesByMember(String apiVersion, String member, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor) {
-        if (isEmpty(member)) {
-            badRequest("member parameter is required");
-        }
+    public static void searchModules2(String apiVersion, String name, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
         start = checkStartParam(start);
         count = checkCountParam(count);
         Type t = getType(type);
         ApiVersion v = getApiVersion(apiVersion);
         
-        List<Module> modules = Module.searchByMemberForBackend(member, t, start, count, binaryMajor, binaryMinor);
-        long total = Module.searchByMemberForBackendCount(member, t, binaryMajor, binaryMinor);
-
-        renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
-    }
-    
-    public static void searchModulesByPackage(String apiVersion, String packageName, Boolean exactMatch, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor) {
-        if (isEmpty(packageName)) {
-            badRequest("packageName parameter is required");
+        if (memberSearchExact == null) {
+            memberSearchExact = false;
         }
-        if (exactMatch == null) {
-            exactMatch = false;
+        if (memberSearchPackageOnly == null) {
+            memberSearchPackageOnly = false;
         }
-        start = checkStartParam(start);
-        count = checkCountParam(count);
-        Type t = getType(type);
-        ApiVersion v = getApiVersion(apiVersion);
         
-        List<Module> modules = Module.searchByPackageForBackend(packageName, exactMatch, t, start, count, binaryMajor, binaryMinor);
-        long total = Module.searchByPackageForBackendCount(packageName, exactMatch, t, binaryMajor, binaryMinor);
-
+        List<Module> modules = Module.searchForBackend2(name, t, start, count, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        long total = Module.searchForBackend2Count(name, t, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        
         renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
     }
 
