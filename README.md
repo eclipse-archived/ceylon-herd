@@ -17,16 +17,16 @@
 
 This can only be done by hand for now:
 
-1. Pick a password
-1. Generate a UUID, which we'll use as password salt
-    1. You can [make one online](http://www.famkruithof.net/uuid/uuidgen): select `Version 4 (random)`
-1. In a shell, generate your salted SHA1 password by concatenating your UUID (the salt) with your password
-    1. `echo -n YOUR_UUIDYOUR_PASSWORD | sha1sum | awk '{print $1}'` (no space between the salt and password)
-    1. Copy the resulting SHA signature
+1. Pick a (dummy temporary) password
+1. Hash it with BCrypt (for example, online at http://bcrypthashgenerator.apphb.com or other locations)
+    1. Copy the resulting BCrypt Hash
+    1. Don't worry about giving your password online, just pick a dummy temporary password and you can
+       change it later in Herd.
 1. Open a `psql` console to your database:
     1. `psql -h localhost -U ceylon-herd`
 1. Add your user (as admin)
-    1. `INSERT INTO user_table  (id, email, firstname, admin, lastname, salt, password, status, username) VALUES ((select nextval('hibernate_sequence')), 'email@example.org', 'FirstName', true, 'LastName', 'YOUR_SALT', 'YOUR_SHA1', 'REGISTERED', 'UserName');`
+    1. `INSERT INTO user_table  (id, email, firstname, admin, lastname, isbcrypt, password, status, username) VALUES ((select nextval('hibernate_sequence')), 'email@example.org', 'FirstName', true, 'LastName', true, 'YOUR_BCRYPT_HASH', 'REGISTERED', 'UserName');`
+1. You can now log in and change your password using the UI
 
 # How to make your user admin (if registration is enabled)
 
