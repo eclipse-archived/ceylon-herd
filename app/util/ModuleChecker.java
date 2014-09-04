@@ -360,6 +360,23 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
         }
 
+        // scripts check
+
+        String scriptsName = m.name + "-" + m.version + ".scripts.zip";
+        File scriptsFile = new File(uploadsDir, m.path + scriptsName);
+        if(scriptsFile.exists()){
+            m.hasScripts = true;
+            if (!m.hasJar) {
+                m.diagnostics.add(new Diagnostic("success", "Has scripts"));
+            } else {
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
+            fileByPath.remove(m.path + scriptsName); // scripts archive
+            m.scriptsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, scriptsName, "Scripts", m.hasJar);
+        }else if (!m.hasJar) {
+            m.diagnostics.add(new Diagnostic("warning", "Missing scripts archive"));
+        }
+
         // doc archive check
 
         String docZipName = m.name + "-" + m.version + ".doc.zip";
@@ -408,7 +425,10 @@ public class ModuleChecker {
         // second jar check
         
         // if the jar is alone it's good. Otherwise an error was already added
-        if (m.hasJar && !m.hasJs && !m.hasCar && m.carChecksum == ChecksumState.missing && !m.hasDocs && !m.hasSource && m.sourceChecksum == ChecksumState.missing) {
+        if (m.hasJar && !m.hasJs && !m.hasDocs
+                && !m.hasCar && m.carChecksum == ChecksumState.missing
+                && !m.hasSource && m.sourceChecksum == ChecksumState.missing
+                && !m.hasScripts && m.scriptsChecksum == ChecksumState.missing) {
             m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
         }
     }
@@ -1124,7 +1144,7 @@ public class ModuleChecker {
         public String[] authors;
         public String doc;
         public String license;
-        public ChecksumState jarChecksum;
+        public ChecksumState jarChecksum = ChecksumState.missing;
         public boolean hasJar;
         public List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
         public String name;
@@ -1133,14 +1153,16 @@ public class ModuleChecker {
         public boolean hasCar;
         public boolean hasJs;
         public boolean hasJsModel;
-        public ChecksumState carChecksum;
+        public ChecksumState carChecksum = ChecksumState.missing;
         public ChecksumState jsChecksum;
-        public ChecksumState jsModelChecksum;
+        public ChecksumState jsModelChecksum = ChecksumState.missing;
         public boolean hasSource;
-        public ChecksumState sourceChecksum;
+        public ChecksumState sourceChecksum = ChecksumState.missing;
+        public boolean hasScripts;
+        public ChecksumState scriptsChecksum = ChecksumState.missing;
         public boolean hasDocs;
         public boolean hasDocArchive;
-        public ChecksumState docArchiveChecksum;
+        public ChecksumState docArchiveChecksum = ChecksumState.missing;
         public int ceylonMajor;
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
