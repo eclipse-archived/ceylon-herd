@@ -90,7 +90,7 @@ public class ModuleChecker {
                 if(name.endsWith(".car")
                         || name.endsWith(".jar")
                         // don't even try to match js files if they are in module-doc folders
-                        || (name.endsWith(".js") && !path.contains("module-doc"))){
+                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
                     // don't add a module for both the car, jar and js file
                     if (!alreadyTreatedArchives.add(pathBeforeDot)) {
@@ -252,20 +252,7 @@ public class ModuleChecker {
         m.hasJar = fileByPath.containsKey(jarPath);
         if(m.hasJar){
             fileByPath.remove(jarPath); // jar
-            String checksumPath = m.path + jarName + ".sha1";
-            m.hasJarChecksum = fileByPath.containsKey(checksumPath);
-            if (m.hasJarChecksum) {
-                fileByPath.remove(checksumPath); // jar checksum
-                File jarFile = new File(uploadsDir, jarPath);
-                m.jarChecksumValid = checkChecksum(uploadsDir, checksumPath, jarFile);
-                if (m.jarChecksumValid) {
-                    m.diagnostics.add(new Diagnostic("success", "Jar checksum valid"));
-                } else {
-                    m.diagnostics.add(checksumDiagnostic("error", "Invalid Jar checksum", m.path + jarName));
-                }
-            } else {
-                m.diagnostics.add(checksumDiagnostic("error", "Missing Jar checksum", m.path + jarName));
-            }
+            m.jarChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jarName, "Jar", false);
         }
 
         String jarModulePropertiesName = "module.properties";
@@ -313,23 +300,8 @@ public class ModuleChecker {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
 
-            String checksumPath = m.path + carName + ".sha1";
-            m.hasChecksum = fileByPath.containsKey(checksumPath);
-            if(m.hasChecksum){
-                fileByPath.remove(checksumPath); // car checksum
-                File carFile = new File(uploadsDir, carPath);
-                m.checksumValid = checkChecksum(uploadsDir, checksumPath, carFile);
-                if (m.checksumValid) {
-                    if (!m.hasJar) {
-                        m.diagnostics.add(new Diagnostic("success", "Checksum valid"));
-                    }
-                } else {
-                    m.diagnostics.add(checksumDiagnostic("error", "Invalid checksum", m.path + carName));
-                }
-            }else if (!m.hasJar) {
-                m.diagnostics.add(checksumDiagnostic("error", "Missing checksum", m.path + carName));
-            }
-
+            m.carChecksum = handleChecksumFile(uploadsDir, fileByPath, m, carName, "Car", m.hasJar);
+            
             loadModuleInfo(uploadsDir, carPath, m, modules, upload);
             checkIsRunnable(uploadsDir, carPath, m);
             checkThatClassesBelongToModule(uploadsDir, carPath, m);
@@ -350,19 +322,17 @@ public class ModuleChecker {
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
-            String checksumPath = m.path + jsName + ".sha1";
-            m.hasJsChecksum = fileByPath.containsKey(checksumPath);
-            if (m.hasJsChecksum) {
-                fileByPath.remove(checksumPath); // js checksum
-                File jsFile = new File(uploadsDir, jsPath);
-                m.jsChecksumValid = checkChecksum(uploadsDir, checksumPath, jsFile);
-                if (m.jsChecksumValid) {
-                    m.diagnostics.add(new Diagnostic("success", "Js checksum valid"));
-                } else {
-                    m.diagnostics.add(checksumDiagnostic("error", "Invalid Js checksum", m.path + jsName));
+            String jsModelName = m.name + "-" + m.version + "-model.js";
+            String jsModelPath = m.path + jsModelName;
+            m.hasJsModel = fileByPath.containsKey(jsModelPath);
+            if (m.hasJsModel) {
+                fileByPath.remove(jsModelPath); // -model.js
+                m.jsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsName, "Js", false);
+                if (m.jsChecksum == ChecksumState.valid) {
+                    m.jsModelChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsModelName, "Js Model", false);
                 }
             } else {
-                m.diagnostics.add(checksumDiagnostic("error", "Missing Js checksum", m.path + jsName));
+                m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
             }
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
@@ -385,21 +355,7 @@ public class ModuleChecker {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
             fileByPath.remove(m.path + srcName); // source archive
-            String srcChecksumPath = m.path + srcName + ".sha1";
-            m.hasSourceChecksum = fileByPath.containsKey(srcChecksumPath);
-            if(m.hasSourceChecksum){
-                fileByPath.remove(srcChecksumPath); // car checksum
-                m.sourceChecksumValid = checkChecksum(uploadsDir, srcChecksumPath, srcFile);
-                if (m.sourceChecksumValid) {
-                    if (!m.hasJar) {
-                        m.diagnostics.add(new Diagnostic("success", "Source checksum valid"));
-                    }
-                } else {
-                    m.diagnostics.add(checksumDiagnostic("error", "Invalid source checksum", m.path + srcName));
-                }
-            }else if (!m.hasJar) {
-                m.diagnostics.add(checksumDiagnostic("error", "Missing source checksum", m.path + srcName));
-            }
+            m.sourceChecksum = handleChecksumFile(uploadsDir, fileByPath, m, srcName, "Source", m.hasJar);
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
         }
@@ -416,21 +372,7 @@ public class ModuleChecker {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
             fileByPath.remove(m.path + docZipName); // source archive
-            String docZipChecksumPath = m.path + docZipName + ".sha1";
-            m.hasDocArchiveChecksum = fileByPath.containsKey(docZipChecksumPath);
-            if(m.hasDocArchiveChecksum){
-                fileByPath.remove(docZipChecksumPath); // car checksum
-                m.docArchiveChecksumValid = checkChecksum(uploadsDir, docZipChecksumPath, docZipFile);
-                if (m.docArchiveChecksumValid) {
-                    if (!m.hasJar) {
-                        m.diagnostics.add(new Diagnostic("success", "Doc archive checksum valid"));
-                    }
-                } else {
-                    m.diagnostics.add(checksumDiagnostic("error", "Invalid doc archive checksum", m.path + srcName));
-                }
-            }else if (!m.hasJar) {
-                m.diagnostics.add(checksumDiagnostic("error", "Missing doc archive checksum", m.path + srcName));
-            }
+            m.docArchiveChecksum = handleChecksumFile(uploadsDir, fileByPath, m, docZipName, "Doc archive", m.hasJar);
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing doc archive archive"));
         }
@@ -466,8 +408,31 @@ public class ModuleChecker {
         // second jar check
         
         // if the jar is alone it's good. Otherwise an error was already added
-        if (m.hasJar && !m.hasJs && !m.hasCar && !m.hasChecksum && !m.hasDocs && !m.hasSource && !m.hasSourceChecksum) {
+        if (m.hasJar && !m.hasJs && !m.hasCar && m.carChecksum == ChecksumState.missing && !m.hasDocs && !m.hasSource && m.sourceChecksum == ChecksumState.missing) {
             m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }
+    }
+
+    private static ChecksumState handleChecksumFile(File uploadsDir, Map<String, File> fileByPath,
+            Module m, String fileName, String fileType, boolean skipDiag) {
+        String checksumPath = m.path + fileName + ".sha1";
+        if (fileByPath.containsKey(checksumPath)) {
+            fileByPath.remove(checksumPath); // checksum
+            File jsFile = new File(uploadsDir, m.path + fileName);
+            if (checkChecksum(uploadsDir, checksumPath, jsFile)) {
+                if (!skipDiag) {
+                    m.diagnostics.add(new Diagnostic("success", fileType + " checksum valid"));
+                }
+                return ChecksumState.valid;
+            } else {
+                m.diagnostics.add(checksumDiagnostic("error", "Invalid " + fileType + " checksum", m.path + fileName));
+                return ChecksumState.invalid;
+            }
+        } else {
+            if (!skipDiag) {
+                m.diagnostics.add(checksumDiagnostic("error", "Missing " + fileType + " checksum", m.path + fileName));
+            }
+            return ChecksumState.missing;
         }
     }
 
@@ -1147,12 +1112,15 @@ public class ModuleChecker {
         }
     }
 
+    public enum ChecksumState {
+        missing, invalid, valid
+    }
+    
     public static class Module {
         public String[] authors;
         public String doc;
         public String license;
-        public boolean jarChecksumValid;
-        public boolean hasJarChecksum;
+        public ChecksumState jarChecksum;
         public boolean hasJar;
         public List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
         public String name;
@@ -1160,17 +1128,15 @@ public class ModuleChecker {
         public String path;
         public boolean hasCar;
         public boolean hasJs;
-        public boolean hasChecksum;
-        public boolean checksumValid;
-        public boolean jsChecksumValid;
-        public boolean hasJsChecksum;
+        public boolean hasJsModel;
+        public ChecksumState carChecksum;
+        public ChecksumState jsChecksum;
+        public ChecksumState jsModelChecksum;
         public boolean hasSource;
-        public boolean hasSourceChecksum;
-        public boolean sourceChecksumValid;
+        public ChecksumState sourceChecksum;
         public boolean hasDocs;
         public boolean hasDocArchive;
-        public boolean hasDocArchiveChecksum;
-        public boolean docArchiveChecksumValid;
+        public ChecksumState docArchiveChecksum;
         public int ceylonMajor;
         public int ceylonMinor;
         public List<Import> dependencies = new LinkedList<Import>();
