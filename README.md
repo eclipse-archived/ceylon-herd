@@ -1,6 +1,8 @@
 # How to run the Ceylon Herd Module Repository
 
 1. [Download Play Framework 1.2.4](http://download.playframework.org/releases/play-1.2.4.zip) and install it
+1. Clone the [Herd repository](https://github.com/ceylon/ceylon-herd)
+1. Open a shell and go to the `ceylon-herd` directory you just cloned
 1. Run `play dependencies` to download the required modules
 1. Create your Postgres DB
     1. sudo su - postgres 
