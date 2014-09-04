@@ -696,7 +696,7 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
-                // try first with M4 format
+                // try first with 1.1 format
                 ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/$module_.class");
                 if(moduleEntry == null){
                     // try first with M4 format
