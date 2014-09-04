@@ -182,7 +182,7 @@ public class ModuleChecker {
             if(dep.existingDependency != null){
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
-                if (dep.existingDependency.isCarPresent
+                if (m.hasCar && dep.existingDependency.isCarPresent
                         && (m.ceylonMajor != dep.existingDependency.ceylonMajor
                         || m.ceylonMinor != dep.existingDependency.ceylonMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
@@ -193,7 +193,7 @@ public class ModuleChecker {
             }
             if(dep.newDependency != null){
                 // only check cars for binary version
-                if (dep.newDependency.hasCar
+                if (m.hasCar && dep.newDependency.hasCar
                         && (m.ceylonMajor != dep.newDependency.ceylonMajor
                         || m.ceylonMinor != dep.newDependency.ceylonMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
