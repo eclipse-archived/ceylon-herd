@@ -177,6 +177,10 @@
                             <li><a href="#tab2" data-toggle="tab">Run from command-line</a></li>
                             <li><a href="#tab3" data-toggle="tab">Run from Ant</a></li>
                         #{/if}
+                        #{if moduleVersion.isScriptsPresent}
+                            <li><a href="#tab4" data-toggle="tab">Install scripts from command-line</a></li>
+                            <li><a href="#tab5" data-toggle="tab">Install scripts from Ant</a></li>
+                        #{/if}
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab1">
@@ -204,6 +208,26 @@
 
 <span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"run"</span><span class="xml-tag">&gt;</span>
   <span class="xml-tag">&lt;ceylon-run</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/target&gt;</span></pre>
+                            </div>
+                        #{/if}
+                        #{if moduleVersion.isScriptsPresent}
+                            <div class="tab-pane" id="tab4">
+                                <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                                <pre>$ <span class="xml-tag">ceylon plugin install</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
+                            </div>
+                            <div class="tab-pane" id="tab5">
+                                <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
+  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/lib/ceylon-ant.jar"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">path</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/path&gt;</span>
+<span class="xml-tag">&lt;typedef</span> <span class="xml-attr">resource</span>=<span class="xml-val">"com/redhat/ceylon/ant/antlib.xml"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
+
+<span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"run"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-plugin</span> <span class="xml-attr">mode</span>=<span class="xml-val">install</span> <span class="xml-attr">module</span>=<span class="xml-val">"${module.name}/${moduleVersion.version}"</span><span class="xml-tag">/&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
                             </div>
                         #{/if}
