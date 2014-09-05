@@ -246,6 +246,9 @@
                 #{else}
                     <i class="icon-remove"></i> No source archive<br/>
                 #{/else}
+                #{if moduleVersion.isScriptsPresent}
+                    <a href="${util.Util.viewRepoUrl(moduleVersion.scriptsPath)}" title="Download module scripts archive"><i class="icon-download"></i> Download scripts archive</a><br/>
+                #{/if}
                 #{if moduleVersion.isDocPresent}
                     <a href="${util.Util.viewRepoUrl(moduleVersion.docPath)}" title="Download module documentation"><i class="icon-book"></i> Download module documentation</a><br/>
                 #{/if}
