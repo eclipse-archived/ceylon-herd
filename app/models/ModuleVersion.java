@@ -52,6 +52,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public boolean isJsPresent;
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
+    public boolean isScriptsPresent;
     public boolean isRunnable;
 	
 	public long downloads;
@@ -110,6 +111,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	public String getSourcePath(){
 		return getPath() + "/" + module.name + "-" + version + ".src";
 	}
+
+    @Transient
+    public String getScriptsPath(){
+        return getPath() + "/" + module.name + "-" + version + ".scripts.zip";
+    }
 
 	@Transient
 	public String getDocPath(){
