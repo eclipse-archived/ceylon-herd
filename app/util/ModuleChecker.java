@@ -356,6 +356,7 @@ public class ModuleChecker {
         m.hasJs = fileByPath.containsKey(jsPath);
         if(m.hasJs){
             fileByPath.remove(jsPath); // js
+            m.jsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsName, "Js", false);
             if (!m.hasJar) {
                 m.diagnostics.add(new Diagnostic("success", "Has js: " + jsName));
             } else {
@@ -367,10 +368,7 @@ public class ModuleChecker {
             m.hasJsModel = fileByPath.containsKey(jsModelPath);
             if (m.hasJsModel) {
                 fileByPath.remove(jsModelPath); // -model.js
-                m.jsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsName, "Js", false);
-                if (m.jsChecksum == ChecksumState.valid) {
-                    m.jsModelChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsModelName, "Js Model", false);
-                }
+                m.jsModelChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsModelName, "Js Model", false);
             } else {
                 if (m.jsBinMajor >= 7) {
                     m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
