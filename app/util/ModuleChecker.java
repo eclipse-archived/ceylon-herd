@@ -45,6 +45,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import play.libs.XML;
 
 public class ModuleChecker {
@@ -89,8 +93,8 @@ public class ModuleChecker {
                 fileByPath.put(path, f);
                 if(name.endsWith(".car")
                         || name.endsWith(".jar")
-                        // don't even try to match js files if they are in module-doc folders
-                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc"))){
+                        // don't even try to match js files if they are in module-doc or module-resources folders
+                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc") && !path.contains("module-resources"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
                     // don't add a module for both the car, jar and js file
                     if (!alreadyTreatedArchives.add(pathBeforeDot)) {
@@ -183,8 +187,8 @@ public class ModuleChecker {
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
                 if (m.hasCar && dep.existingDependency.isCarPresent
-                        && (m.ceylonMajor != dep.existingDependency.ceylonMajor
-                        || m.ceylonMinor != dep.existingDependency.ceylonMinor)) {
+                        && (m.jvmBinMajor != dep.existingDependency.ceylonMajor
+                        || m.jvmBinMinor != dep.existingDependency.ceylonMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
                 if (!m.hasCar && !m.hasJar) {
@@ -194,8 +198,8 @@ public class ModuleChecker {
             if(dep.newDependency != null){
                 // only check cars for binary version
                 if (m.hasCar && dep.newDependency.hasCar
-                        && (m.ceylonMajor != dep.newDependency.ceylonMajor
-                        || m.ceylonMinor != dep.newDependency.ceylonMinor)) {
+                        && (m.jvmBinMajor != dep.newDependency.jvmBinMajor
+                        || m.jvmBinMinor != dep.newDependency.jvmBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
                 if (!m.hasCar && !m.hasJar) {
@@ -302,7 +306,7 @@ public class ModuleChecker {
 
             m.carChecksum = handleChecksumFile(uploadsDir, fileByPath, m, carName, "Car", m.hasJar);
             
-            loadModuleInfo(uploadsDir, carPath, m, modules, upload);
+            loadModuleInfoFromCar(uploadsDir, carPath, m, modules, upload);
             checkIsRunnable(uploadsDir, carPath, m);
             checkThatClassesBelongToModule(uploadsDir, carPath, m);
             loadClassNames(uploadsDir, carPath, m);
@@ -322,6 +326,7 @@ public class ModuleChecker {
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
+            loadModuleInfoFromJs(uploadsDir, jsPath, m, modules, upload);
             String jsModelName = m.name + "-" + m.version + "-model.js";
             String jsModelPath = m.path + jsModelName;
             m.hasJsModel = fileByPath.containsKey(jsModelPath);
@@ -332,7 +337,9 @@ public class ModuleChecker {
                     m.jsModelChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsModelName, "Js Model", false);
                 }
             } else {
-                m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
+                if (m.jsBinMajor >= 7) {
+                    m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
+                }
             }
         }else if (!m.hasJar) {
             m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
@@ -711,7 +718,7 @@ public class ModuleChecker {
         return diagnostic;
     }
 
-    private static void loadModuleInfo(File uploadsDir, String carName, Module m, List<Module> modules, Upload upload) {
+    private static void loadModuleInfoFromCar(File uploadsDir, String carName, Module m, List<Module> modules, Upload upload) {
         try {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
@@ -751,10 +758,12 @@ public class ModuleChecker {
                 Integer major = getOptionalInt(ceylonAnnotation, "major", 0, m);
                 Integer minor = getOptionalInt(ceylonAnnotation, "minor", 0, m);
                 if (major == null || minor == null) {
+                    m.diagnostics.add(new Diagnostic("warning", ".car file has no binary version"));
                     return;
                 }
-                m.ceylonMajor = major;
-                m.ceylonMinor = minor;
+                m.jvmBinMajor = major;
+                m.jvmBinMinor = minor;
+                m.diagnostics.add(new Diagnostic("success", ".car file has binary version " + major + "." + minor));
                 
                 // module info
                 
@@ -942,7 +951,7 @@ public class ModuleChecker {
             ZipFile car = new ZipFile(new File(uploadsDir, carName));
 
             try{
-                String name = m.ceylonMajor >= 3 ? "run_" : "run";
+                String name = m.jvmBinMajor >= 3 ? "run_" : "run";
                 ZipEntry moduleEntry = car.getEntry(m.name.replace('.', '/') + "/" + name + ".class");
                 if(moduleEntry == null){
                     return;
@@ -1032,6 +1041,99 @@ public class ModuleChecker {
             return null;
         }
         return ((IntegerMemberValue)value).getValue();
+    }
+
+    private static void loadModuleInfoFromJs(File uploadsDir, String jsName, Module m, List<Module> modules, Upload upload) {
+        JsonObject model = loadJsonModel(new File(uploadsDir, jsName));
+        if (model == null) {
+            m.diagnostics.add(new Diagnostic("error", ".js file does not contain module information"));
+            return;
+        }
+        m.diagnostics.add(new Diagnostic("success", ".js file contains module descriptor"));
+
+        String name = asString(model.get("$mod-name"));
+        String version = asString(model.get("$mod-version"));
+        if(name == null || !name.equals(m.name)){
+            m.diagnostics.add(new Diagnostic("error", ".js file contains unexpected module: "+name));
+            return;
+        }
+        if(version == null || !version.equals(m.version)){
+            m.diagnostics.add(new Diagnostic("error", ".js file contains unexpected module version: "+version));
+            return;
+        }
+        m.diagnostics.add(new Diagnostic("success", ".js file module descriptor has valid name/version"));
+        
+        Integer major = null, minor = null;
+        String bin = asString(model.get("$mod-bin"));
+        if (bin != null) {
+            int p = bin.indexOf('.');
+            if (p >= 0) {
+                major = Integer.parseInt(bin.substring(0, p));
+                minor = Integer.parseInt(bin.substring(p + 1));
+            } else {
+                major = Integer.parseInt(bin);
+            }
+        }
+        if (major == null || minor == null) {
+            m.diagnostics.add(new Diagnostic("warning", ".js file has no binary version"));
+            return;
+        }
+        m.jsBinMajor = major;
+        m.jsBinMinor = minor;
+        m.diagnostics.add(new Diagnostic("success", ".js file has binary version " + major + "." + minor));
+
+    }
+    
+    private static String asString(JsonElement obj) {
+        if (obj == null) {
+            return null;
+        } else {
+            return obj.getAsString();
+        }
+    }
+
+    private static JsonObject loadJsonModel(File jsFile) {
+        try {
+            // If what we have is a plain .js file (not a -model.js file)
+            // we first check if a model file exists and if so we use that
+            // one instead of the given file
+            String name = jsFile.getName().toLowerCase();
+            if (!name.endsWith("-model.js") && name.endsWith(".js")) {
+                name = jsFile.getName();
+                name = name.substring(0, name.length() - 3) + "-model.js";
+                File modelFile = new File(jsFile.getParentFile(), name);
+                if (modelFile.isFile()) {
+                    jsFile = modelFile;
+                }
+            }
+            JsonObject model = readJsonModel(jsFile);
+            return model;
+        } catch (IOException e) {
+            return null;
+        }
+    }
+    
+    /** Find the metamodel declaration in a js file, parse it as a Map and return it. 
+     * @throws IOException */
+    public static JsonObject readJsonModel(File jsFile) throws IOException {
+        // IMPORTANT
+        // This method NEEDS to be able to return the meta model of any previous file formats!!!
+        // It MUST stay backward compatible
+        try (BufferedReader reader = new BufferedReader(new FileReader(jsFile))) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if ((line.startsWith("ex$.$CCMM$=")
+                        || line.startsWith("var $CCMM$=")
+                        || line.startsWith("var $$METAMODEL$$=")
+                        || line.startsWith("var $$metamodel$$=")) && line.endsWith("};")) {
+                    line = line.substring(line.indexOf("{"), line.length()-1);
+                    JsonParser jsonParser = new JsonParser();
+                    JsonObject rv = (JsonObject)jsonParser.parse(line);
+                    return rv;
+                }
+            }
+            return null;
+        }
     }
 
     private static boolean checkChecksum(File uploadsDir, String checksumPath, File checkedFile) {
@@ -1163,8 +1265,10 @@ public class ModuleChecker {
         public boolean hasDocs;
         public boolean hasDocArchive;
         public ChecksumState docArchiveChecksum = ChecksumState.missing;
-        public int ceylonMajor;
-        public int ceylonMinor;
+        public int jvmBinMajor;
+        public int jvmBinMinor;
+        public int jsBinMajor;
+        public int jsBinMinor;
         public List<Import> dependencies = new LinkedList<Import>();
         public boolean isRunnable;
         public SortedSet<Member> members = new TreeSet<Member>();
