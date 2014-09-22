@@ -189,7 +189,7 @@
                         #{if moduleVersion.isCarPresent && moduleVersion.isRunnable}
                             <div class="tab-pane" id="tab2">
                                 <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                                #{if moduleVersion.ceylonMajor >= 3}
+                                #{if moduleVersion.jvmBinMajor >= 3}
                                     <pre>$ <span class="xml-tag">ceylon run</span> <span class="xml-attr">${module.name}/${moduleVersion.version}</span></pre>
                                 #{/if}
                                 #{else}

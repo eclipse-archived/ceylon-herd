@@ -1,0 +1,9 @@
+#{if _arg.jsBinMajor == 0 && _arg.jsBinMinor == 0}<span class="label label-warning">M2 (outdated)</span>#{/if}
+#{elseif _arg.jsBinMajor == 1 && _arg.jsBinMinor == 0}<span class="label label-warning">M3 (outdated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 2 && _arg.jsBinMinor == 0}<span class="label label-warning">M3.1 (outdated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 3 && _arg.jsBinMinor == 0}<span class="label label-warning">M4 (oudated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 4 && _arg.jsBinMinor == 0}<span class="label label-warning">M5 (outdated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 5 && _arg.jsBinMinor == 0}<span class="label label-warning">M6 (outdated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 6 && _arg.jsBinMinor == 0}<span class="label label-warning">1.0.0 (outdated)</span>#{/elseif}
+#{elseif _arg.jsBinMajor == 7 && _arg.jsBinMinor == 0}<span class="label label-success">1.1.0 (latest)</span>#{/elseif}
+#{else}<span class="label label-important">Unknown (${_arg.jsBinMajor}/${_arg.jsBinMinor})</span>#{/else}

@@ -66,8 +66,10 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     @Column(columnDefinition = "TEXT") // Hibernate would map @Lob to a CLOB instead of TEXT
     public String changelog;
 	
-    public int ceylonMajor;
-    public int ceylonMinor;
+    public int jvmBinMajor;
+    public int jvmBinMinor;
+    public int jsBinMajor;
+    public int jsBinMinor;
 
 	@OrderBy("name,version")
 	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
@@ -283,23 +285,31 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     static String getBinaryQuery(String prefix, Integer binaryMajor, Integer binaryMinor) {
         if(binaryMajor == null && binaryMinor == null)
             return "";
-        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false OR (");
+        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false AND isJsPresent = false OR (");
         // these only apply to ceylon modules
         if(binaryMajor != null)
-            ret.append(prefix).append("ceylonMajor = :binaryMajor");
+            ret.append(prefix).append("jvmBinMajor = :binaryMajor");
         if(binaryMinor != null){
             if(binaryMajor != null)
                 ret.append(" AND ");
-            ret.append(prefix).append("ceylonMinor = :binaryMinor");
+            ret.append(prefix).append("jsBinMinor = :binaryMinor");
+        }
+        ret.append(") OR (");
+        if(binaryMajor != null)
+            ret.append(prefix).append("jsBinMajor = :binaryMajor");
+        if(binaryMinor != null){
+            if(binaryMajor != null)
+                ret.append(" AND ");
+            ret.append(prefix).append("jsBinMinor = :binaryMinor");
         }
         ret.append("))");
         return ret.toString();
     }
 
     public boolean matchesBinaryVersion(Integer binaryMajor, Integer binaryMinor) {
-        if(binaryMajor != null && ceylonMajor != binaryMajor)
+        if(binaryMajor != null && jvmBinMajor != binaryMajor && jsBinMajor != binaryMajor)
             return false;
-        if(binaryMinor != null && ceylonMinor != binaryMinor)
+        if(binaryMinor != null && jvmBinMinor != binaryMinor && jsBinMinor != binaryMinor)
             return false;
         return true;
     }

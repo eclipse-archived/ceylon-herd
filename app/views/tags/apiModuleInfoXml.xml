@@ -16,8 +16,8 @@
 #{if _arg.isCarPresent}
   <artifact>
    <suffix>.car</suffix>
-   <binaryMajorVersion>${_arg.ceylonMajor}</binaryMajorVersion>
-   <binaryMinorVersion>${_arg.ceylonMinor}</binaryMinorVersion>
+   <binaryMajorVersion>${_arg.jvmBinMajor}</binaryMajorVersion>
+   <binaryMinorVersion>${_arg.jvmBinMinor}</binaryMinorVersion>
   </artifact>
 #{/if}
 #{if _arg.isJarPresent}
@@ -28,6 +28,8 @@
 #{if _arg.isJsPresent}
   <artifact>
    <suffix>.js</suffix>
+   <binaryMajorVersion>${_arg.jsBinMajor}</binaryMajorVersion>
+   <binaryMinorVersion>${_arg.jsBinMinor}</binaryMinorVersion>
   </artifact>
 #{/if}
 #{if _arg.isSourcePresent}

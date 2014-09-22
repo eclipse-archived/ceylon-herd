@@ -23,8 +23,8 @@
 #{if _arg.isCarPresent}
    {
     "suffix": ".car",
-    "binaryMajorVersion": ${_arg.ceylonMajor},
-    "binaryMinorVersion": ${_arg.ceylonMinor}
+    "binaryMajorVersion": ${_arg.jvmBinMajor},
+    "binaryMinorVersion": ${_arg.jvmBinMinor}
    }#{if _arg.isJarPresent || _arg.isJsPresent || _arg.isSourcePresent},#{/if} 
 #{/if}
 #{if _arg.isJarPresent}
@@ -35,6 +35,8 @@
 #{if _arg.isJsPresent}
    {
     "suffix": ".js"
+    "binaryMajorVersion": ${_arg.jsBinMajor},
+    "binaryMinorVersion": ${_arg.jsBinMinor}
    }#{if _arg.isSourcePresent},#{/if} 
 #{/if}
 #{if _arg.isSourcePresent}

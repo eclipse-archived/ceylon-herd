@@ -188,8 +188,8 @@ public class ModuleChecker {
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
                 if (m.hasCar && dep.existingDependency.isCarPresent
-                        && (m.jvmBinMajor != dep.existingDependency.ceylonMajor
-                        || m.jvmBinMinor != dep.existingDependency.ceylonMinor)) {
+                        && (m.jvmBinMajor != dep.existingDependency.jvmBinMajor
+                        || m.jvmBinMinor != dep.existingDependency.jvmBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
                 if (!m.hasCar && !m.hasJar) {
@@ -214,8 +214,8 @@ public class ModuleChecker {
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
                 if (m.hasJs && dep.existingDependency.isJsPresent
-                        && (m.jsBinMajor != dep.existingDependency.ceylonMajor
-                        || m.jsBinMinor != dep.existingDependency.ceylonMinor)) {
+                        && (m.jsBinMajor != dep.existingDependency.jsBinMajor
+                        || m.jsBinMinor != dep.existingDependency.jsBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
                 if (!m.hasJs) {
