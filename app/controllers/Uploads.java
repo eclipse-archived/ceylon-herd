@@ -265,8 +265,16 @@ public class Uploads extends LoggedInController {
 			}
 			modVersion.create();
 
-			for(Import imp : module.dependencies)
-			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null);
+			// Either one of the lists of dependencies will do
+			// If both exist they should be the same
+			if (!module.carDependencies.isEmpty()) {
+    			for(Import imp : module.carDependencies)
+    			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null);
+			} else {
+                for(Import imp : module.jsDependencies)
+                    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, false);
+			}
+			
 			for(ModuleChecker.Member member : module.members)
 			    modVersion.addMember(member.packageName, member.name, member.type);
 		}

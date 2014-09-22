@@ -45,6 +45,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -182,7 +183,7 @@ public class ModuleChecker {
 
     private static void checkModuleDependencyVersions(Module m) {
         // the given module has to be a JVM car module
-        for(Import dep : m.dependencies){
+        for(Import dep : m.carDependencies){
             if(dep.existingDependency != null){
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
@@ -205,6 +206,40 @@ public class ModuleChecker {
                 if (!m.hasCar && !m.hasJar) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: " + dep.name + "/" + dep.version));
                 }
+            }
+        }
+        // the given module has to be a JS module
+        for(Import dep : m.jsDependencies){
+            if(dep.existingDependency != null){
+                // no need to skip JDK modules deps here since they can't already exist in Herd
+                // only check cars for binary version
+                if (m.hasJs && dep.existingDependency.isJsPresent
+                        && (m.jsBinMajor != dep.existingDependency.ceylonMajor
+                        || m.jsBinMinor != dep.existingDependency.ceylonMinor)) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
+                }
+                if (!m.hasJs) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JS module: " + dep.name + "/" + dep.version));
+                }
+            }
+            if(dep.newDependency != null){
+                // only check cars for binary version
+                if (m.hasJs && dep.newDependency.hasJs
+                        && (m.jsBinMajor != dep.newDependency.jsBinMajor
+                        || m.jsBinMinor != dep.newDependency.jsBinMinor)) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
+                }
+                if (!m.hasJs) {
+                    m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JS module: " + dep.name + "/" + dep.version));
+                }
+            }
+        }
+        if (m.hasCar && m.hasJs) {
+            if (m.carDependencies.size() != m.jsDependencies.size()
+                    || !m.carDependencies.containsAll(m.jsDependencies)
+                    || !m.jsDependencies.containsAll(m.carDependencies)) {
+                m.diagnostics.add(new Diagnostic("error", "The list of dependencies defined by the .car file and the .js file are NOT the same"));
+                return;
             }
         }
     }
@@ -636,7 +671,7 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExists(name, version, optional, shared, m, modules, upload);
+                    checkDependencyExists(name, version, optional, shared, m, modules, upload, m.carDependencies);
                 }
             }finally{
                 reader.close();
@@ -702,7 +737,7 @@ public class ModuleChecker {
                     String export = dependency.getAttribute("export");
                     boolean isExported = "true".equals(export);
                     // must make sure it exists
-                    checkDependencyExists(name, version, isOptional, isExported, m, modules, upload);
+                    checkDependencyExists(name, version, isOptional, isExported, m, modules, upload, m.carDependencies);
                 }
             }
         } catch (Exception e) {
@@ -807,7 +842,7 @@ public class ModuleChecker {
                 
                 MemberValue dependencies = moduleAnnotation.getMemberValue("dependencies");
                 if(dependencies == null){
-                    m.diagnostics.add(new Diagnostic("success", "Module has no dependencies"));
+                    m.diagnostics.add(new Diagnostic("success", ".car file has no dependencies"));
                     return; // we're good
                 }
                 if(!(dependencies instanceof ArrayMemberValue)){
@@ -816,11 +851,11 @@ public class ModuleChecker {
                 }
                 MemberValue[] dependencyValues = ((ArrayMemberValue)dependencies).getValue();
                 if(dependencyValues.length == 0){
-                    m.diagnostics.add(new Diagnostic("success", "Module has no dependencies"));
+                    m.diagnostics.add(new Diagnostic("success", ".car file has no dependencies"));
                     return; // we're good
                 }
                 for(MemberValue dependencyValue : dependencyValues){
-                    checkDependency(dependencyValue, m, modules, upload);
+                    checkCarDependency(dependencyValue, m, modules, upload);
                 }
             }finally{
                 car.close();
@@ -831,7 +866,7 @@ public class ModuleChecker {
         }
     }
 
-    private static void checkDependency(MemberValue dependencyValue, Module m, List<Module> modules, Upload upload) {
+    private static void checkCarDependency(MemberValue dependencyValue, Module m, List<Module> modules, Upload upload) {
         if(!(dependencyValue instanceof AnnotationMemberValue)){
             m.diagnostics.add(new Diagnostic("error", "Invalid dependency value (expecting annotation)"));
             return;
@@ -876,11 +911,11 @@ public class ModuleChecker {
         }
         
         // must make sure it exists
-        checkDependencyExists(name, version, optional, export, m, modules, upload);
+        checkDependencyExists(name, version, optional, export, m, modules, upload, m.carDependencies);
     }
 
     private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
-            Module m, List<Module> modules, Upload upload) {
+            Module m, List<Module> modules, Upload upload, List<Import> dependencies) {
         String lead;
         if(optional && export)
             lead = "Shared and optional dependency";
@@ -894,15 +929,15 @@ public class ModuleChecker {
         // JDK modules are always available
         if(JDKUtil.isJdkModule(name)){
             m.diagnostics.add(new Diagnostic("success", lead+" is a JDK module"));
-            m.addDependency(name, version, optional, export);
+            dependencies.add(new Import(name, version, optional, export));
             return;
         }
         // try to find it in the list of uploaded modules
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", lead+" is to be uploaded"));
-                m.addDependency(name, version, optional, export, module);
-                if(upload.findMavenDependency(name, version) != null){
+                dependencies.add(new Import(name, version, optional, export, module));
+                if(upload != null && upload.findMavenDependency(name, version) != null){
                     Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in your upload");
                     diagnostic.dependencyResolvedFromMaven = true;
                     diagnostic.dependencyName = name;
@@ -917,15 +952,15 @@ public class ModuleChecker {
         if(dep == null){
             if(optional){
                 m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
-                m.addDependency(name, version, optional, export);
-            }else if(upload.findMavenDependency(name, version) == null){
+                dependencies.add(new Import(name, version, optional, export));
+            }else if(upload == null || upload.findMavenDependency(name, version) == null){
                 Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
-                diagnostic.dependencyNotFound = true;
+                diagnostic.dependencyNotFound = upload != null; // This shows/hides the "Resolve from Maven" button
                 diagnostic.dependencyName = name;
                 diagnostic.dependencyVersion = version;
                 m.diagnostics.add(diagnostic);
             }else{
-                m.addDependency(name, version, optional, export, upload.findMavenDependency(name, version));
+                dependencies.add(new Import(name, version, optional, export, upload.findMavenDependency(name, version)));
                 Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
                 diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
@@ -933,9 +968,9 @@ public class ModuleChecker {
                 m.diagnostics.add(diagnostic);
             }
         }else{
-            m.addDependency(name, version, optional, export, dep);
+            dependencies.add(new Import(name, version, optional, export, dep));
             m.diagnostics.add(new Diagnostic("success", lead+" present in repo"));
-            if(upload.findMavenDependency(name, version) != null){
+            if(upload != null && upload.findMavenDependency(name, version) != null){
                 Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in Herd");
                 diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
@@ -1076,14 +1111,70 @@ public class ModuleChecker {
         }
         if (major == null || minor == null) {
             m.diagnostics.add(new Diagnostic("warning", ".js file has no binary version"));
+        } else {
+            m.jsBinMajor = major;
+            m.jsBinMinor = minor;
+            m.diagnostics.add(new Diagnostic("success", ".js file has binary version " + major + "." + minor));
+        }
+
+        JsonElement array = model.get("$mod-deps");
+        if (array == null || (array.isJsonArray() && array.getAsJsonArray().size() == 0)){
+            m.diagnostics.add(new Diagnostic("success", ".js file has no dependencies"));
+            return; // we're good
+        }
+        if (array.isJsonArray()) {
+            JsonArray deps = array.getAsJsonArray();
+            for (JsonElement dep : deps) {
+                checkJsDependency(dep, m, modules, upload);
+            }
+        } else {
+            m.diagnostics.add(new Diagnostic("error", ".js meta model has unexpected structure"));
             return;
         }
-        m.jsBinMajor = major;
-        m.jsBinMinor = minor;
-        m.diagnostics.add(new Diagnostic("success", ".js file has binary version " + major + "." + minor));
-
     }
-    
+
+    private static void checkJsDependency(JsonElement dep, Module m, List<Module> modules, Upload upload) {
+        String module = null;
+        boolean optional = false;
+        boolean exported = false;
+        
+        if (dep.isJsonPrimitive()) {
+            module = asString(dep);
+        } else if (dep.isJsonObject()) {
+            JsonObject depObj = dep.getAsJsonObject();
+            module = asString(depObj.get("path"));
+            optional = depObj.has("opt");
+            exported = depObj.has("exp");
+        }
+        if (module == null) {
+            m.diagnostics.add(new Diagnostic("error", ".js meta model has unexpected structure"));
+            return;
+        }
+        
+        int p = module.indexOf('/');
+        if (p == -1) {
+            m.diagnostics.add(new Diagnostic("error", "Invalid dependency name " + module));
+            return;
+        }
+        String name = module.substring(0, p);
+        String version = module.substring(p + 1);
+        if(name.isEmpty()){
+            m.diagnostics.add(new Diagnostic("error", "Invalid empty dependency name"));
+            return;
+        }
+        if(version.isEmpty()){
+            m.diagnostics.add(new Diagnostic("error", "Invalid empty dependency version"));
+            return;
+        }
+
+        if ("ceylon.language".equals(name)) {
+            return;
+        }
+        
+        // must make sure it exists
+        checkDependencyExists(name, version, optional, exported, m, modules, null, m.jsDependencies);
+    }
+
     private static String asString(JsonElement obj) {
         if (obj == null) {
             return null;
@@ -1236,6 +1327,38 @@ public class ModuleChecker {
             this.optional = optional;
             this.export = export;
         }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((name == null) ? 0 : name.hashCode());
+            result = prime * result + ((version == null) ? 0 : version.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            Import other = (Import) obj;
+            if (name == null) {
+                if (other.name != null)
+                    return false;
+            } else if (!name.equals(other.name))
+                return false;
+            if (version == null) {
+                if (other.version != null)
+                    return false;
+            } else if (!version.equals(other.version))
+                return false;
+            return true;
+        }
+        
     }
 
     public enum ChecksumState {
@@ -1269,7 +1392,8 @@ public class ModuleChecker {
         public int jvmBinMinor;
         public int jsBinMajor;
         public int jsBinMinor;
-        public List<Import> dependencies = new LinkedList<Import>();
+        public List<Import> carDependencies = new LinkedList<Import>();
+        public List<Import> jsDependencies = new LinkedList<Import>();
         public boolean isRunnable;
         public SortedSet<Member> members = new TreeSet<Member>();
 
@@ -1281,22 +1405,6 @@ public class ModuleChecker {
 
         public void addMember(CeylonElementType type, String packageName, String className) {
             members.add(new Member(type, packageName, className));
-        }
-
-        public void addDependency(String name, String version, boolean optional, boolean export) {
-            dependencies.add(new Import(name, version, optional, export));
-        }
-
-        public void addDependency(String name, String version, boolean optional, boolean export, ModuleVersion dep) {
-            dependencies.add(new Import(name, version, optional, export, dep));
-        }
-
-        public void addDependency(String name, String version, boolean optional, boolean export, MavenDependency dep) {
-            dependencies.add(new Import(name, version, optional, export, dep));
-        }
-
-        public void addDependency(String name, String version, boolean optional, boolean export, Module dep) {
-            dependencies.add(new Import(name, version, optional, export, dep));
         }
 
         public String getType(){
