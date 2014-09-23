@@ -38,7 +38,7 @@ import controllers.RepoAPI;
 public class Module extends Model {
 
     public enum Type {
-        JVM, JS, SRC, ALL, CODE;
+        CAR, JVM, JS, SRC, ALL, CODE, CEYLON_CODE;
     }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
@@ -209,28 +209,30 @@ public class Module extends Model {
 	public List<ModuleVersion> getVersions(Type type, Integer binaryMajor, Integer binaryMinor){
 	    List<ModuleVersion> ret = new LinkedList<ModuleVersion>();
 	    for(ModuleVersion version : versions){
+	        boolean hasJs = version.isJsPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor);
+	        boolean hasCar = version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor);
 	        boolean include = false;
 	        switch(type){
             case JS:
-                include = version.isJsPresent;
+                include = hasJs;
+                break;
+            case CAR:
+                include = hasCar;
                 break;
             case JVM:
-                include = (version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
-                        || version.isJarPresent;
+                include = hasCar || version.isJarPresent;
                 break;
             case CODE:
-                include = ((version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
-                           || version.isJarPresent)
-                           && version.isJsPresent;
+                include = hasCar || version.isJarPresent || hasJs;
+                break;
+            case CEYLON_CODE:
+                include = hasCar && hasJs;
                 break;
             case SRC:
                 include = version.isSourcePresent;
                 break;
             case ALL:
-                include = (version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor))
-                        || version.isJarPresent
-                        || version.isJsPresent
-                        || version.isSourcePresent;
+                include = hasCar || version.isJarPresent || hasJs || version.isSourcePresent;
                 break;
 	        }
 	        if(include)

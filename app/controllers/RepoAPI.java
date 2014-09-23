@@ -46,6 +46,8 @@ public class RepoAPI extends MyController {
     private static Type getType(String type) {
         if(type == null || type.isEmpty())
             return Type.JVM;
+        if(type.equalsIgnoreCase("car"))
+            return Type.CAR;
         if(type.equalsIgnoreCase("jvm"))
             return Type.JVM;
         if(type.equalsIgnoreCase("javascript"))
@@ -56,7 +58,9 @@ public class RepoAPI extends MyController {
             return Type.ALL;
         if(type.equalsIgnoreCase("code"))
             return Type.CODE;
-        error(HttpURLConnection.HTTP_BAD_REQUEST, "Unknown type, must be one of: jvm,javascript,source,all,code");
+        if(type.equalsIgnoreCase("ceylon"))
+            return Type.CEYLON_CODE;
+        error(HttpURLConnection.HTTP_BAD_REQUEST, "Unknown type, must be one of: car,jvm,javascript,source,all,code,ceylon");
         // never reached
         return null;
     }
