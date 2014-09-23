@@ -58,13 +58,16 @@ public class Application extends Controller {
             returnedVersion = ApiVersion.API1.version;
         else if(version.equals(ApiVersion.API2.version))
             returnedVersion = ApiVersion.API2.version;
-        else // all versions >3 will be 3 for now
+        else if(version.equals(ApiVersion.API3.version))
             returnedVersion = ApiVersion.API3.version;
+        else // all versions >4 will be 4 for now
+            returnedVersion = ApiVersion.API4.version;
         response.setHeader("X-Herd-Version", returnedVersion);
-        response.setHeader("X-Herd-Current-Version", ApiVersion.API3.version);
+        response.setHeader("X-Herd-Current-Version", ApiVersion.API4.version);
         response.setHeader("X-Herd-Supported-Versions", ApiVersion.API1.version 
                 + "," + ApiVersion.API2.version
-                + "," + ApiVersion.API3.version);
+                + "," + ApiVersion.API3.version
+                + "," + ApiVersion.API4.version);
         
         // Publish our API via Link headers
         
