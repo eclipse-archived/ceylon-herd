@@ -181,6 +181,7 @@
         isRunnable bool not null,
         isSourcePresent bool not null,
         isScriptsPresent bool not null,
+        isResourcesPresent bool not null,
         jsdownloads int8 not null,
         license TEXT,
         published timestamp not null,

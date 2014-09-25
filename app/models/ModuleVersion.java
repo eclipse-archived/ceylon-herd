@@ -53,6 +53,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	public boolean isAPIPresent;
 	public boolean isSourcePresent;
     public boolean isScriptsPresent;
+    public boolean isResourcesPresent;
     public boolean isRunnable;
 	
 	public long downloads;
