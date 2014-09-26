@@ -94,8 +94,8 @@ public class ModuleChecker {
                 fileByPath.put(path, f);
                 if(name.endsWith(".car")
                         || name.endsWith(".jar")
-                        // don't even try to match js files if they are in module-doc folder
-                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc"))){
+                        // don't even try to match js files if they are in module-doc or module-resources folders
+                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc") && !path.contains("module-resources"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
                     // don't add a module for both the car, jar and js file
                     if (!alreadyTreatedArchives.add(pathBeforeDot)) {
@@ -368,6 +368,9 @@ public class ModuleChecker {
         // doc check
         folderCheck("docs", "module-doc", m.name + "-" + m.version + ".doc.zip", uploadsDir, fileByPath, m, m.docs, true);
         
+        // resources check
+        folderCheck("resources", "module-resources", "module-resources.zip", uploadsDir, fileByPath, m, m.resources, true);
+        
         if (m.car.exists || m.js.exists) {
             checkCeylonModuleName(m);
         }
@@ -376,7 +379,7 @@ public class ModuleChecker {
         
         // if the jar is alone it's good. Otherwise an error was already added
         if (m.jar.exists && m.js.missing() && m.docs.missing() && m.car.missing()
-                && m.source.missing() && m.scripts.missing()) {
+                && m.source.missing() && m.scripts.missing() && m.resources.missing()) {
             m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
         }
     }
@@ -1360,6 +1363,7 @@ public class ModuleChecker {
         public Artifact source = new Artifact();
         public Artifact scripts = new Artifact();
         public ZippedFolderArtifact docs = new ZippedFolderArtifact();
+        public ZippedFolderArtifact resources = new ZippedFolderArtifact();
         public int jvmBinMajor;
         public int jvmBinMinor;
         public int jsBinMajor;

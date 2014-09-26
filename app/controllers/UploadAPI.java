@@ -159,12 +159,14 @@ public class UploadAPI extends LoggedInController {
 			request.body.close();
 			
 			// explode it if it's a module zip
-			if(file.getName().toLowerCase().equals("module-doc.zip")){
-			    // this is the pre-1.0 way where the doc archive was not yet created and the CMR zipped module-doc
-			    File moduleDoc = new File(file.getParentFile(), "module-doc");
-			    moduleDoc.mkdirs();
-			    uploadZip(file, null, moduleDoc);
-			    file.delete();
+			String name = file.getName().toLowerCase();
+			if(name.equals("module-doc.zip") || name.equals("module-resources.zip")){
+			    // this is both the pre-1.0 way where the doc archive was not yet created and the CMR zipped module-doc
+			    // and the new post-1.1 way where the CMR takes care of automatically zipping folders
+			    String folderName = name.substring(0, name.length() - 4);
+			    File folderDir = new File(file.getParentFile(), folderName);
+			    folderDir.mkdirs();
+			    uploadZip(file, null, folderDir);
 			}else if(isDocArchive(path)){
 			    // the >1.0 way has the CMR skip the module-doc folder and we extract it from the doc archive
                 File moduleDoc = new File(file.getParentFile(), "module-doc");

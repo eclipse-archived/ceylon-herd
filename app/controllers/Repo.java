@@ -180,8 +180,9 @@ public class Repo extends MyController {
 	private static ModuleVersion findModuleVersion(File file) {
 	    for(File f : file.listFiles()){
 	        if(f.isDirectory()){
-	            // fail fast: if we have a directory and it's not "module-doc" we're not in a module version dir
-	            if(!f.getName().equals("module-doc"))
+	            // fail fast: if we have a directory and it's not "module-doc"
+	            // or "module-resources" we're not in a module version dir
+	            if(!f.getName().equals("module-doc") && !f.getName().equals("module-resources"))
 	                return null;
 	            continue;
 	        }
