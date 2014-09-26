@@ -94,8 +94,8 @@ public class ModuleChecker {
                 fileByPath.put(path, f);
                 if(name.endsWith(".car")
                         || name.endsWith(".jar")
-                        // don't even try to match js files if they are in module-doc or module-resources folders
-                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc") && !path.contains("module-resources"))){
+                        // don't even try to match js files if they are in module-doc folder
+                        || (name.endsWith(".js") && !name.endsWith("-model.js") && !path.contains("module-doc"))){
                     String pathBeforeDot = path.substring(0, path.lastIndexOf('.'));
                     // don't add a module for both the car, jar and js file
                     if (!alreadyTreatedArchives.add(pathBeforeDot)) {
@@ -187,23 +187,23 @@ public class ModuleChecker {
             if(dep.existingDependency != null){
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
-                if (m.hasCar && dep.existingDependency.isCarPresent
+                if (m.car.exists && dep.existingDependency.isCarPresent
                         && (m.jvmBinMajor != dep.existingDependency.jvmBinMajor
                         || m.jvmBinMinor != dep.existingDependency.jvmBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
-                if (!m.hasCar && !m.hasJar) {
+                if (!m.car.exists && !m.jar.exists) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: " + dep.name + "/" + dep.version));
                 }
             }
             if(dep.newDependency != null){
                 // only check cars for binary version
-                if (m.hasCar && dep.newDependency.hasCar
+                if (m.car.exists && dep.newDependency.car.exists
                         && (m.jvmBinMajor != dep.newDependency.jvmBinMajor
                         || m.jvmBinMinor != dep.newDependency.jvmBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
-                if (!m.hasCar && !m.hasJar) {
+                if (!m.car.exists && !m.jar.exists) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JVM module: " + dep.name + "/" + dep.version));
                 }
             }
@@ -213,28 +213,28 @@ public class ModuleChecker {
             if(dep.existingDependency != null){
                 // no need to skip JDK modules deps here since they can't already exist in Herd
                 // only check cars for binary version
-                if (m.hasJs && dep.existingDependency.isJsPresent
+                if (m.js.exists && dep.existingDependency.isJsPresent
                         && (m.jsBinMajor != dep.existingDependency.jsBinMajor
                         || m.jsBinMinor != dep.existingDependency.jsBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
-                if (!m.hasJs) {
+                if (!m.js.exists) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JS module: " + dep.name + "/" + dep.version));
                 }
             }
             if(dep.newDependency != null){
                 // only check cars for binary version
-                if (m.hasJs && dep.newDependency.hasJs
+                if (m.js.exists && dep.newDependency.js.exists
                         && (m.jsBinMajor != dep.newDependency.jsBinMajor
                         || m.jsBinMinor != dep.newDependency.jsBinMinor)) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on an incompatible Ceylon version: " + dep.name + "/" + dep.version));
                 }
-                if (!m.hasJs) {
+                if (!m.js.exists) {
                     m.diagnostics.add(new Diagnostic("error", "Module depends on a non-JS module: " + dep.name + "/" + dep.version));
                 }
             }
         }
-        if (m.hasCar && m.hasJs) {
+        if (m.car.exists && m.js.exists) {
             if (m.carDependencies.size() != m.jsDependencies.size()
                     || !m.carDependencies.containsAll(m.jsDependencies)
                     || !m.jsDependencies.containsAll(m.carDependencies)) {
@@ -288,10 +288,10 @@ public class ModuleChecker {
 
         String jarName = m.name + "-" + m.version + ".jar";
         String jarPath = m.path + jarName;
-        m.hasJar = fileByPath.containsKey(jarPath);
-        if(m.hasJar){
+        m.jar.exists = fileByPath.containsKey(jarPath);
+        if(m.jar.exists){
             fileByPath.remove(jarPath); // jar
-            m.jarChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jarName, "Jar", false);
+            m.jar.checksum = handleChecksumFile(uploadsDir, fileByPath, m, jarName, "Jar", false);
         }
 
         String jarModulePropertiesName = "module.properties";
@@ -299,7 +299,7 @@ public class ModuleChecker {
         boolean hasJarModulesProperties = fileByPath.containsKey(jarModulePropertiesPath);
         if(hasJarModulesProperties){
             fileByPath.remove(jarModulePropertiesPath);
-            if(!m.hasJar){
+            if(!m.jar.exists){
                 m.diagnostics.add(new Diagnostic("error", "module properties file only supported with jar upload"));
             }
             loadJarModuleProperties(uploadsDir, jarModulePropertiesPath, m, modules, upload);
@@ -310,7 +310,7 @@ public class ModuleChecker {
         boolean hasJarXmlProperties = fileByPath.containsKey(jarModuleXmlPath);
         if(hasJarXmlProperties){
             fileByPath.remove(jarModuleXmlPath);
-            if(!m.hasJar){
+            if(!m.jar.exists){
                 m.diagnostics.add(new Diagnostic("error", "module xml file only supported with jar upload"));
             }
             loadJarModuleXml(uploadsDir, jarModuleXmlPath, m, modules, upload);
@@ -319,7 +319,7 @@ public class ModuleChecker {
             }
         }
 
-        if(m.hasJar && !hasJarXmlProperties && !hasJarModulesProperties){
+        if(m.jar.exists && !hasJarXmlProperties && !hasJarModulesProperties){
             Diagnostic diag = new Diagnostic("warning", "jar file with no module descriptor");
             diag.noModuleDescriptor = true;
             m.diagnostics.add(diag);
@@ -328,124 +328,101 @@ public class ModuleChecker {
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
-        String carPath = m.path + carName;
-        m.hasCar = fileByPath.containsKey(carPath);
-        if(m.hasCar){
-            fileByPath.remove(carPath); // car
-
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has car: " + carName));
-            } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-            }
-
-            m.carChecksum = handleChecksumFile(uploadsDir, fileByPath, m, carName, "Car", m.hasJar);
-            
-            loadModuleInfoFromCar(uploadsDir, carPath, m, modules, upload);
-            checkIsRunnable(uploadsDir, carPath, m);
-            checkThatClassesBelongToModule(uploadsDir, carPath, m);
-            loadClassNames(uploadsDir, carPath, m);
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing car archive"));
+        if (checkArtifact("car", carName, uploadsDir, fileByPath, m, m.car, true)) {
+            String artifactPath = m.path + carName;
+            loadModuleInfoFromCar(uploadsDir, artifactPath, m, modules, upload);
+            checkIsRunnable(uploadsDir, artifactPath, m);
+            checkThatClassesBelongToModule(uploadsDir, artifactPath, m);
+            loadClassNames(uploadsDir, artifactPath, m);
         }
 
         // js check
 
         String jsName = m.name + "-" + m.version + ".js";
-        String jsPath = m.path + jsName;
-        m.hasJs = fileByPath.containsKey(jsPath);
-        if(m.hasJs){
-            fileByPath.remove(jsPath); // js
-            m.jsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsName, "Js", false);
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has js: " + jsName));
-            } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-            }
+        if (checkArtifact("js", jsName, uploadsDir, fileByPath, m, m.js, true)) {
+            String jsPath = m.path + jsName;
             loadModuleInfoFromJs(uploadsDir, jsPath, m, modules, upload);
             String jsModelName = m.name + "-" + m.version + "-model.js";
-            String jsModelPath = m.path + jsModelName;
-            m.hasJsModel = fileByPath.containsKey(jsModelPath);
-            if (m.hasJsModel) {
-                fileByPath.remove(jsModelPath); // -model.js
-                m.jsModelChecksum = handleChecksumFile(uploadsDir, fileByPath, m, jsModelName, "Js Model", false);
-            } else {
+            if (!checkArtifact("js model", jsModelName, uploadsDir, fileByPath, m, m.jsModel, false)) {
                 if (m.jsBinMajor >= 7) {
                     m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
                 }
             }
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing js archive"));
         }
 
         // must have at least js or car or jar
-        if (!m.hasCar && !m.hasJs && !m.hasJar) {
+        if (!m.car.exists && !m.js.exists && !m.jar.exists) {
             m.diagnostics.add(new Diagnostic("error", "Module must have at least a car, jar or js archive"));
         }
 
         // src check
 
         String srcName = m.name + "-" + m.version + ".src";
-        File srcFile = new File(uploadsDir, m.path + srcName);
-        if(srcFile.exists()){
-            m.hasSource = true;
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has source"));
-            } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-            }
-            fileByPath.remove(m.path + srcName); // source archive
-            m.sourceChecksum = handleChecksumFile(uploadsDir, fileByPath, m, srcName, "Source", m.hasJar);
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing source archive"));
-        }
+        checkArtifact("source", srcName, uploadsDir, fileByPath, m, m.source, true);
 
         // scripts check
 
         String scriptsName = m.name + "-" + m.version + ".scripts.zip";
-        File scriptsFile = new File(uploadsDir, m.path + scriptsName);
-        if(scriptsFile.exists()){
-            m.hasScripts = true;
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has scripts"));
-            } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-            }
-            fileByPath.remove(m.path + scriptsName); // scripts archive
-            m.scriptsChecksum = handleChecksumFile(uploadsDir, fileByPath, m, scriptsName, "Scripts", m.hasJar);
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing scripts archive"));
-        }
-
-        // doc archive check
-
-        String docZipName = m.name + "-" + m.version + ".doc.zip";
-        File docZipFile = new File(uploadsDir, m.path + docZipName);
-        if(docZipFile.exists()){
-            m.hasDocArchive = true;
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has doc archive"));
-            } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
-            }
-            fileByPath.remove(m.path + docZipName); // source archive
-            m.docArchiveChecksum = handleChecksumFile(uploadsDir, fileByPath, m, docZipName, "Doc archive", m.hasJar);
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing doc archive archive"));
-        }
+        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, true);
 
         // doc check
+        folderCheck("docs", "module-doc", m.name + "-" + m.version + ".doc.zip", uploadsDir, fileByPath, m, m.docs, true);
+        
+        if (m.car.exists || m.js.exists) {
+            checkCeylonModuleName(m);
+        }
+        
+        // second jar check
+        
+        // if the jar is alone it's good. Otherwise an error was already added
+        if (m.jar.exists && m.js.missing() && m.docs.missing() && m.car.missing()
+                && m.source.missing() && m.scripts.missing()) {
+            m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }
+    }
 
-        String docName = m.path + "module-doc" + File.separator + "index.html";
-        File docFile = new File(uploadsDir, docName);
-        if(docFile.exists()){
-            m.hasDocs = true;
-            if (!m.hasJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has docs"));
+    private static boolean checkArtifact(String name, String artifactName, File uploadsDir, Map<String, File> fileByPath, Module m, Artifact art, boolean showWarning) {
+        String artifactPath = m.path + artifactName;
+        art.exists = fileByPath.containsKey(artifactPath);
+        if(art.exists){
+            fileByPath.remove(artifactPath);
+
+            if (!m.jar.exists) {
+                m.diagnostics.add(new Diagnostic("success", "Has " + name + ": " + artifactName));
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
             }
-            String prefix = m.path + "module-doc" + File.separator;
+
+            art.checksum = handleChecksumFile(uploadsDir, fileByPath, m, artifactName, name, m.jar.exists);
+            return true;
+        }else if (!m.jar.exists && showWarning) {
+            m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive"));
+        }
+        return false;
+    }
+
+    private static void folderCheck(String name, String folderName, String folderZipName, File uploadsDir, Map<String, File> fileByPath, Module m, ZippedFolderArtifact art, boolean showWarning) {
+        // zipped folder check
+        File folderZipFile = new File(uploadsDir, m.path + folderZipName);
+        if (checkArtifact(name, folderZipName, uploadsDir, fileByPath, m, art, false)) {
+            // All ok
+        }else if (folderZipFile.exists() && !folderZipFile.isFile()) {
+            m.diagnostics.add(new Diagnostic("error", folderZipName + " exists but is not a file"));
+        }else if (!m.jar.exists && showWarning) {
+            m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive archive"));
+        }
+
+        // unzipped folder check
+        String dirName = m.path + folderName;
+        File folderDir = new File(uploadsDir, dirName);
+        if(folderDir.isDirectory()){
+            art.hasUnzipped = true;
+            if (!m.jar.exists) {
+                m.diagnostics.add(new Diagnostic("success", "Has " + name));
+            } else {
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+            }
+            String prefix = m.path + folderName + File.separator;
             Iterator<String> iterator = fileByPath.keySet().iterator();
             while(iterator.hasNext()){
                 String key = iterator.next();
@@ -454,22 +431,10 @@ public class ModuleChecker {
                     iterator.remove();
                 }
             }
-        }else if (!m.hasJar) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing docs"));
-        }
-        
-        if (m.hasCar || m.hasJs) {
-            checkCeylonModuleName(m);
-        }
-        
-        // second jar check
-        
-        // if the jar is alone it's good. Otherwise an error was already added
-        if (m.hasJar && !m.hasJs && !m.hasDocs
-                && !m.hasCar && m.carChecksum == ChecksumState.missing
-                && !m.hasSource && m.sourceChecksum == ChecksumState.missing
-                && !m.hasScripts && m.scriptsChecksum == ChecksumState.missing) {
-            m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }else if (folderDir.exists() && !folderDir.isDirectory()) {
+            m.diagnostics.add(new Diagnostic("error", folderName + " exists but is not a directory"));
+        }else if (!m.jar.exists && showWarning) {
+            m.diagnostics.add(new Diagnostic("warning", "Missing " + name));
         }
     }
 
@@ -1363,29 +1328,38 @@ public class ModuleChecker {
         missing, invalid, valid
     }
     
+    public static class Artifact {
+        public boolean exists;
+        public ChecksumState checksum = ChecksumState.missing;
+        
+        public boolean missing() {
+            return !exists && checksum == ChecksumState.missing;
+        }
+    }
+    
+    public static class ZippedFolderArtifact extends Artifact {
+        public boolean hasUnzipped;
+        
+        public boolean missing() {
+            return super.missing() && !hasUnzipped;
+        }
+    }
+    
     public static class Module {
         public String[] authors;
         public String doc;
         public String license;
-        public ChecksumState jarChecksum = ChecksumState.missing;
-        public boolean hasJar;
         public List<Diagnostic> diagnostics = new ArrayList<Diagnostic>();
         public String name;
         public String version;
         public String path;
-        public boolean hasCar;
-        public boolean hasJs;
-        public boolean hasJsModel;
-        public ChecksumState carChecksum = ChecksumState.missing;
-        public ChecksumState jsChecksum;
-        public ChecksumState jsModelChecksum = ChecksumState.missing;
-        public boolean hasSource;
-        public ChecksumState sourceChecksum = ChecksumState.missing;
-        public boolean hasScripts;
-        public ChecksumState scriptsChecksum = ChecksumState.missing;
-        public boolean hasDocs;
-        public boolean hasDocArchive;
-        public ChecksumState docArchiveChecksum = ChecksumState.missing;
+        public Artifact jar = new Artifact();
+        public Artifact car = new Artifact();
+        public Artifact js = new Artifact();
+        public Artifact jsModel = new Artifact();
+        public Artifact source = new Artifact();
+        public Artifact scripts = new Artifact();
+        public ZippedFolderArtifact docs = new ZippedFolderArtifact();
         public int jvmBinMajor;
         public int jvmBinMinor;
         public int jsBinMajor;

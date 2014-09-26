@@ -307,7 +307,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     </ul>
                     <a href="${util.Util.viewUploadUrl(upload.id, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
-                    #{if module.hasDocs}
+                    #{if module.docs.exists}
                         <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
                             title="View this module´s API documentation"><i class="icon-book"></i> View docs</a>
                     #{/if}
