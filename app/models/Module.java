@@ -39,7 +39,7 @@ import controllers.RepoAPI;
 public class Module extends Model {
 
     public enum Type {
-        CAR, JVM, JS, SRC, ALL, CODE, CEYLON_CODE;
+        JVM, CAR, JAR, JS, SRC, CODE, CEYLON_CODE, ALL;
     }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
@@ -219,6 +219,9 @@ public class Module extends Model {
                 break;
             case CAR:
                 include = hasCar;
+                break;
+            case JAR:
+                include = version.isJarPresent;
                 break;
             case JVM:
                 include = hasCar || version.isJarPresent;

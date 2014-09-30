@@ -48,6 +48,8 @@ public class RepoAPI extends MyController {
             return Type.JVM;
         if(type.equalsIgnoreCase("car"))
             return Type.CAR;
+        if(type.equalsIgnoreCase("jar"))
+            return Type.JAR;
         if(type.equalsIgnoreCase("jvm"))
             return Type.JVM;
         if(type.equalsIgnoreCase("javascript"))

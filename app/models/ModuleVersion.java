@@ -246,6 +246,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
             return prefix+"isJsPresent = true";
         case CAR:
             return prefix+"isCarPresent = true";
+        case JAR:
+            return prefix+"isJarPresent = true";
         case JVM:
             return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
         case CODE:
