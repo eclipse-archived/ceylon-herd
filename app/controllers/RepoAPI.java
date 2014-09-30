@@ -76,19 +76,7 @@ public class RepoAPI extends MyController {
         renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
     }
 
-    public static void searchModules(String apiVersion, String query, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor){
-        start = checkStartParam(start);
-        count = checkCountParam(count);
-        Type t = getType(type);
-        ApiVersion v = getApiVersion(apiVersion);
-
-        List<Module> modules = Module.searchForBackend(query, t, start, count, binaryMajor, binaryMinor);
-        long total = Module.searchForBackendCount(query, t, binaryMajor, binaryMinor);
-        
-        renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
-    }
-    
-    public static void searchModules2(String apiVersion, String name, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
+    public static void searchModules(String apiVersion, String query, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
         start = checkStartParam(start);
         count = checkCountParam(count);
         Type t = getType(type);
@@ -101,8 +89,8 @@ public class RepoAPI extends MyController {
             memberSearchPackageOnly = false;
         }
         
-        List<Module> modules = Module.searchForBackend2(name, t, start, count, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
-        long total = Module.searchForBackend2Count(name, t, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        List<Module> modules = Module.searchForBackend(v, query, t, start, count, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        long total = Module.searchForBackendCount(v, query, t, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
         
         renderModulesTemplate(v, t, modules, start, total, binaryMajor, binaryMinor);
     }
