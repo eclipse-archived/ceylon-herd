@@ -366,7 +366,7 @@ public class ModuleChecker {
         checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, true);
 
         // doc check
-        folderCheck("docs", "module-doc", m.name + "-" + m.version + ".doc.zip", uploadsDir, fileByPath, m, m.docs, true);
+        folderCheck("docs", "module-doc", "module-doc.zip", uploadsDir, fileByPath, m, m.docs, true);
         
         // resources check
         folderCheck("resources", "module-resources", "module-resources.zip", uploadsDir, fileByPath, m, m.resources, true);
