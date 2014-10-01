@@ -203,6 +203,7 @@ public class Uploads extends LoggedInController {
         String docPath = moduleName.replace('.', File.separatorChar)
                 + File.separatorChar + version
                 + File.separatorChar + "module-doc"
+                + File.separatorChar + "api"
                 + File.separatorChar + "index.html"; 
 	    
 	    render(upload, moduleName, version, docPath);

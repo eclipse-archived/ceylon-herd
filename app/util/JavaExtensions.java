@@ -339,7 +339,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
         private static final String PIPE_SEPARATOR = "|";
         private static final String PATH_SEPARATOR = "/";
         private static final String PACKAGE_SEPARATOR = "::";
-        private static final String MODULE_DOC = "module-doc";
+        private static final String MODULE_DOC_API = "module-doc" + PATH_SEPARATOR + "api";
         
         private final ModuleVersion currentModule;
         
@@ -466,7 +466,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
                 path.append(PATH_SEPARATOR);
                 path.append(moduleVersion.version);
                 path.append(PATH_SEPARATOR);
-                path.append(MODULE_DOC);
+                path.append(MODULE_DOC_API);
                 path.append(PATH_SEPARATOR);
 
                 try {
@@ -508,7 +508,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 
         private boolean docFileExists(ModuleVersion moduleVersion, String packagePath, String fileName) {
             File repoDir = Util.getRepoDir();
-            File moduleDir = new File(repoDir, moduleVersion.module.name.replace(DOT_SEPARATOR, PATH_SEPARATOR) + PATH_SEPARATOR + moduleVersion.version + PATH_SEPARATOR + MODULE_DOC);
+            File moduleDir = new File(repoDir, moduleVersion.module.name.replace(DOT_SEPARATOR, PATH_SEPARATOR) + PATH_SEPARATOR + moduleVersion.version + PATH_SEPARATOR + MODULE_DOC_API);
             File packageDir = new File(moduleDir, packagePath);
             File f = new File(packageDir, fileName);
             if (f.exists() && f.isFile()) {

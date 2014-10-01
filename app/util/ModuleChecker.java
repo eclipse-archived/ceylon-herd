@@ -1397,7 +1397,7 @@ public class ModuleChecker {
         }
 
         public String getDocPath(){
-            return path.substring(1) + "module-doc" + "/" + "index.html";
+            return path.substring(1) + "module-doc" + "/" + "api" + "/" + "index.html";
         }
     }
 

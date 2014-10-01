@@ -92,7 +92,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
 	@Transient
 	public String getAPIPath(){
-		return getPath() + "/module-doc/index.html";
+		return getPath() + "/module-doc/api/index.html";
 	}
 
     @Transient
@@ -122,7 +122,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
 	@Transient
 	public String getDocPath(){
-	    return getPath() + "/" + module.name + "-" + version + ".doc.zip";
+	    return getPath() + "/" + "module-doc.zip";
 	}
 
     public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven) {
