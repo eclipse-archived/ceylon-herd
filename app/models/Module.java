@@ -23,6 +23,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
+import models.Module.QueryParams.Retrieval;
+import models.Module.QueryParams.Suffix;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
@@ -38,8 +41,44 @@ import controllers.RepoAPI;
 @SuppressWarnings("serial")
 public class Module extends Model {
 
-    public enum Type {
-        JVM, CAR, JAR, JS, SRC, CODE, CEYLON_CODE, ALL;
+    public static class QueryParams {
+        public enum Suffix {
+            CAR, JAR, JS, SRC, RESOURCES, DOCS, SCRIPTS_ZIPPED;
+        }
+        public enum Retrieval {
+            ANY, ALL;
+        }
+        
+        private Suffix[] suffixes;
+        private Retrieval retrieval;
+        
+        public Integer binaryMajor;
+        public Integer binaryMinor;
+        public String memberName;
+        public boolean memberSearchPackageOnly;
+        public boolean memberSearchExact;
+        
+        // These are the old pre-4 Type enum equivalents
+        public static QueryParams JVM() { return new QueryParams(Retrieval.ANY, Suffix.CAR, Suffix.JAR); }
+        public static QueryParams CAR() { return new QueryParams(Retrieval.ANY, Suffix.CAR); }
+        public static QueryParams JAR() { return new QueryParams(Retrieval.ANY, Suffix.JAR); }
+        public static QueryParams JS() { return new QueryParams(Retrieval.ANY, Suffix.JS); }
+        public static QueryParams SRC() { return new QueryParams(Retrieval.ANY, Suffix.SRC); }
+        public static QueryParams CODE() { return new QueryParams(Retrieval.ANY, Suffix.CAR, Suffix.JAR, Suffix.JS); }
+        public static QueryParams ALL() { return new QueryParams(Retrieval.ANY, Suffix.CAR, Suffix.JAR, Suffix.JS, Suffix.SRC); }
+        
+        public QueryParams(Retrieval retrieval, Suffix... suffixes) {
+            this.suffixes = suffixes;
+            this.retrieval = retrieval;
+        }
+
+        public Suffix[] getSuffixes() {
+            return suffixes;
+        }
+
+        public Retrieval getRetrieval() {
+            return retrieval;
+        }        
     }
 
 	public static final Pattern githubPattern = Pattern.compile("https?://github.com/([^/]+)/([^/]+)/?");
@@ -203,43 +242,51 @@ public class Module extends Model {
 						|| user.isAdmin);
 	}
     
-	public List<ModuleVersion> getVersions(Type type){
-	    return getVersions(type, null, null);
-    }
-    
-	public List<ModuleVersion> getVersions(Type type, Integer binaryMajor, Integer binaryMinor){
+	public List<ModuleVersion> getVersions(QueryParams params){
 	    List<ModuleVersion> ret = new LinkedList<ModuleVersion>();
 	    for(ModuleVersion version : versions){
-	        boolean hasJs = version.isJsPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor);
-	        boolean hasCar = version.isCarPresent && version.matchesBinaryVersion(binaryMajor, binaryMinor);
-	        boolean include = false;
-	        switch(type){
-            case JS:
-                include = hasJs;
-                break;
-            case CAR:
-                include = hasCar;
-                break;
-            case JAR:
-                include = version.isJarPresent;
-                break;
-            case JVM:
-                include = hasCar || version.isJarPresent;
-                break;
-            case CODE:
-                include = hasCar || version.isJarPresent || hasJs;
-                break;
-            case CEYLON_CODE:
-                include = hasCar && hasJs;
-                break;
-            case SRC:
-                include = version.isSourcePresent;
-                break;
-            case ALL:
-                include = hasCar || version.isJarPresent || hasJs || version.isSourcePresent;
-                break;
+	        boolean includeVersion = params.getRetrieval() == Retrieval.ALL;
+	        for (Suffix suffix : params.getSuffixes()) {
+    	        boolean include = false;
+    	        switch(suffix){
+                case CAR:
+                    include = version.isCarPresent && version.matchesBinaryVersion(params.binaryMajor, params.binaryMinor);
+                    break;
+                case JAR:
+                    include = version.isJarPresent;
+                    break;
+                case JS:
+                    include = version.isJsPresent && version.matchesBinaryVersion(params.binaryMajor, params.binaryMinor);
+                    break;
+                case SRC:
+                    include = version.isSourcePresent;
+                    break;
+                case RESOURCES:
+                    include = version.isResourcesPresent;
+                    break;
+                case DOCS:
+                    include = version.isDocPresent;
+                    break;
+                case SCRIPTS_ZIPPED:
+                    include = version.isScriptsPresent;
+                    break;
+                default:
+                    // ouch
+                    throw new RuntimeException("Invalid switch statement: missing enum cases " + suffix);    
+    	        }
+    	        switch (params.getRetrieval()) {
+    	        case ANY:
+    	            includeVersion = includeVersion || include;
+                    break;
+                case ALL:
+                    includeVersion = includeVersion && include;
+                    break;
+                default:
+                    // ouch
+                    throw new RuntimeException("Invalid switch statement: missing enum cases " + params.getRetrieval());    
+    	        }
 	        }
-	        if(include)
+	        if(includeVersion)
 	            ret.add(version);
 	    }
 	    return ret;
@@ -379,49 +426,49 @@ public class Module extends Model {
 		return count("owner = ?", owner);
 	}
 
-    public static List<Module> completeForBackend(String module, Type t, Integer binaryMajor, Integer binaryMinor) {
+    public static List<Module> completeForBackend(String module, QueryParams params) {
         if(module == null)
             module = "";
-        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        String typeQuery = ModuleVersion.getBackendQuery("v.", params);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
         JPAQuery query = Module.find("FROM Module m WHERE LOCATE(:module, m.name) = 1"
                 + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")"
                 + " ORDER BY name");
         query.bind("module", module);
-        ModuleVersion.addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
                 
         return query.fetch(RepoAPI.RESULT_LIMIT);
     }
 
-    public static long completeForBackendCount(String module, Type t, Integer binaryMajor, Integer binaryMinor) {
+    public static long completeForBackendCount(String module, QueryParams params) {
         if(module == null)
             module = "";
-        String typeQuery = ModuleVersion.getBackendQuery("v.", t);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+        String typeQuery = ModuleVersion.getBackendQuery("v.", params);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
         JPAQuery query = Module.find("SELECT COUNT(*) FROM Module m WHERE LOCATE(:module, m.name) = 1"
                 + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")");
         query.bind("module", module);
-        ModuleVersion.addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
         
         return query.first();
     }
 
-    public static List<Module> searchForBackend(ApiVersion v, String query, Type type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
+    public static List<Module> searchForBackend(ApiVersion v, String query, QueryParams params, Integer start, Integer count) {
         if (count == 0) {
             return Collections.<Module> emptyList();
         }
-        JPAQuery q = createQueryForBackend(v, false, query, type, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        JPAQuery q = createQueryForBackend(v, false, query, params);
         return q.from(start).fetch(count);
     }
     
-    public static long searchForBackendCount(ApiVersion v, String query, Type type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
-        JPAQuery q = createQueryForBackend(v, true, query, type, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+    public static long searchForBackendCount(ApiVersion v, String query, QueryParams params) {
+        JPAQuery q = createQueryForBackend(v, true, query, params);
         return q.first();
     }
     
-    private static JPAQuery createQueryForBackend(ApiVersion v, boolean selectCount, String query, Type type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
-        String typeQuery = ModuleVersion.getBackendQuery("v.", type);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", binaryMajor, binaryMinor);
+    private static JPAQuery createQueryForBackend(ApiVersion v, boolean selectCount, String query, QueryParams params) {
+        String typeQuery = ModuleVersion.getBackendQuery("v.", params);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
         
         String select = "";
         if (selectCount) {
@@ -450,16 +497,16 @@ public class Module extends Model {
             where += ")";
         }
         
-        if (isNotEmpty(memberName)) {
+        if (isNotEmpty(params.memberName)) {
             select += "LEFT JOIN v.members as memb ";
-            if (memberSearchPackageOnly) {
-                if (memberSearchExact) {
+            if (params.memberSearchPackageOnly) {
+                if (params.memberSearchExact) {
                     where += "AND LOWER(memb.packageName) = :memberName ";
                 } else {
                     where += "AND LOCATE(:memberName, LOWER(memb.packageName)) <> 0 ";
                 }
             } else {
-                if (memberSearchExact) {
+                if (params.memberSearchExact) {
                     where += "AND LOWER(CONCAT(memb.packageName, '::', memb.name)) = :memberName ";
                 } else {
                     where += "AND LOCATE(:memberName, LOWER(CONCAT(memb.packageName, '::', memb.name))) <> 0 ";
@@ -476,10 +523,10 @@ public class Module extends Model {
         if (isNotEmpty(query)) {
             jpaQuery.bind("query", query.toLowerCase());
         }
-        if (isNotEmpty(memberName)) {
-            jpaQuery.bind("memberName", memberName.toLowerCase());
+        if (isNotEmpty(params.memberName)) {
+            jpaQuery.bind("memberName", params.memberName.toLowerCase());
         }
-        ModuleVersion.addBinaryQueryParameters(jpaQuery, binaryMajor, binaryMinor);
+        ModuleVersion.addBinaryQueryParameters(jpaQuery, params.binaryMajor, params.binaryMinor);
 
         return jpaQuery;
     }

@@ -5,7 +5,7 @@
  {
   "module": "${module.name?.jsonEscape()}",
   "versions": [
-#{list module.getVersions(type, binaryMajor, binaryMinor), as: 'version'}
+#{list module.getVersions(type), as: 'version'}
    "${version.version?.jsonEscape()}"#{if !version_isLast},#{/if} 
 #{/list}
   ],

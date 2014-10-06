@@ -24,7 +24,9 @@ import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
-import models.Module.Type;
+import models.Module.QueryParams;
+import models.Module.QueryParams.Retrieval;
+import models.Module.QueryParams.Suffix;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.CeylonElementType;
@@ -240,42 +242,67 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         return count("module.owner = ?", owner);
     }
 
-    static String getBackendQuery(String prefix, Type t){
-        switch(t){
-        case JS:
-            return prefix+"isJsPresent = true";
-        case CAR:
-            return prefix+"isCarPresent = true";
-        case JAR:
-            return prefix+"isJarPresent = true";
-        case JVM:
-            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true";
-        case CODE:
-            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true OR "+prefix+"isJsPresent = true";
-        case CEYLON_CODE:
-            return prefix+"isCarPresent = true AND "+prefix+"isJsPresent = true";
-        case SRC:
-            return prefix+"isSourcePresent = true";
-        case ALL:
-            return prefix+"isCarPresent = true OR "+prefix+"isJarPresent = true OR "+prefix+"isJsPresent = true OR "+prefix+"isSourcePresent = true";
-        default:
-            // ouch
-            throw new RuntimeException("Invalid switch statement: missing enum cases " + t);    
+    static String getBackendQuery(String prefix, QueryParams type){
+        StringBuilder query = new StringBuilder();
+        boolean first = true;
+        for (Suffix suffix : type.getSuffixes()) {
+            if (!first) {
+                switch (type.getRetrieval()) {
+                case ANY:
+                    query.append(" OR ");
+                    break;
+                case ALL:
+                    query.append(" AND ");
+                    break;
+                default:
+                    // ouch
+                    throw new RuntimeException("Invalid switch statement: missing enum cases " + type.getRetrieval());    
+                }
+            }
+            String q;
+            switch(suffix){
+            case CAR:
+                q = prefix+"isCarPresent = true";
+                break;
+            case JAR:
+                q = prefix+"isJarPresent = true";
+                break;
+            case JS:
+                q = prefix+"isJsPresent = true";
+                break;
+            case SRC:
+                q = prefix+"isSourcePresent = true";
+                break;
+            case RESOURCES:
+                q = prefix+"isSourcePresent = true";
+                break;
+            case DOCS:
+                q = prefix+"isSourcePresent = true";
+                break;
+            case SCRIPTS_ZIPPED:
+                q = prefix+"isSourcePresent = true";
+                break;
+            default:
+                // ouch
+                throw new RuntimeException("Invalid switch statement: missing enum cases " + suffix);    
+            }
+            query.append(q);
+            first = false;
         }
+        return query.toString();
     }
 
-    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, Type type,
-            Integer binaryMajor, Integer binaryMinor) {
-        String typeQuery = ModuleVersion.getBackendQuery("", type);
+    public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, QueryParams params) {
+        String typeQuery = ModuleVersion.getBackendQuery("", params);
         if(version == null)
             version = "";
-        String binaryQuery = getBinaryQuery("", binaryMajor, binaryMinor);
+        String binaryQuery = getBinaryQuery("", params.binaryMajor, params.binaryMinor);
         JPAQuery query = ModuleVersion.find("module = :module AND LOCATE(:version, version) = 1 AND ("+typeQuery+")"
                 + binaryQuery
                 + " ORDER BY version");
         query.bind("module", module);
         query.bind("version", version);
-        addBinaryQueryParameters(query, binaryMajor, binaryMinor);
+        addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
         
         return query.fetch(RepoAPI.RESULT_LIMIT);
     }
