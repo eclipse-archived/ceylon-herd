@@ -328,7 +328,7 @@ public class ModuleChecker {
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
-        if (checkArtifact("car", carName, uploadsDir, fileByPath, m, m.car, true)) {
+        if (checkArtifact("car", carName, uploadsDir, fileByPath, m, m.car, true, false)) {
             String artifactPath = m.path + carName;
             loadModuleInfoFromCar(uploadsDir, artifactPath, m, modules, upload);
             checkIsRunnable(uploadsDir, artifactPath, m);
@@ -339,11 +339,11 @@ public class ModuleChecker {
         // js check
 
         String jsName = m.name + "-" + m.version + ".js";
-        if (checkArtifact("js", jsName, uploadsDir, fileByPath, m, m.js, true)) {
+        if (checkArtifact("js", jsName, uploadsDir, fileByPath, m, m.js, true, false)) {
             String jsPath = m.path + jsName;
             loadModuleInfoFromJs(uploadsDir, jsPath, m, modules, upload);
             String jsModelName = m.name + "-" + m.version + "-model.js";
-            if (!checkArtifact("js model", jsModelName, uploadsDir, fileByPath, m, m.jsModel, false)) {
+            if (!checkArtifact("js model", jsModelName, uploadsDir, fileByPath, m, m.jsModel, false, false)) {
                 if (m.jsBinMajor >= 7) {
                     m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
                 }
@@ -358,12 +358,12 @@ public class ModuleChecker {
         // src check
 
         String srcName = m.name + "-" + m.version + ".src";
-        checkArtifact("source", srcName, uploadsDir, fileByPath, m, m.source, true);
+        checkArtifact("source", srcName, uploadsDir, fileByPath, m, m.source, true, true);
 
         // scripts check
 
         String scriptsName = m.name + "-" + m.version + ".scripts.zip";
-        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false);
+        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false, false);
 
         // doc check
         folderCheck("docs", "module-doc", "module-doc.zip", uploadsDir, fileByPath, m, m.docs, true);
@@ -384,13 +384,14 @@ public class ModuleChecker {
         }
     }
 
-    private static boolean checkArtifact(String name, String artifactName, File uploadsDir, Map<String, File> fileByPath, Module m, Artifact art, boolean showWarning) {
+    private static boolean checkArtifact(String name, String artifactName, File uploadsDir, Map<String, File> fileByPath, Module m, Artifact art, 
+            boolean showWarning, boolean allowWithJar) {
         String artifactPath = m.path + artifactName;
         art.exists = fileByPath.containsKey(artifactPath);
         if(art.exists){
             fileByPath.remove(artifactPath);
 
-            if (!m.jar.exists) {
+            if (!m.jar.exists || allowWithJar) {
                 m.diagnostics.add(new Diagnostic("success", "Has " + name + ": " + artifactName));
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
@@ -411,7 +412,7 @@ public class ModuleChecker {
     private static void folderCheck(String name, String folderName, String folderZipName, File uploadsDir, Map<String, File> fileByPath, Module m, ZippedFolderArtifact art, boolean showWarning) {
         // zipped folder check
         File folderZipFile = new File(uploadsDir, m.path + folderZipName);
-        if (checkArtifact(name, folderZipName, uploadsDir, fileByPath, m, art, false)) {
+        if (checkArtifact(name, folderZipName, uploadsDir, fileByPath, m, art, false, false)) {
             // All ok
         }else if (folderZipFile.exists() && !folderZipFile.isFile()) {
             m.diagnostics.add(new Diagnostic("error", folderZipName + " exists but is not a file"));
