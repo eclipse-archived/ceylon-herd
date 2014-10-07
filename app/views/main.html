@@ -190,7 +190,7 @@ jQuery(function(){
                         Please correct the following errors:
                         <ul>
                         #{list items:play.data.validation.Validation.errors(), as:'error'}
-                                <li>${error.key} ${error.message}</li>
+                                <li>#{if error.key != 'null'}${error.key}#{/if} ${error.message}</li>
                         #{/list}
                         </ul>
                     </div>

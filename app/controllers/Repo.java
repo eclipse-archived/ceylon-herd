@@ -69,7 +69,7 @@ public class Repo extends MyController {
 		}
 		models.Module module = models.Module.findByName(moduleName);
 		if(module == null){
-			Validation.addError(null, "Unknown module");
+			Validation.addError(null, "Unknown module: "+moduleName);
 			prepareForErrorRedirect();
 			index();
 		}
