@@ -104,9 +104,11 @@ POST    /modules/{moduleName}/comments/{commentId}/delete  LoggedInRepo.deleteMo
 GET     /modules/{moduleName}/remove1                      LoggedInRepo.removeModule1
 GET     /modules/{moduleName}/remove2                      LoggedInRepo.removeModule2
 POST    /modules/{moduleName}/remove3                      LoggedInRepo.removeModule3
+GET     /modules/{moduleName}/importers                    Repo.importers
 GET     /modules/{moduleName}/{version}                    Repo.view
 GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/members            Repo.members
+GET     /modules/{moduleName}/{version}/importers          Repo.importers
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.removeModuleVersion1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.removeModuleVersion2
 POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.removeModuleVersion3

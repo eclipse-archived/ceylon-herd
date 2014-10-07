@@ -239,6 +239,7 @@
             <th>Module links</th>
             <td>
                 <a href="@{Repo.members(module.name,moduleVersion.version)}" title="View module members"><i class="icon-eye-open"></i> Members</a><br/>
+                <a href="@{Repo.importers(module.name,moduleVersion.version)}" title="View modules importing this module"><i class="icon-eye-open"></i> Imported By</a><br/>
                 #{if module.homeURL}
                     <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
                 #{/if}

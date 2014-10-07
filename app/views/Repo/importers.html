@@ -1,0 +1,31 @@
+#{extends 'main.html' /}
+#{set title:'List of importing modules' /}
+
+#{if dependantsMap.isEmpty()}
+    <div class="alert alert-info">
+        This module is not imported by any other module.
+    </div>
+#{/if}
+#{else}
+    <p>
+        The following modules depend on this module.
+    </p>
+    <ul>
+        #{list dependantsMap.keySet(), as: 'version'}
+            <li>on version <a href="@{Repo.view(module.name, version)}" title="View module">${module.name} / ${version}</a> depends 
+                <ul>
+                #{list dependantsMap.get(version), as: 'dependant'}
+                    <li><a href="@{Repo.view(dependant.module.name, dependant.version)}" title="View module">${dependant.module.name} / ${dependant.version}</a></li>
+                #{/list}
+                </ul>
+            </li>
+        #{/list}
+    </ul>    
+#{/else}
+
+#{if moduleVersion != null}
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back" class="btn">Back</a>
+#{/if}
+#{else}
+    <a href="@{Repo.versions(module.name)}" title="Let´s go back" class="btn">Back</a>
+#{/else}

@@ -6,6 +6,8 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
 
 import models.Category;
 import models.Module;
@@ -119,6 +121,20 @@ public class Repo extends MyController {
 	    
 	    render(module, moduleVersion);
 	}
+
+    public static void importers(@Required String moduleName, String version){
+        models.Module module;
+        models.ModuleVersion moduleVersion;
+        if (version != null && !version.isEmpty()) {
+            moduleVersion = getModuleVersion(moduleName, version);
+            module = moduleVersion.module;
+        } else {
+            module = models.Module.findByName(moduleName);
+            moduleVersion = null;
+        }
+        SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = ModuleVersion.findDependants(moduleName, version);
+        render(module, moduleVersion, dependantsMap);
+    }
 
 	public static void viewDoc(@Required String moduleName, @Required String version){
 	    models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);

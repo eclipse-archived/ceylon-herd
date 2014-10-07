@@ -17,6 +17,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -159,11 +160,18 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	//
 	// Static helpers
     
-    public static SortedMap<String, SortedSet<ModuleVersion>> findDependants(String moduleName) {
-        List<Object[]> results = JPA.em()
-                .createQuery("SELECT d.version, v FROM ModuleVersion v JOIN v.dependencies d LEFT JOIN FETCH v.module WHERE d.name=:name")
-                .setParameter("name", moduleName)
-                .getResultList();
+    public static SortedMap<String, SortedSet<ModuleVersion>> findDependants(String moduleName, String version) {
+        String query = "SELECT d.version, v FROM ModuleVersion v JOIN v.dependencies d LEFT JOIN FETCH v.module WHERE d.name=:name";
+        if (version != null && !version.isEmpty()) {
+            query += " AND d.version=:version";
+        }
+        Query jpa = JPA.em()
+                .createQuery(query)
+                .setParameter("name", moduleName);
+        if (version != null && !version.isEmpty()) {
+            jpa.setParameter("version", version);
+        }
+        List<Object[]> results = jpa.getResultList();
 
         Comparator<String> versionComparator = new Comparator<String>() {
             @Override
@@ -185,13 +193,13 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
         SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = new TreeMap<String, SortedSet<ModuleVersion>>(versionComparator);
         for (Object[] result : results) {
-            String version = (String) result[0];
+            String ver = (String) result[0];
             ModuleVersion dependant = (ModuleVersion) result[1];
 
-            SortedSet<ModuleVersion> dependants = dependantsMap.get(version);
+            SortedSet<ModuleVersion> dependants = dependantsMap.get(ver);
             if (dependants == null) {
                 dependants = new TreeSet<ModuleVersion>(dependantComparator);
-                dependantsMap.put(version, dependants);
+                dependantsMap.put(ver, dependants);
             }
             dependants.add(dependant);
         }

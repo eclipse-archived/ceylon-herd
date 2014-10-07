@@ -232,7 +232,7 @@ public class LoggedInRepo extends LoggedInController {
     @Check("admin")
     public static void removeModule1(@Required String moduleName) {
         Module module = getModule(moduleName);
-        SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = ModuleVersion.findDependants(moduleName);
+        SortedMap<String, SortedSet<ModuleVersion>> dependantsMap = ModuleVersion.findDependants(moduleName, null);
         render(module, dependantsMap);
     }
 

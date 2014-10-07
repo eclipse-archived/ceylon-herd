@@ -99,6 +99,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                 #{if module.issueTrackerURL}
                     <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
                 #{/if}
+                <a href="@{Repo.importers(module.name,null)}" title="View modules importing this module"><i class="icon-eye-open"></i> Imported By</a><br/>
                 <a href="${util.Util.viewRepoUrl(module.path)}" title="Browse module repository"><i class="icon-folder-open"></i> Browse</a>
             </td>
         </tr>
