@@ -394,7 +394,7 @@ public class ModuleChecker {
             if (!m.jar.exists || allowWithJar) {
                 m.diagnostics.add(new Diagnostic("success", "Has " + name + ": " + artifactName));
             } else {
-                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives"));
+                m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives: "+artifactName));
             }
 
             art.checksum = handleChecksumFile(uploadsDir, fileByPath, m, artifactName, name, m.jar.exists);
