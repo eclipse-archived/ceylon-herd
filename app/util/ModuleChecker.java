@@ -363,13 +363,13 @@ public class ModuleChecker {
         // scripts check
 
         String scriptsName = m.name + "-" + m.version + ".scripts.zip";
-        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, true);
+        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false);
 
         // doc check
         folderCheck("docs", "module-doc", "module-doc.zip", uploadsDir, fileByPath, m, m.docs, true);
         
         // resources check
-        folderCheck("resources", "module-resources", "module-resources.zip", uploadsDir, fileByPath, m, m.resources, true);
+        folderCheck("resources", "module-resources", "module-resources.zip", uploadsDir, fileByPath, m, m.resources, false);
         
         if (m.car.exists || m.js.exists) {
             checkCeylonModuleName(m);
@@ -398,8 +398,12 @@ public class ModuleChecker {
 
             art.checksum = handleChecksumFile(uploadsDir, fileByPath, m, artifactName, name, m.jar.exists);
             return true;
-        }else if (!m.jar.exists && showWarning) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive"));
+        }else if (!m.jar.exists) {
+            if(showWarning){
+                m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive"));
+            }else{
+                m.diagnostics.add(new Diagnostic("success", "No " + name + " archive"));
+            }
         }
         return false;
     }
