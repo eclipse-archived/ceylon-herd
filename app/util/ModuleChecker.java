@@ -417,7 +417,7 @@ public class ModuleChecker {
         }else if (folderZipFile.exists() && !folderZipFile.isFile()) {
             m.diagnostics.add(new Diagnostic("error", folderZipName + " exists but is not a file"));
         }else if (!m.jar.exists && showWarning) {
-            m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive archive"));
+            m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " zip archive"));
         }
 
         // unzipped folder check
