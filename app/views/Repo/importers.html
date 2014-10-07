@@ -8,11 +8,11 @@
 #{/if}
 #{else}
     <p>
-        The following modules depend on this module.
+        The following modules depend on <a href="@{Repo.versions(module.name)}" title="View module">${module.name}</a>.
     </p>
     <ul>
         #{list dependantsMap.keySet(), as: 'version'}
-            <li>on version <a href="@{Repo.view(module.name, version)}" title="View module">${module.name} / ${version}</a> depends 
+            <li>Users of <a href="@{Repo.view(module.name, version)}" title="View module">${module.name} / ${version}</a>: 
                 <ul>
                 #{list dependantsMap.get(version), as: 'dependant'}
                     <li><a href="@{Repo.view(dependant.module.name, dependant.version)}" title="View module">${dependant.module.name} / ${dependant.version}</a></li>
