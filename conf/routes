@@ -33,6 +33,7 @@ GET     /register/confirm/{confirmationCode}               Register.confirm
 POST    /register/welcome                                  Register.complete
                                                            
 GET     /projects                                          Projects.index
+GET     /projects/adminClaim                               Projects.adminClaimForm
 GET     /projects/claim                                    Projects.claimform
 POST    /projects/claim                                    Projects.claim
 GET     /projects/alreadyClaimed                           Projects.alreadyClaimed

@@ -272,6 +272,10 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                     #{if diagnostic.project == null}
                                         <a href="@{Projects.claimForm(module.name)}" class="btn btn-mini"
                                             title="Claim this project to be allowed to publish it"><i class="icon-plus"></i> Claim this project</a>
+                                        #{if user.isAdmin}
+                                            <a href="@{Projects.adminClaimForm(module.name)}" class="btn btn-mini btn-danger"
+                                                title="Pre-filled claim"><i class="icon-plus"></i> Pre-filled claim</a>
+                                        #{/if}
                                     #{/if}
                                     #{else}
                                         <a href="@{Projects.view(diagnostic.project.id)}">#{projectStatus diagnostic.project.status /}</a>

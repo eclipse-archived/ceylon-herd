@@ -110,6 +110,17 @@ public class Projects extends LoggedInController {
 		view(project.id);
     }
 
+    @Check("admin")
+	public static void adminClaimForm(@Required @Match(message = "validation.moduleName", value = Util.MODULE_NAME_PATTERN) @MaxSize(Util.VARCHAR_SIZE) String module) {
+        flash("module", module);
+        flash("url", "http://example.com");
+        flash("license", "WTF License");
+        flash("motivation", "Lack of motivation");
+        flash("description", "Does lots of stuff");
+        flash("role", "Grand Vizir");
+        claimForm(null);
+    }
+
 	public static void alreadyClaimed(@Required @MaxSize(Util.VARCHAR_SIZE) String module, 
 	        @Required @MaxSize(Util.VARCHAR_SIZE) @URL String url, 
 	        @Required @MaxSize(Util.VARCHAR_SIZE) String license, 
