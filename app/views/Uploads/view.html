@@ -263,9 +263,16 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                         </button>
                     #{/form}
                     ${module.name}/${module.version}
-                    <ul>
+                    <ul id="diagnostics-${module.name.slugify()}-${module.version.slugify()}">
+                        %{
+                            diagnosticsHidden = false;
+                        }%
                         #{list items:module.diagnostics, as:'diagnostic'}
-                            <li>
+                            <li #{if diagnostic.type == "success"}style="display:none"#{/if}>
+                                %{
+                                    if(diagnostic.type == "success")
+                                        diagnosticsHidden = true;
+                                }%
                                 #{uploadStatus diagnostic.type, message: diagnostic.message /}
                                 #{if diagnostic.projectClaim}
                                     &nbsp;
@@ -308,6 +315,9 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                 #{/elseif}
                             </li>
                         #{/list}
+                        #{if diagnosticsHidden}
+                            <li><a href='#' onclick="jQuery('#diagnostics-${module.name.slugify()}-${module.version.slugify()}').children().show(); jQuery(this).parent().hide(); return false;">Show all diagnostics</a></li>
+                        #{/if}
                     </ul>
                     <a href="${util.Util.viewUploadUrl(upload.id, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
