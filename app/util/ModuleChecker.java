@@ -234,7 +234,7 @@ public class ModuleChecker {
                 }
             }
         }
-        if (m.car.exists && m.js.exists) {
+        if (m.car.exists && m.js.exists && !isLanguageModule(m)) {
             if (m.carDependencies.size() != m.jsDependencies.size()
                     || !m.carDependencies.containsAll(m.jsDependencies)
                     || !m.jsDependencies.containsAll(m.carDependencies)) {
@@ -299,7 +299,7 @@ public class ModuleChecker {
         boolean hasJarModulesProperties = fileByPath.containsKey(jarModulePropertiesPath);
         if(hasJarModulesProperties){
             fileByPath.remove(jarModulePropertiesPath);
-            if(!m.jar.exists){
+            if(!m.jar.exists && !isLanguageModule(m)){
                 m.diagnostics.add(new Diagnostic("error", "module properties file only supported with jar upload"));
             }
             loadJarModuleProperties(uploadsDir, jarModulePropertiesPath, m, modules, upload);
@@ -310,7 +310,7 @@ public class ModuleChecker {
         boolean hasJarXmlProperties = fileByPath.containsKey(jarModuleXmlPath);
         if(hasJarXmlProperties){
             fileByPath.remove(jarModuleXmlPath);
-            if(!m.jar.exists){
+            if(!m.jar.exists && !isLanguageModule(m)){
                 m.diagnostics.add(new Diagnostic("error", "module xml file only supported with jar upload"));
             }
             loadJarModuleXml(uploadsDir, jarModuleXmlPath, m, modules, upload);
@@ -474,9 +474,14 @@ public class ModuleChecker {
         }
     }
     
+    private static boolean isLanguageModule(Module m){
+        return m.name.equals("ceylon.language");
+    }
+    
     private static void checkThatClassesBelongToModule(File uploadsDir, String carPath, Module m) {
         // Hack: ceylon.language has special classes, and only we can publish it so we know what we're doing
-        String errorLevel = "ceylon.language".equals(m.name) ? "warning" : "error";
+        if(isLanguageModule(m))
+            return;
         String modulePackagePath = m.name.replace('.', File.separatorChar) + File.separatorChar;
         try {
             ZipFile zipFile = new ZipFile(new File(uploadsDir, carPath));
@@ -487,7 +492,7 @@ public class ModuleChecker {
                     if (!entry.isDirectory()) {
                         String fileName = entry.getName();
                         if (fileName.endsWith(".class") && !fileName.startsWith(modulePackagePath)) {
-                            m.diagnostics.add(new Diagnostic(errorLevel, "Class doesn't belong to module: " + fileName));
+                            m.diagnostics.add(new Diagnostic("error", "Class doesn't belong to module: " + fileName));
                         }
                     }
                 }
