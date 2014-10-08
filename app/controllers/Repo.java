@@ -5,7 +5,9 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
@@ -18,6 +20,8 @@ import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
+import play.mvc.Router;
+import play.mvc.Router.ActionDefinition;
 import util.JavaExtensions;
 import util.Util;
 
@@ -167,8 +171,18 @@ public class Repo extends MyController {
 		File file = new File(repoDir, path);
 		checkPath(file, repoDir);
 		
-		if(!file.exists())
+		if(!file.exists()){
+		    String newDocPath = "/module-doc/api/";
+            String oldDocPath = "/module-doc/";
+		    if(path.contains(newDocPath)){
+		        // try with old path?
+		        retryWithSubstitution(repoDir, path, newDocPath, oldDocPath);
+		    }else if(path.contains(oldDocPath)){
+                // try with new path?
+                retryWithSubstitution(repoDir, path, oldDocPath, newDocPath);
+            }
 			notFound(path);
+		}
 		
 		if(file.isDirectory()){
 		    // try a module version
@@ -186,7 +200,20 @@ public class Repo extends MyController {
 		}
 	}
 	
-	private static Module findModule(File file) {
+	private static void retryWithSubstitution(File repoDir, String path, String newDocPath, String oldDocPath) throws IOException {
+        int start = path.indexOf(newDocPath);
+        path = path.substring(0, start) + oldDocPath + path.substring(start+newDocPath.length());
+        File file = new File(repoDir, path);
+        checkPath(file, repoDir);
+        if(file.exists()){
+            Map<String,Object> args = new HashMap<String,Object>();
+            args.put("path", "");
+            String url = Router.reverse("Repo.viewFile", args).toString() + path;
+            redirect(url, true);
+        }
+    }
+
+    private static Module findModule(File file) {
 	    for(File f : file.listFiles()){
 	        if(!f.isDirectory()){
 	            // fail fast: if we have a file we're not in a module dir
