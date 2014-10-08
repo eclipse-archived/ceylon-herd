@@ -273,6 +273,9 @@
                 #{/else}
                 #{if moduleVersion.isScriptsPresent}
                     <a href="${util.Util.viewRepoUrl(moduleVersion.scriptsPath)}" title="Download module scripts archive"><i class="icon-download"></i> Download scripts archive</a><br/>
+                    #{if moduleVersion.scripts.size() > 0}
+                        <a href="@{Repo.scripts(module.name,moduleVersion.version)}" title="View module scripts"><i class="icon-eye-open"></i> Scripts</a><br/>
+                    #{/if}
                 #{/if}
                 #{if moduleVersion.isDocPresent}
                     <a href="${util.Util.viewRepoUrl(moduleVersion.docPath)}" title="Download module documentation"><i class="icon-book"></i> Download module documentation</a><br/>

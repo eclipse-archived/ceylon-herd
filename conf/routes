@@ -109,6 +109,7 @@ GET     /modules/{moduleName}/importers                    Repo.importers
 GET     /modules/{moduleName}/{version}                    Repo.view
 GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/members            Repo.members
+GET     /modules/{moduleName}/{version}/scripts            Repo.scripts
 GET     /modules/{moduleName}/{version}/importers          Repo.importers
 GET     /modules/{moduleName}/{version}/remove1            LoggedInRepo.removeModuleVersion1
 GET     /modules/{moduleName}/{version}/remove2            LoggedInRepo.removeModuleVersion2

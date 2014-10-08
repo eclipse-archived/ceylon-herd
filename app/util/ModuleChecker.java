@@ -1,5 +1,6 @@
 package util;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -75,6 +77,30 @@ public class ModuleChecker {
             if(typea != typeb)
                 return typea < typeb ? -1 : 1;
             return name.compareTo(other.name);
+        }
+    }
+
+    public static class Script implements Comparable<Script> {
+        public final boolean unix;
+        public final String name;
+        public final String description;
+        
+        public Script(String name, String description, boolean unix) {
+            this.name = name;
+            this.description = description;
+            this.unix = unix;
+        }
+
+        @Override
+        public int compareTo(Script other) {
+            int pkg = name.compareTo(other.name);
+            if(pkg != 0)
+                return pkg;
+            if(unix == other.unix)
+                return 0;
+            if(unix)
+                return -1;
+            return 1;
         }
     }
 
@@ -363,7 +389,9 @@ public class ModuleChecker {
         // scripts check
 
         String scriptsName = m.name + "-" + m.version + ".scripts.zip";
-        checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false, false);
+        if(checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false, false)){
+            loadScriptNames(uploadsDir, m.path + scriptsName, m);
+        }
 
         // doc check
         folderCheck("docs", "module-doc", "module-doc.zip", uploadsDir, fileByPath, m, m.docs, true);
@@ -381,6 +409,66 @@ public class ModuleChecker {
         if (m.jar.exists && m.js.missing() && m.docs.missing() && m.car.missing()
                 && m.source.missing() && m.scripts.missing() && m.resources.missing()) {
             m.diagnostics.add(new Diagnostic("success", "Has jar: " + jarName));
+        }
+    }
+
+    private static void loadScriptNames(File uploadsDir, String scriptsName, Module m) {
+        try {
+            ZipFile zipFile = new ZipFile(new File(uploadsDir, scriptsName));
+            try {
+                Enumeration<? extends ZipEntry> entries = zipFile.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = (ZipEntry) entries.nextElement();
+                    if (!entry.isDirectory()) {
+                        String fileName = entry.getName();
+                        if (fileName.startsWith("ceylon-")) {
+                            String name = fileName.substring("ceylon-".length());
+                            boolean unix = true;
+                            if(name.endsWith(".bat")){
+                                name = name.substring(0, name.length()-4);
+                                unix = false;
+                            }
+                            loadScriptName(zipFile, entry, m, name, unix);
+                        }
+                    }
+                }
+            } finally {
+                zipFile.close();
+            }
+        } catch (IOException e) {
+            handleIOException(e);
+        }
+    }
+
+    private static void loadScriptName(ZipFile zipFile, ZipEntry entry, Module m, String name, boolean unix) throws IOException {
+        BufferedReader inputStream = new BufferedReader(new InputStreamReader(zipFile.getInputStream(entry)));
+        try{
+            String description = null;
+            String line;
+            while((line = inputStream.readLine()) != null){
+                if(unix){
+                    if(line.startsWith("DESCRIPTION=")){
+                        String val = line.substring("DESCRIPTION=".length()).trim();
+                        if((val.startsWith("'") && val.endsWith("'"))
+                                || (val.startsWith("\"") && val.endsWith("\""))){
+                            description = val.substring(1, val.length()-1);
+                        }
+                        break;
+                    }
+                }else{
+                    // Windows batch file
+                    if(line.startsWith("set \"DESCRIPTION=")){
+                        String val = line.substring("set \"DESCRIPTION=".length()).trim();
+                        if(val.endsWith("\"")){
+                            description = val.substring(0, val.length()-1);
+                        }
+                        break;
+                    }
+                }
+            }
+            m.addScript(name, description, unix);
+        }finally{
+            inputStream.close();
         }
     }
 
@@ -1385,11 +1473,16 @@ public class ModuleChecker {
         public List<Import> jsDependencies = new LinkedList<Import>();
         public boolean isRunnable;
         public SortedSet<Member> members = new TreeSet<Member>();
+        public SortedSet<Script> scriptDescriptions = new TreeSet<Script>();
 
         Module(String name, String version, String path){
             this.name = name;
             this.version = version;
             this.path = path;
+        }
+
+        public void addScript(String name, String description, boolean unix) {
+            scriptDescriptions.add(new Script(name, description, unix));
         }
 
         public void addMember(CeylonElementType type, String packageName, String className) {

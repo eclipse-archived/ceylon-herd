@@ -218,6 +218,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
   <li class="active"><a href="#status" data-toggle="tab" title="View upload diagnostics information">Status</a></li>
   <li><a href="#files" data-toggle="tab" title="View uploaded files">Files</a></li>
   <li><a href="#members" data-toggle="tab" title="View module members">Module members</a></li>
+  <li><a href="#scripts" data-toggle="tab" title="View module scripts">Module scripts</a></li>
 </ul>
 
 <div class="tab-content">
@@ -383,6 +384,31 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                 #{/list}
             </tbody>
         </table>
+    #{/list}
+#{/else}
+
+</div>
+<div class="tab-pane" id="scripts">
+
+#{if uploadInfo.modules.empty}
+    <div class="alert alert-info">
+        No module uploaded yet.
+    </div>
+#{/if}
+#{else}
+    #{list items:uploadInfo.modules, as:'module'}
+        #{if module.scriptDescriptions.size() > 0}
+            <table class="table table-bordered">
+                <caption>Scripts for ${module.name}/${module.version}</caption>
+                <tbody>
+                    #{list items:module.scriptDescriptions, as:'script'}
+                        <tr>
+                            <td><tt>ceylon ${script.name}</tt>: ${script.description} (${script.unix ? "Unix" : "Windows"})</td>
+                        </tr>
+                    #{/list}
+                </tbody>
+            </table>
+        #{/if}
     #{/list}
 #{/else}
 

@@ -122,6 +122,13 @@ public class Repo extends MyController {
 	    render(module, moduleVersion);
 	}
 
+	public static void scripts(@Required String moduleName, @Required String version){
+	    models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
+	    models.Module module = moduleVersion.module;
+
+	    render(module, moduleVersion);
+	}
+
     public static void importers(@Required String moduleName, String version){
         models.Module module;
         models.ModuleVersion moduleVersion;

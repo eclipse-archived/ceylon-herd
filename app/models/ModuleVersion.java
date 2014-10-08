@@ -24,12 +24,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import models.Module.QueryParams;
+import models.Module.QueryParams.Suffix;
+
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
-import models.Module.QueryParams;
-import models.Module.QueryParams.Retrieval;
-import models.Module.QueryParams.Suffix;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.CeylonElementType;
@@ -86,6 +86,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
 	private SortedSet<ModuleMember> members = new TreeSet<ModuleMember>();
 
+    @Sort(comparator = ModuleScriptComparator.class, type = SortType.COMPARATOR)
+    @OrderBy("name,unix")
+    @OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
+    private SortedSet<ModuleScript> scripts = new TreeSet<ModuleScript>();
+
     @OrderBy("name")
     @ManyToMany
     public List<Author> authors = new ArrayList<Author>();
@@ -140,6 +145,12 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         ModuleMember member = new ModuleMember(this, packageName, name, type);
         member.create();
         members.add(member);
+    }
+
+    public void addScript(String name, String description, boolean unix) {
+        ModuleScript script = new ModuleScript(this, name, description, unix);
+        script.create();
+        scripts.add(script);
     }
 
     public int getDependentModuleVersionCount() {
