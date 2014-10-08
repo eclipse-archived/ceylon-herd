@@ -548,6 +548,9 @@ public class ModuleChecker {
         boolean removeTrailingUnderscore = false;
         CeylonElementType type = null;
         if(ceylon){
+            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.CompileTimeError") != null){
+                m.diagnostics.add(new Diagnostic("error", "Class file contains compilation errors: "+name));
+            }
             // ignore local types
             if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.LocalContainer") != null)
                 return;
