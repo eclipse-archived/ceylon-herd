@@ -31,14 +31,14 @@ public class RepoAPI extends MyController {
         response.contentType = "application/"+request.format+"; charset="+response.encoding;
     }
     
-    public static void completeVersions(String apiVersion, String module, String version, String type, Integer binaryMajor, Integer binaryMinor, String retrieval){
+    public static void completeVersions(String apiVersion, String module, String version, String type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
         if(module == null || module.isEmpty())
             badRequest("module parameter required");
         Module mod = Module.findByName(module);
         if(mod == null)
             notFound("Module not found");
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor);
+        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
         
         List<ModuleVersion> versions = ModuleVersion.completeVersionForModuleAndBackend(mod, version, t);
         
@@ -46,9 +46,13 @@ public class RepoAPI extends MyController {
         render(versions);
     }
 
-    private static QueryParams getQueryParams(ApiVersion v, String type, String retrieval, Integer binaryMajor, Integer binaryMinor) {
+    private static QueryParams getQueryParams(ApiVersion v, String type, String retrieval, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
         if (v.ordinal() >= ApiVersion.API4.ordinal()) {
-            return getQueryParamsV4(type, retrieval, binaryMajor, binaryMinor);
+            QueryParams params = getQueryParamsV4(type, retrieval, binaryMajor, binaryMinor);
+            params.memberName = memberName;
+            params.memberSearchExact = (memberSearchExact != null) ? memberSearchExact : false;
+            params.memberSearchPackageOnly = (memberSearchPackageOnly != null) ? memberSearchPackageOnly : false;
+            return params;
         } else {
             return getQueryParamsV3(type, binaryMajor, binaryMinor);
         }
@@ -122,10 +126,10 @@ public class RepoAPI extends MyController {
         return qp;
     }
 
-    public static void completeModules(String apiVersion, String module, String type, Integer binaryMajor, Integer binaryMinor, String retrieval){
+    public static void completeModules(String apiVersion, String module, String type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
         Integer start = 0;
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor);
+        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
 
         List<Module> modules = Module.completeForBackend(module, t);
         long total = Module.completeForBackendCount(module, t);
@@ -137,10 +141,7 @@ public class RepoAPI extends MyController {
         start = checkStartParam(start);
         count = checkCountParam(count);
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor);
-        t.memberName = memberName;
-        t.memberSearchExact = (memberSearchExact != null) ? memberSearchExact : false;
-        t.memberSearchPackageOnly = (memberSearchPackageOnly != null) ? memberSearchPackageOnly : false;
+        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
         
         List<Module> modules = Module.searchForBackend(v, query, t, start, count);
         long total = Module.searchForBackendCount(v, query, t);

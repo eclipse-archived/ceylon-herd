@@ -427,30 +427,56 @@ public class Module extends Model {
 	}
 
     public static List<Module> completeForBackend(String module, QueryParams params) {
-        if(module == null)
-            module = "";
-        String typeQuery = ModuleVersion.getBackendQuery("v.", params);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
-        JPAQuery query = Module.find("FROM Module m WHERE LOCATE(:module, m.name) = 1"
-                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")"
-                + " ORDER BY name");
-        query.bind("module", module);
-        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
-                
+        JPAQuery query = createCompleteForBackend(false, module, params);
         return query.fetch(RepoAPI.RESULT_LIMIT);
     }
 
     public static long completeForBackendCount(String module, QueryParams params) {
+        JPAQuery query = createCompleteForBackend(true, module, params);
+        return query.first();
+    }
+
+    private static JPAQuery createCompleteForBackend(boolean selectCount, String module, QueryParams params) {
         if(module == null)
             module = "";
         String typeQuery = ModuleVersion.getBackendQuery("v.", params);
         String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
-        JPAQuery query = Module.find("SELECT COUNT(*) FROM Module m WHERE LOCATE(:module, m.name) = 1"
-                + " AND EXISTS(FROM ModuleVersion v WHERE v.module = m AND ("+typeQuery+")"+binaryQuery+")");
-        query.bind("module", module);
-        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
+
+        String select = "";
+        if (selectCount) {
+            select += "SELECT COUNT(DISTINCT m) ";
+        } else {
+            select += "SELECT DISTINCT m ";
+        }
         
-        return query.first();
+        select += "FROM Module m ";
+        
+        String where = "WHERE LOCATE(:module, m.name) = 1"
+                + " AND EXISTS(";
+
+        String subselect = "FROM ModuleVersion v ";
+        String subwhere = "WHERE v.module = m AND ("+typeQuery+")"+binaryQuery;
+        
+        if (isNotEmpty(params.memberName)) {
+            subselect += "LEFT JOIN v.members as memb ";
+            subwhere += ModuleVersion.getMemberQuery("memb.", params);
+        }
+        
+        where += subselect + subwhere;
+        where += ")";
+        
+        String q = select + where;
+        if (!selectCount) {
+            q += "ORDER BY m.name ";
+        }
+        JPAQuery query = Module.find(q);
+        query.bind("module", module);
+        if (isNotEmpty(params.memberName)) {
+            query.bind("memberName", params.memberName.toLowerCase());
+        }
+        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
+                
+        return query;
     }
 
     public static List<Module> searchForBackend(ApiVersion v, String query, QueryParams params, Integer start, Integer count) {
@@ -499,19 +525,7 @@ public class Module extends Model {
         
         if (isNotEmpty(params.memberName)) {
             select += "LEFT JOIN v.members as memb ";
-            if (params.memberSearchPackageOnly) {
-                if (params.memberSearchExact) {
-                    where += "AND LOWER(memb.packageName) = :memberName ";
-                } else {
-                    where += "AND LOCATE(:memberName, LOWER(memb.packageName)) <> 0 ";
-                }
-            } else {
-                if (params.memberSearchExact) {
-                    where += "AND LOWER(CONCAT(memb.packageName, '::', memb.name)) = :memberName ";
-                } else {
-                    where += "AND LOCATE(:memberName, LOWER(CONCAT(memb.packageName, '::', memb.name))) <> 0 ";
-                }
-            }
+            where += ModuleVersion.getMemberQuery("memb.", params);
         }
         
         String q = select + where;

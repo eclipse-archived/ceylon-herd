@@ -1,5 +1,7 @@
 package models;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -301,20 +303,53 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     }
 
     public static List<ModuleVersion> completeVersionForModuleAndBackend(Module module, String version, QueryParams params) {
-        String typeQuery = ModuleVersion.getBackendQuery("", params);
+        String typeQuery = getBackendQuery("v.", params);
         if(version == null)
             version = "";
-        String binaryQuery = getBinaryQuery("", params.binaryMajor, params.binaryMinor);
-        JPAQuery query = ModuleVersion.find("module = :module AND LOCATE(:version, version) = 1 AND ("+typeQuery+")"
-                + binaryQuery
-                + " ORDER BY version");
+        String binaryQuery = getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
+        
+        String select = "SELECT DISTINCT v FROM ModuleVersion v ";
+        String where = "WHERE v.module = :module AND LOCATE(:version, v.version) = 1 AND ("+typeQuery+")"
+                + binaryQuery;
+        
+        if (isNotEmpty(params.memberName)) {
+            select += "LEFT JOIN v.members as memb ";
+            where += getMemberQuery("memb.", params);
+        }
+        
+        String q = select + where + " ORDER BY v.version";
+        JPAQuery query = ModuleVersion.find(q);
+        
         query.bind("module", module);
         query.bind("version", version);
+        if (isNotEmpty(params.memberName)) {
+            query.bind("memberName", params.memberName.toLowerCase());
+        }
         addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
         
         return query.fetch(RepoAPI.RESULT_LIMIT);
     }
 
+    static String getMemberQuery(String prefix, QueryParams params) {
+        String where = "";
+        if (isNotEmpty(params.memberName)) {
+            if (params.memberSearchPackageOnly) {
+                if (params.memberSearchExact) {
+                    where += "AND LOWER("+prefix+"packageName) = :memberName ";
+                } else {
+                    where += "AND LOCATE(:memberName, LOWER("+prefix+"packageName)) <> 0 ";
+                }
+            } else {
+                if (params.memberSearchExact) {
+                    where += "AND LOWER(CONCAT("+prefix+"packageName, '::', "+prefix+"name)) = :memberName ";
+                } else {
+                    where += "AND LOCATE(:memberName, LOWER(CONCAT("+prefix+"packageName, '::', "+prefix+"name))) <> 0 ";
+                }
+            }
+        }
+        return where;
+    }
+    
     static void addBinaryQueryParameters(JPAQuery query, Integer binaryMajor, Integer binaryMinor) {
         // Note that we use query.query.setParameter here rather than query.bindParameter because the latter
         // has a bug that turns Integer instances into Long instances (WTF?)
@@ -327,7 +362,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     static String getBinaryQuery(String prefix, Integer binaryMajor, Integer binaryMinor) {
         if(binaryMajor == null && binaryMinor == null)
             return "";
-        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false AND isJsPresent = false OR (");
+        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false AND ").append(prefix).append("isJsPresent = false OR (");
         // these only apply to ceylon modules
         if(binaryMajor != null)
             ret.append(prefix).append("jvmBinMajor = :binaryMajor");
