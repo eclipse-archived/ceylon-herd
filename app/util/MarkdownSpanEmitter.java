@@ -38,12 +38,33 @@ class MarkdownSpanEmitter implements SpanEmitter {
         
         String namePart = resolveNamePart(content);
         String declPart = resolveDeclPart(content);
-        String declName = resolveDeclName(declPart);
-        String[] tuple = resolveFileNameAndAnchor(declName);
-        String fileName = tuple[0];
-        String anchor = tuple[1];
+        String fileName;
+        String anchor;
+        String packageName;
+        if(declPart.startsWith("package ")){
+            fileName = "index.html";
+            anchor = "section-package";
+            packageName = declPart.substring(8);
+            if(content.indexOf(PIPE_SEPARATOR) == -1){
+                // skip the "package " prefix
+                namePart = packageName;
+            }
+        }else if(declPart.startsWith("module ")){
+            fileName = "index.html";
+            anchor = "";
+            packageName = declPart.substring(7);
+            if(content.indexOf(PIPE_SEPARATOR) == -1){
+                // skip the "module " prefix
+                namePart = packageName;
+            }
+        }else{
+            String declName = resolveDeclName(declPart);
+            String[] tuple = resolveFileNameAndAnchor(declName);
+            fileName = tuple[0];
+            anchor = tuple[1];
+            packageName = resolvePackageName(declPart);
+        }
 
-        String packageName = resolvePackageName(declPart);
         
         ModuleVersion module = resolveModule(packageName);
         String moduleDocUrl = resolveModuleDocUrl(module);
@@ -53,7 +74,6 @@ class MarkdownSpanEmitter implements SpanEmitter {
         }
         
         String packagePath = resolvePackagePath(module, packageName);
-        
         if( docFileExists(module, packagePath, fileName) ) {
             printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor);
         }
@@ -139,7 +159,7 @@ class MarkdownSpanEmitter implements SpanEmitter {
         if (packagePath.startsWith(DOT_SEPARATOR)) {
             packagePath = packagePath.substring(1);
         }
-        return packagePath;
+        return packagePath.replace(DOT_SEPARATOR, PATH_SEPARATOR);
     }
 
     private ModuleVersion resolveModule(String packageName) {
