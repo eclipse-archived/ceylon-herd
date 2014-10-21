@@ -470,7 +470,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
                 path.append(PATH_SEPARATOR);
 
                 try {
-                    return Router.reverse("Repo.viewFile", Collections.singletonMap("path", (Object) path.toString())).url;
+                    return Util.viewRepoUrl(path.toString());
                 } catch (NoRouteFoundException e) {
                     // noop
                 }
