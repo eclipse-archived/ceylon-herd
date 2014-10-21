@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -20,6 +21,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 
+import models.Dependency;
+import models.Module;
 import models.ModuleVersion;
 import models.Upload;
 import play.Logger;
@@ -357,6 +360,10 @@ public class JavaExtensions extends play.templates.JavaExtensions {
             String namePart = resolveNamePart(content);
             String declPart = resolveDeclPart(content);
             String declName = resolveDeclName(declPart);
+            String[] tuple = resolveFileNameAndAnchor(declName);
+            String fileName = tuple[0];
+            String anchor = tuple[1];
+
             String packageName = resolvePackageName(declPart);
             
             ModuleVersion module = resolveModule(packageName);
@@ -368,14 +375,26 @@ public class JavaExtensions extends play.templates.JavaExtensions {
             
             String packagePath = resolvePackagePath(module, packageName);
             
-            String[] tuple = resolveFileNameAndAnchor(declName);
-            String fileName = tuple[0];
-            String anchor = tuple[1];
-            
             if( docFileExists(module, packagePath, fileName) ) {
                 printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor);
             }
             else {
+                // if we did not have a package part then perhaps it's not in this module but in the language module?
+                if(!declPart.contains(PACKAGE_SEPARATOR) && !currentModule.module.name.equals("ceylon.language")){
+                    // try again in the language module
+                    packageName = "ceylon.language";
+                    Logger.info("Try language module for %s", fileName);
+                    module = resolveModule(packageName);
+                    moduleDocUrl = resolveModuleDocUrl(module);
+                    if(moduleDocUrl != null){
+                        packagePath = resolvePackagePath(module, packageName);
+                        if( docFileExists(module, packagePath, fileName) ) {
+                            printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor);
+                            return;
+                        }
+                        // bah, it's not there
+                    }
+                }
                 printUnresolvableLink(out, content);
             }
         }
@@ -446,18 +465,44 @@ public class JavaExtensions extends play.templates.JavaExtensions {
         }
 
         private ModuleVersion resolveModule(String packageName) {
-            if (packageName.startsWith(currentModule.module.name)) {
+            if (currentModule.containsPackage(packageName)) {
                 return currentModule;
             } else {
-                List<ModuleVersion> dependencies = currentModule.getDependentModuleVersions(); // TODO optimize
-                for (ModuleVersion dependency : dependencies) {
-                    if (packageName.startsWith(dependency.module.name)) {
-                        return dependency;
-                    }
+                ModuleVersion ret = resolveModuleInDependencies(currentModule, packageName);
+                if(ret != null){
+                    return ret;
                 }
+                // perhaps it's from the language module implicit dependency?
+                Module langModule = Module.findByName("ceylon.language");
+                if(langModule != null){
+                    ModuleVersion langModuleVersion = langModule.getLastVersion();
+                    if(langModuleVersion != null && langModuleVersion.containsPackage(packageName))
+                        return langModuleVersion;
+                }
+                // not found
                 return null;
             }
         }        
+
+        private ModuleVersion resolveModuleInDependencies(
+                ModuleVersion module, String packageName) {
+            for (Dependency dependency : module.dependencies) {
+                ModuleVersion importedModule = dependency.moduleVersion;
+                // FIXME: deal with JDK links
+                // FIXME: deal with Maven links
+                if(importedModule == null)
+                    continue;
+                if (importedModule.containsPackage(packageName)) {
+                    return importedModule;
+                }
+                if(dependency.export){
+                    ModuleVersion ret = resolveModuleInDependencies(importedModule, packageName);
+                    if(ret != null)
+                        return ret;
+                }
+            }
+            return null;
+        }
 
         private String resolveModuleDocUrl(ModuleVersion moduleVersion) {
             if( moduleVersion != null ) {

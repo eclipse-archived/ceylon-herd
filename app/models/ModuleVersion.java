@@ -5,7 +5,9 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -79,7 +81,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
 	@OrderBy("name,version")
 	@OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
-    private List<Dependency> dependencies = new ArrayList<Dependency>();
+    public List<Dependency> dependencies = new ArrayList<Dependency>();
 
     @Sort(comparator = ModuleMemberComparator.class, type = SortType.COMPARATOR)
     @OrderBy("packageName,name")
@@ -401,5 +403,17 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
             return false;
         return true;
     }
-    
+
+    @Transient
+    public Set<String> getPackages(){
+        Set<String> ret = new HashSet<String>();
+        for(ModuleMember member : members){
+            ret.add(member.packageName);
+        }
+        return ret;
+    }
+
+    public boolean containsPackage(String packageName) {
+        return getPackages().contains(packageName);
+    }
 }
