@@ -1,6 +1,8 @@
 package util;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import models.Dependency;
 import models.Module;
@@ -188,7 +190,8 @@ class MarkdownSpanEmitter implements SpanEmitter {
         if (currentModule.containsPackage(packageName)) {
             return currentModule;
         } else {
-            ModuleVersion ret = resolveModuleInDependencies(currentModule, packageName);
+            Set<ModuleVersion> visited = new HashSet<ModuleVersion>();
+            ModuleVersion ret = resolveModuleInDependencies(currentModule, packageName, visited);
             if(ret != null){
                 return ret;
             }
@@ -204,8 +207,9 @@ class MarkdownSpanEmitter implements SpanEmitter {
         }
     }        
 
-    private ModuleVersion resolveModuleInDependencies(
-            ModuleVersion module, String packageName) {
+    private ModuleVersion resolveModuleInDependencies(ModuleVersion module, String packageName, Set<ModuleVersion> visited) {
+        if(!visited.add(module))
+            return null;
         for (Dependency dependency : module.dependencies) {
             ModuleVersion importedModule = dependency.moduleVersion;
             // FIXME: deal with JDK links
@@ -216,7 +220,7 @@ class MarkdownSpanEmitter implements SpanEmitter {
                 return importedModule;
             }
             if(dependency.export){
-                ModuleVersion ret = resolveModuleInDependencies(importedModule, packageName);
+                ModuleVersion ret = resolveModuleInDependencies(importedModule, packageName, visited);
                 if(ret != null)
                     return ret;
             }
