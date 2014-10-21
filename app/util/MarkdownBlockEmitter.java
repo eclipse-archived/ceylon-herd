@@ -12,11 +12,10 @@ class MarkdownBlockEmitter implements BlockEmitter {
     public void emitBlock(StringBuilder out, List<String> lines, String meta) {
         if (!lines.isEmpty()) {
             if (meta == null || meta.length() == 0) {
-                out.append("<pre>");
+                // default to ceylon code
+                meta = "ceylon";
             }
-            else {
-                out.append("<pre class=\"brush: ").append(meta).append("\">");
-            }
+            out.append("<pre data-language='").append(meta).append("'>");
             for (String line : lines) {
                 out.append(line).append('\n');
             }

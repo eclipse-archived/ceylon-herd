@@ -41,28 +41,37 @@ class MarkdownSpanEmitter implements SpanEmitter {
         String fileName;
         String anchor;
         String packageName;
+        String cssClass = null;
+        boolean hasText = content.indexOf(PIPE_SEPARATOR) != -1;
         if(declPart.startsWith("package ")){
             fileName = "index.html";
             anchor = "section-package";
             packageName = declPart.substring(8);
-            if(content.indexOf(PIPE_SEPARATOR) == -1){
+            if(!hasText){
                 // skip the "package " prefix
                 namePart = packageName;
             }
+            cssClass = "packageOrModule";
         }else if(declPart.startsWith("module ")){
             fileName = "index.html";
             anchor = "";
             packageName = declPart.substring(7);
-            if(content.indexOf(PIPE_SEPARATOR) == -1){
+            if(!hasText){
                 // skip the "module " prefix
                 namePart = packageName;
             }
+            cssClass = "packageOrModule";
         }else{
             String declName = resolveDeclName(declPart);
             String[] tuple = resolveFileNameAndAnchor(declName);
             fileName = tuple[0];
             anchor = tuple[1];
             packageName = resolvePackageName(declPart);
+            if(fileName.endsWith(".type.html")){
+                cssClass = "type-identifier";
+            }else if(fileName.equals("index.html")){
+                cssClass = "identifier";
+            }
         }
 
         
@@ -75,7 +84,7 @@ class MarkdownSpanEmitter implements SpanEmitter {
         
         String packagePath = resolvePackagePath(module, packageName);
         if( docFileExists(module, packagePath, fileName) ) {
-            printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor);
+            printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor, cssClass, !hasText);
         }
         else {
             // if we did not have a package part then perhaps it's not in this module but in the language module?
@@ -87,7 +96,7 @@ class MarkdownSpanEmitter implements SpanEmitter {
                 if(moduleDocUrl != null){
                     packagePath = resolvePackagePath(module, packageName);
                     if( docFileExists(module, packagePath, fileName) ) {
-                        printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor);
+                        printLink(out, namePart, moduleDocUrl, packagePath, fileName, anchor, cssClass, !hasText);
                         return;
                     }
                     // bah, it's not there
@@ -101,7 +110,8 @@ class MarkdownSpanEmitter implements SpanEmitter {
         out.append("[[").append(content).append("]]");
     }
 
-    private void printLink(StringBuilder out, String namePart, String moduleDocUrl, String packagePath, String fileName, String anchor) {
+    private void printLink(StringBuilder out, String namePart, String moduleDocUrl, String packagePath, String fileName, String anchor,
+            String cssClass, boolean isCode) {
         out.append("<a href='");
         out.append(moduleDocUrl);
         if (!packagePath.isEmpty()) {
@@ -114,7 +124,19 @@ class MarkdownSpanEmitter implements SpanEmitter {
             out.append(anchor);
         }
         out.append("'>");
+        if(isCode){
+            out.append("<code>");
+        }
+        if(cssClass != null){
+            out.append("<span class='").append(cssClass).append("'>");
+        }
         out.append(namePart);
+        if(cssClass != null){
+            out.append("</span>");
+        }
+        if(isCode){
+            out.append("</code>");
+        }
         out.append("</a>");
     }
 
