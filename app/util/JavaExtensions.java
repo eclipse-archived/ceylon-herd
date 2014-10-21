@@ -122,7 +122,7 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	}
 	
 	private static String cleanupEscapingMess(String html) {
-	    return html.replaceAll("&amp;(quot|lt|gt|amp);", "&$1;");
+	    return html.replaceAll("&amp;(quot|lt|gt|amp|mdash);", "&$1;");
     }
 
     public static String toISO8601(Date date) throws DatatypeConfigurationException{
