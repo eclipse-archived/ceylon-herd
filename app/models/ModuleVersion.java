@@ -89,7 +89,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	private SortedSet<ModuleMember> members = new TreeSet<ModuleMember>();
 
     @Sort(comparator = ModuleScriptComparator.class, type = SortType.COMPARATOR)
-    @OrderBy("name,unix")
+    @OrderBy("name,plugin,unix")
     @OneToMany(mappedBy = "moduleVersion", cascade = CascadeType.REMOVE)
     private SortedSet<ModuleScript> scripts = new TreeSet<ModuleScript>();
 
@@ -149,8 +149,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         members.add(member);
     }
 
-    public void addScript(String name, String description, boolean unix) {
-        ModuleScript script = new ModuleScript(this, name, description, unix);
+    public void addScript(String name, String description, boolean unix, boolean plugin, String pluginModule) {
+        ModuleScript script = new ModuleScript(this, name, description, unix, plugin, pluginModule);
         script.create();
         scripts.add(script);
     }

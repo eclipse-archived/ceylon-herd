@@ -283,7 +283,7 @@ public class Uploads extends LoggedInController {
 			    modVersion.addMember(member.packageName, member.name, member.type);
 
 			for(ModuleChecker.Script script : module.scriptDescriptions)
-			    modVersion.addScript(script.name, script.description, script.unix);
+                modVersion.addScript(script.name, script.description, script.unix, script.plugin, script.module);
 		}
 		
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);

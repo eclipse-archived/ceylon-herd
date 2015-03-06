@@ -399,11 +399,17 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
     #{list items:uploadInfo.modules, as:'module'}
         #{if module.scriptDescriptions.size() > 0}
             <table class="table table-bordered">
-                <caption>Scripts for ${module.name}/${module.version}</caption>
+                <caption>Scripts and Plugins for ${module.name}/${module.version}</caption>
                 <tbody>
                     #{list items:module.scriptDescriptions, as:'script'}
                         <tr>
-                            <td><tt>ceylon ${script.name}</tt>: ${script.description} (${script.unix ? "Unix" : "Windows"})</td>
+                            <td><tt>ceylon ${script.name}</tt>: ${script.description} (
+                            #{if script.plugin}
+                            Native Plugin in <a href="/modules/${script.module}">${script.module}</a>
+                            #{/if}
+                            #{else}
+                            ${script.unix ? "Unix Script" : "Windows Batch"}
+                            #{/else})</td>
                         </tr>
                     #{/list}
                 </tbody>

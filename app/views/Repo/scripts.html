@@ -18,11 +18,17 @@
 </p>
 
 <table class="table table-bordered">
-    <caption>Module Scripts</caption>
+    <caption>Module Scripts and Plugins</caption>
     <tbody>
         #{list items:moduleVersion.scripts, as:'script'}
             <tr>
-                <td><tt>ceylon ${script.name}</tt>: ${script.description} (${script.unix ? "Unix" : "Windows"})</td>
+                <td><tt>ceylon ${script.name}</tt>: ${script.description} (
+                #{if script.plugin}
+                Native Plugin in <a href="/modules/${script.module}">${script.module}</a>
+                #{/if}
+                #{else}
+                ${script.unix ? "Unix Script" : "Windows Batch"}
+                #{/else})</td>
             </tr>
         #{/list}
     </tbody>

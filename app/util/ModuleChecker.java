@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -81,14 +82,26 @@ public class ModuleChecker {
     }
 
     public static class Script implements Comparable<Script> {
-        public final boolean unix;
         public final String name;
         public final String description;
+        public final boolean unix;
+        public final String module;
+        public final boolean plugin;
         
         public Script(String name, String description, boolean unix) {
             this.name = name;
             this.description = description;
             this.unix = unix;
+            this.module = null;
+            this.plugin = false;
+        }
+
+        public Script(String name, String description, String module) {
+            this.name = name;
+            this.description = description;
+            this.unix = false;
+            this.module = module;
+            this.plugin = true;
         }
 
         @Override
@@ -96,6 +109,8 @@ public class ModuleChecker {
             int pkg = name.compareTo(other.name);
             if(pkg != 0)
                 return pkg;
+            if(plugin)
+                return 1;
             if(unix == other.unix)
                 return 0;
             if(unix)
@@ -423,12 +438,16 @@ public class ModuleChecker {
                         String fileName = entry.getName();
                         if (fileName.startsWith("ceylon-")) {
                             String name = fileName.substring("ceylon-".length());
-                            boolean unix = true;
-                            if(name.endsWith(".bat")){
-                                name = name.substring(0, name.length()-4);
-                                unix = false;
+                            if (name.endsWith(".plugin")) {
+                                loadPluginName(zipFile, entry, m, name);
+                            } else {
+                                boolean unix = true;
+                                if(name.endsWith(".bat")){
+                                    name = name.substring(0, name.length()-4);
+                                    unix = false;
+                                }
+                                loadScriptName(zipFile, entry, m, name, unix);
                             }
-                            loadScriptName(zipFile, entry, m, name, unix);
                         }
                     }
                 }
@@ -469,6 +488,16 @@ public class ModuleChecker {
             m.addScript(name, description, unix);
         }finally{
             inputStream.close();
+        }
+    }
+
+    private static void loadPluginName(ZipFile zipFile, ZipEntry entry, Module m, String name) throws IOException {
+        try (InputStreamReader inputStream = new InputStreamReader(zipFile.getInputStream(entry))) {
+            Properties pluginProperties = new Properties();
+            pluginProperties.load(inputStream);
+            String summary = pluginProperties.getProperty("summary", "");
+            String module = pluginProperties.getProperty("module");
+            m.addPlugin(name, summary, module);
         }
     }
 
@@ -1483,6 +1512,10 @@ public class ModuleChecker {
 
         public void addScript(String name, String description, boolean unix) {
             scriptDescriptions.add(new Script(name, description, unix));
+        }
+
+        public void addPlugin(String name, String summary, String module) {
+            scriptDescriptions.add(new Script(name, summary, module));
         }
 
         public void addMember(CeylonElementType type, String packageName, String className) {
