@@ -662,7 +662,6 @@ public class ModuleChecker {
         String simpleName = lastDot != -1 ? name.substring(lastDot+1) : name; 
 
         boolean ceylon = visible != null && visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ceylon") != null;
-        boolean removeTrailingUnderscore = false;
         CeylonElementType type = null;
         if(ceylon){
             if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.CompileTimeError") != null){
@@ -675,10 +674,6 @@ public class ModuleChecker {
             if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Module") != null
                     || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Package") != null)
                 return;
-            if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Attribute") != null
-                    || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Object") != null
-                    || visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method") != null)
-                removeTrailingUnderscore = true;
             if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Attribute") != null)
                 type = CeylonElementType.Value;
             else if(visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Method") != null){
@@ -693,14 +688,17 @@ public class ModuleChecker {
             // FIXME: temporarily filter generated annotations like this because I don't think we should see them
             if(simpleName.endsWith("$annotation$") || simpleName.endsWith("$annotations$"))
                 return;
-            // remove any leading dollar
-            if(simpleName.startsWith("$"))
-                simpleName = simpleName.substring(1);
             // ceylon names have mangling for interface members that we pull to toplevel
             simpleName = simpleName.replace("$impl$", ".");
-            // remove trailing underscore if required
-            if(removeTrailingUnderscore && simpleName.endsWith("_"))
-                simpleName = simpleName.substring(0, simpleName.length()-1);
+            // turn any dollar sep into a dot
+            simpleName = simpleName.replace('$', '.');
+            // remove any dollar prefixes and trailing underscores
+            simpleName = unquoteMember(simpleName);
+            // remove any dollars from the package names (eg. 'ceylon.math.$float')
+            packageName = packageName.replace("$", "");
+        } else {
+            // turn any dollar sep into a dot
+            simpleName = simpleName.replace('$', '.');
         }
         if(type == null){
             if((classFile.getAccessFlags() & ANNOTATION_BIT) != 0)
@@ -713,14 +711,33 @@ public class ModuleChecker {
         // skip local types
         if(classFile.getAttribute("EnclosingMethod") != null)
             return;
-        // turn any dollar sep into a dot
-        simpleName = simpleName.replace('$', '.');
         // special fix for ceylon.language
         if(m.name.equals("ceylon.language") && !packageName.startsWith("ceylon.language"))
             return;
         m.addMember(type, packageName, simpleName);
     }
 
+    // Turn things like 'utf8_.$float' into 'utf8.float'
+    private static String unquoteMember(String name) {
+        StringBuilder str = new StringBuilder();
+        String[] parts = name.split("\\.");
+        for (String p : parts) {
+            if (str.length() > 0) {
+                str.append(".");
+            }
+            // remove any leading dollar
+            if (p.startsWith("$")) {
+                p = p.substring(1);
+            }
+            // remove trailing underscore if required
+            if (Character.isLowerCase(p.charAt(0)) && p.endsWith("_")) {
+                p = p.substring(0, p.length()-1);
+            }
+            str.append(p);
+        }
+        return str.toString();
+    }
+    
     private static final int ANNOTATION_BIT = 1 << 13;
     
     private static void loadJarModuleProperties(File uploadsDir, String fileName, Module m, List<Module> modules, Upload upload) {
