@@ -4,7 +4,10 @@ import models.Author;
 import models.MavenDependency;
 import models.Upload;
 import models.User;
+
 import org.apache.commons.io.FileUtils;
+
+import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.WS;
@@ -151,16 +154,20 @@ public class Uploads extends LoggedInController {
         
 	    // check if the module in question is really in maven
 	    // ex: http://repo1.maven.org/maven2/io/vertx/vertx-core/2.0.0-beta5/vertx-core-2.0.0-beta5.jar
-	    String namePath = name.replace('.', '/');
-	    int idSep = name.lastIndexOf('.');
+	    int idSep = name.lastIndexOf(':');
+	    if(idSep == -1)
+	        idSep = name.lastIndexOf('.');
 	    if(idSep == -1){
-	        Validation.addError(null, "Module name does not contain any '.' (used to separate the artifact group and ID)");
+	        Validation.addError(null, "Module name does not contain any ':' or '.' (used to separate the artifact group and ID)");
             prepareForErrorRedirect();
             view(id);
 	    }
-	    String idPart = name.substring(idSep+1);
-	    String url = "http://repo1.maven.org/maven2/" + namePath + "/" + version + "/" + idPart + "-" + version + ".jar";
+	    String groupId = name.substring(0, idSep);
+        String groupIdPath = groupId.replace('.', '/');
+	    String artifactId = name.substring(idSep+1);
+	    String url = "http://repo1.maven.org/maven2/" + groupIdPath + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
 	    
+	    Logger.info("Looking up module in Maven Central at: %s", url);
 	    HttpResponse response = WS.url(url).head();
 	    if(response.getStatus() == HttpURLConnection.HTTP_OK){
 	        md = new MavenDependency(name, version, upload);

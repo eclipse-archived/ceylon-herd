@@ -47,10 +47,12 @@ public class Dependency extends Model {
     @Transient
     public String getMavenUrl(){
         // http://search.maven.org/#artifactdetails%7Cio.vertx%7Cvertx-core%7C2.0.0-beta5%7Cjar
-        int lastdoc = name.lastIndexOf('.');
-        if(lastdoc != -1){
-            String groupId = name.substring(0, lastdoc);
-            String artifactId = name.substring(lastdoc+1);
+        int idSep = name.lastIndexOf(':');
+        if(idSep == -1)
+            idSep = name.lastIndexOf('.');
+        if(idSep != -1){
+            String groupId = name.substring(0, idSep);
+            String artifactId = name.substring(idSep+1);
             return "http://search.maven.org/#artifactdetails%7C"+groupId+"%7C"+artifactId+"%7C"+version+"%7Cjar";
         }
         // try to help
