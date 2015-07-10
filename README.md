@@ -1,6 +1,9 @@
 # How to run the Ceylon Herd Module Repository
 
-1. [Download Play Framework 1.2.4](http://download.playframework.org/releases/play-1.2.4.zip) and install it
+Note: at the moment Herd requires Play 1.2 which does not work on Java 8, so proceed with Java 7. We
+are going to move it to Play 1.3 as soon as possible to fix that.
+
+1. [Download Play Framework 1.2.7](http://download.playframework.org/releases/play-1.2.7.zip) and install it
 1. Clone the [Herd repository](https://github.com/ceylon/ceylon-herd)
 1. Open a shell and go to the `ceylon-herd` directory you just cloned
 1. Run `play dependencies` to download the required modules
@@ -43,6 +46,14 @@ This can only be done by hand for now:
 # Troubleshooting
 
 1. If you get the error `FATAL: Ident authentication failed for user "ceylon-herd"` look [here for a possible solution](http://www.cyberciti.biz/faq/psql-fatal-ident-authentication-failed-for-user/)
+
+# Setting up Herd in Eclipse
+
+1. Create a new Java Project using existing sources of `ceylon-herd`
+1. Create a `User Library` for `Play 1.2`
+    1. Add the `framework/play.jar`
+    1. Add every `framework/lib/*.jar`
+1. Add the `Play 1.2` User Library to the `ceylon-herd` project build path
 
 # License
 
