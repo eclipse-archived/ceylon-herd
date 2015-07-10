@@ -22,3 +22,5 @@ files MUST include the following SQL command:
 Where `XX` should of course be replaced by the new version number (the same
 as the `XX` in the name of the `update-XX.sql` file itself).
 
+The same number must also be updated in the `app/models/HerdMetainf.java` file.
+

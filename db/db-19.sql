@@ -1,5 +1,8 @@
     -- DON'T FORGET TO UPDATE THIS EACH TIME THE DB SCHEMA IS CHANGED!!
     -- It should have the same number as the "db-XX.sql" file used to create the DB
+    -- Also, don't forget that the "update-XX.sql" needs to update the version
+    -- number in the database and that the number must also be updated in the code
+    -- in file "app/models/HerdMetainf.java"
     \set DB_SCHEMA_VERSION '\'19\''
 
     alter table Comment 

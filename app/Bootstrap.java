@@ -21,6 +21,10 @@ public class Bootstrap extends Job {
     		uploads.mkdir();
     	}
     	
+    	if (Play.mode.isDev()) {
+    	    HerdMetainf.initialize();
+    	}
+    	
     }
  
 }

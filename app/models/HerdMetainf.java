@@ -17,6 +17,12 @@ import play.db.jpa.Model;
 @Table(name = "herd_metainf")
 public class HerdMetainf extends Model {
 
+    // IMPORTANT This number must be the same as the one found in
+    // the latest `db/db-XX.sql` and `db/update-XX.sql` files !!!
+    public static final int DB_SCHEMA_VERSION = 19;
+    
+    public static final String KEY_DB_SCHEMA_VERSION = "db_schema_version";
+    
 	@Column(nullable = false, unique = true)
 	public String key;
 
@@ -27,4 +33,27 @@ public class HerdMetainf extends Model {
         return find("lower(key) = lower(?)", key).first();
     }
     
+    public static int getDbSchemaVersion() {
+        try {
+            HerdMetainf result = findByKey(KEY_DB_SCHEMA_VERSION);
+            if (result != null) {
+                return Integer.valueOf(result.value);
+            }
+        } catch (Exception ex) {}
+        return -1;
+    }
+    
+    /**
+     * Get's called in DEV mode to initialize the database table
+     * with the proper information
+     */
+    public static void initialize() {
+        if (getDbSchemaVersion() < 0) {
+            HerdMetainf init = new HerdMetainf();
+            init.id = 1L;
+            init.key = KEY_DB_SCHEMA_VERSION;
+            init.value = Integer.toString(DB_SCHEMA_VERSION);
+            init.save();
+        }
+    }
 }
