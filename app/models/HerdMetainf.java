@@ -6,22 +6,36 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
-import play.db.jpa.Model;
+import play.db.jpa.GenericModel;
 
 @Entity
 @SuppressWarnings("serial")
 @Table(name = "herd_metainf")
-public class HerdMetainf extends Model {
+public class HerdMetainf extends GenericModel {
 
     // IMPORTANT This number must be the same as the one found in
     // the latest `db/db-XX.sql` and `db/update-XX.sql` files !!!
     public static final int DB_SCHEMA_VERSION = 19;
     
     public static final String KEY_DB_SCHEMA_VERSION = "db_schema_version";
+    
+    @Id
+    public Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    @Override
+    public Object _key() {
+        return getId();
+    }
     
 	@Column(nullable = false, unique = true)
 	public String key;
