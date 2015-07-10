@@ -24,7 +24,7 @@ public class HerdMetainf extends Model {
     public String value;
 
     public static HerdMetainf findByKey(String key) {
-        return find("lower(name) = lower(?)", key).first();
+        return find("lower(key) = lower(?)", key).first();
     }
     
 }
