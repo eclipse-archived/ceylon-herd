@@ -1098,7 +1098,6 @@ public class ModuleChecker {
         // try to find it in the repo
         models.ModuleVersion dep = models.ModuleVersion.findByVersion(name, version);
         if(dep == null){
-            Logger.info("dep is null");
             if(optional){
                 m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
                 dependencies.add(new Import(name, version, optional, export));
@@ -1124,7 +1123,6 @@ public class ModuleChecker {
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
                 }else if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
-                    Logger.info("else if maven not null");
                     dependencies.add(new Import(name, version, optional, export, upload.findMavenDependency(name, version)));
                     Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
                     diagnostic.dependencyResolvedFromMaven = true;
