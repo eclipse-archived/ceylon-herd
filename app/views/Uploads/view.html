@@ -296,11 +296,30 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                             title="Generate a new checksum for this file"><i class="icon-plus"></i> Generate Checksum</button>
                                     #{/form}
                                 #{/elseif}
-                                #{elseif diagnostic.dependencyNotFound}
+                                #{elseif diagnostic.dependencyNotFoundFromHerdAndMaven}
+                                    &nbsp;
+                                    #{form @Uploads.resolveHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Herd</button>
+                                    #{/form}
                                     &nbsp;
                                     #{form @Uploads.resolveMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
                                         <button type="submit" class="btn btn-mini"
-                                            title="Resolve dependency in Maven Central"><i class="icon-eye-open"></i> Resolve from Maven Central</button>
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Maven Central</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyNotFoundFromHerdOnly}
+                                    &nbsp;
+                                    #{form @Uploads.resolveHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Herd</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyResolvedFromHerd}
+                                    &nbsp;
+                                    #{form @Uploads.removeHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Do not resolve dependency from Herd"><i class="icon-remove-sign"></i> Do not resolve from Herd</button>
                                     #{/form}
                                 #{/elseif}
                                 #{elseif diagnostic.dependencyResolvedFromMaven}

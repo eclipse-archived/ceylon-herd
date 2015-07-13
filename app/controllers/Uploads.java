@@ -1,12 +1,19 @@
 package controllers;
 
-import models.Author;
-import models.MavenDependency;
-import models.Upload;
-import models.User;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import models.Author;
+import models.HerdDependency;
+import models.MavenDependency;
+import models.Upload;
+import models.User;
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
@@ -19,13 +26,6 @@ import util.ModuleChecker.Module;
 import util.ModuleChecker.UploadInfo;
 import util.MyCache;
 import util.Util;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Uploads extends LoggedInController {
 
@@ -128,6 +128,19 @@ public class Uploads extends LoggedInController {
 		render("Uploads/view.html", upload, uploadInfo, uploadedFiles, base);
 	}
 
+	public static void removeHerdDependency(Long id, String name, String version) throws IOException {
+	    models.Upload upload = getUpload(id);
+
+	    HerdDependency hd = getHerdDependency(upload, name, version);
+	    if(hd == null){
+	        Validation.addError(null, "Module was not resolved from Maven");
+	        prepareForErrorRedirect();
+	        view(id);
+	    }
+	    hd.delete();
+	    view(upload.id);
+	}
+
 	public static void removeMavenDependency(Long id, String name, String version) throws IOException {
 	    models.Upload upload = getUpload(id);
 
@@ -182,10 +195,47 @@ public class Uploads extends LoggedInController {
 	    view(id);
 	}
 	
+	// TODO:  Make this more decoupled and unit testable
+	public static void resolveHerdDependency(Long id, String name, String version) throws IOException {
+	    models.Upload upload = getUpload(id);
+
+	    HerdDependency hd = getHerdDependency(upload, name, version);
+        // check that we didn't already resolve it from Herd
+        if(hd != null){
+            Validation.addError(null, "Module already resolved from Herd");
+            prepareForErrorRedirect();
+            view(id);
+        }
+        
+	    String url = "http://modules.ceylon-lang.org/modules/" + name + "/" + version;
+	    
+	    Logger.info("Looking up module in Herd at: %s", url);
+	    HttpResponse response = WS.url(url).head();
+	    if(response.getStatus() == HttpURLConnection.HTTP_OK){
+	        hd = new HerdDependency(name, version, upload);
+	        hd.create();
+	        flash("message", "Found in Herd");
+        }else if(response.getStatus() == HttpURLConnection.HTTP_NOT_FOUND){
+            flash("message", "Module could not be found in Herd");
+	    }else{
+	        flash("message", "Module could not be found in Herd: " + response.getStatus() + ": "+response.getString());
+	    }
+	    
+	    view(id);
+	}
+	
 	public static void clearMavenDependencies(Long id) throws IOException{
 	    models.Upload upload = getUpload(id);
 	    for(MavenDependency md : upload.mavenDependencies)
 	        md.delete();
+	    flash("message", "Maven dependencies cleared");
+	    view(id);
+	}
+
+	public static void clearHerdDependencies(Long id) throws IOException{
+	    models.Upload upload = getUpload(id);
+	    for(HerdDependency hd : upload.herdDependencies)
+	        hd.delete();
 	    flash("message", "Maven dependencies cleared");
 	    view(id);
 	}
@@ -203,6 +253,21 @@ public class Uploads extends LoggedInController {
             view(upload.id);
         }
         return upload.findMavenDependency(name, version);
+    }
+
+	private static HerdDependency getHerdDependency(Upload upload, String name, String version) 
+    throws IOException {
+        if(name == null || name.isEmpty()){
+            Validation.addError(null, "Empty name");
+        }
+        if(version == null || version.isEmpty()){
+            Validation.addError(null, "Empty version");
+        }
+        if(Validation.hasErrors()){
+            prepareForErrorRedirect();
+            view(upload.id);
+        }
+        return upload.findHerdDependency(name, version);
     }
 
     public static void viewDoc(@Required Long id, @Required String moduleName, @Required String version){

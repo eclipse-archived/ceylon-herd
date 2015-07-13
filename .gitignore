@@ -15,3 +15,7 @@ modules
 /eclipse
 /test-result
 /*.ids
+/classes/
+/.DS_Store
+/.java-version
+/server.pid

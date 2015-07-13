@@ -1,6 +1,5 @@
 package util;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -25,22 +24,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javassist.bytecode.AccessFlag;
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.MethodInfo;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.AnnotationMemberValue;
-import javassist.bytecode.annotation.ArrayMemberValue;
-import javassist.bytecode.annotation.BooleanMemberValue;
-import javassist.bytecode.annotation.IntegerMemberValue;
-import javassist.bytecode.annotation.MemberValue;
-import javassist.bytecode.annotation.StringMemberValue;
-import models.MavenDependency;
-import models.ModuleVersion;
-import models.Upload;
-import models.User;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
@@ -53,9 +36,31 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import javassist.bytecode.AccessFlag;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.MethodInfo;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.BooleanMemberValue;
+import javassist.bytecode.annotation.IntegerMemberValue;
+import javassist.bytecode.annotation.MemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
+import models.HerdDependency;
+import models.MavenDependency;
+import models.ModuleVersion;
+import models.Upload;
+import models.User;
+import play.Logger;
 import play.libs.XML;
 
 public class ModuleChecker {
+
+    // TODO:  Move this elsewhere
+    private enum CeylonRuntime {
+    	jvm,javascript;
+    }
     
     public static class Member implements Comparable<Member> {
         public final CeylonElementType type;
@@ -784,7 +789,7 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExists(name, version, optional, shared, m, modules, upload, m.carDependencies);
+                    checkDependencyExistsJvm(name, version, optional, shared, m, modules, upload, m.carDependencies);
                 }
             }finally{
                 reader.close();
@@ -850,7 +855,7 @@ public class ModuleChecker {
                     String export = dependency.getAttribute("export");
                     boolean isExported = "true".equals(export);
                     // must make sure it exists
-                    checkDependencyExists(name, version, isOptional, isExported, m, modules, upload, m.carDependencies);
+                    checkDependencyExistsJvm(name, version, isOptional, isExported, m, modules, upload, m.carDependencies);
                 }
             }
         } catch (Exception e) {
@@ -1024,11 +1029,33 @@ public class ModuleChecker {
         }
         
         // must make sure it exists
-        checkDependencyExists(name, version, optional, export, m, modules, upload, m.carDependencies);
+        checkDependencyExistsJvm(name, version, optional, export, m, modules, upload, m.carDependencies);
     }
 
+	private static void checkDependencyExistsJvm(String name, 
+                                                 String version, 
+                                                 boolean optional, 
+                                                 boolean export, 
+                                                 Module m, 
+                                                 List<Module> modules, 
+                                                 Upload upload, 
+                                                 List<Import> dependencies) {
+		checkDependencyExists(name, version, optional, export, m, modules, upload, dependencies, CeylonRuntime.jvm);
+	}
+
+	private static void checkDependencyExistsJavaScript(String name, 
+                                                 String version, 
+                                                 boolean optional, 
+                                                 boolean export, 
+                                                 Module m, 
+                                                 List<Module> modules, 
+                                                 Upload upload, 
+                                                 List<Import> dependencies) {
+		checkDependencyExists(name, version, optional, export, m, modules, upload, dependencies, CeylonRuntime.javascript);
+	}
+
     private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
-            Module m, List<Module> modules, Upload upload, List<Import> dependencies) {
+            Module m, List<Module> modules, Upload upload, List<Import> dependencies, CeylonRuntime ceylonRuntime) {
         String lead;
         if(optional && export)
             lead = "Shared and optional dependency";
@@ -1050,9 +1077,17 @@ public class ModuleChecker {
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", lead+" is to be uploaded"));
                 dependencies.add(new Import(name, version, optional, export, module));
-                if(upload != null && upload.findMavenDependency(name, version) != null){
+                if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
                     Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in your upload");
                     diagnostic.dependencyResolvedFromMaven = true;
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+                }
+
+                if(upload.findHerdDependency(name, version) != null){
+                    Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Herd but present in your upload");
+                    diagnostic.dependencyResolvedFromHerd = true;
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
@@ -1063,27 +1098,53 @@ public class ModuleChecker {
         // try to find it in the repo
         models.ModuleVersion dep = models.ModuleVersion.findByVersion(name, version);
         if(dep == null){
+            Logger.info("dep is null");
             if(optional){
                 m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
                 dependencies.add(new Import(name, version, optional, export));
-            }else if(upload == null || upload.findMavenDependency(name, version) == null){
-                Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
-                diagnostic.dependencyNotFound = upload != null; // This shows/hides the "Resolve from Maven" button
-                diagnostic.dependencyName = name;
-                diagnostic.dependencyVersion = version;
-                m.diagnostics.add(diagnostic);
-            }else{
-                dependencies.add(new Import(name, version, optional, export, upload.findMavenDependency(name, version)));
-                Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
-                diagnostic.dependencyResolvedFromMaven = true;
-                diagnostic.dependencyName = name;
-                diagnostic.dependencyVersion = version;
-                m.diagnostics.add(diagnostic);
+            } else {
+            	if(CeylonRuntime.jvm == ceylonRuntime && 
+            			(upload.findMavenDependency(name, version) == null && upload.findHerdDependency(name, version) == null)){
+                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
+                    diagnostic.dependencyNotFoundFromHerdAndMaven= true;// This shows/hides the "Resolve from Herd" button and "Resolve from Maven Central" buttons
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+            	}else if (upload.findHerdDependency(name, version) == null){
+                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
+                    diagnostic.dependencyNotFoundFromHerdOnly = true;// This shows/hides the "Resolve from Herd" button 
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+            	} else if (upload.findHerdDependency(name, version) != null){
+                    dependencies.add(new Import(name, version, optional, export, upload.findHerdDependency(name, version)));
+                    Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Herd");
+                    diagnostic.dependencyResolvedFromHerd = true;
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+                }else if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
+                    Logger.info("else if maven not null");
+                    dependencies.add(new Import(name, version, optional, export, upload.findMavenDependency(name, version)));
+                    Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
+                    diagnostic.dependencyResolvedFromMaven = true;
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+                }
             }
         }else{
             dependencies.add(new Import(name, version, optional, export, dep));
             m.diagnostics.add(new Diagnostic("success", lead+" present in repo"));
-            if(upload != null && upload.findMavenDependency(name, version) != null){
+            
+            if(upload.findHerdDependency(name, version) != null){
+                Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Herd");
+                diagnostic.dependencyResolvedFromHerd = true;
+                diagnostic.dependencyName = name;
+                diagnostic.dependencyVersion = version;
+                m.diagnostics.add(diagnostic);
+            } else if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
+                // TODO:  Figure out what this message means.  How do we know it's present in Herd?
                 Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in Herd");
                 diagnostic.dependencyResolvedFromMaven = true;
                 diagnostic.dependencyName = name;
@@ -1285,8 +1346,9 @@ public class ModuleChecker {
         }
         
         // must make sure it exists
-        checkDependencyExists(name, version, optional, exported, m, modules, null, m.jsDependencies);
+        checkDependencyExistsJavaScript(name, version, optional, exported, m, modules, upload, m.jsDependencies);
     }
+    
 
     private static String asString(JsonElement obj) {
         if (obj == null) {
@@ -1387,8 +1449,10 @@ public class ModuleChecker {
         public boolean projectClaim;
         public boolean missingChecksum;
         public String fileToChecksum;
-        public boolean dependencyNotFound;
+        public boolean dependencyNotFoundFromHerdOnly;
+        public boolean dependencyNotFoundFromHerdAndMaven;
         public boolean dependencyResolvedFromMaven;
+        public boolean dependencyResolvedFromHerd;
         public String dependencyName;
         public String dependencyVersion;
         public boolean noModuleDescriptor;
@@ -1418,6 +1482,7 @@ public class ModuleChecker {
         public ModuleVersion existingDependency;
         public Module newDependency;
         public MavenDependency mavenDependency;
+        public HerdDependency herdDependency;
 
         Import(String name, String version, boolean optional, boolean export, ModuleVersion dep){
             this(name, version, optional, export);
@@ -1427,6 +1492,11 @@ public class ModuleChecker {
         Import(String name, String version, boolean optional, boolean export, MavenDependency dep){
             this(name, version, optional, export);
             this.mavenDependency = dep;
+        }
+
+        Import(String name, String version, boolean optional, boolean export, HerdDependency dep){
+            this(name, version, optional, export);
+            this.herdDependency = dep;
         }
 
         Import(String name, String version, boolean optional, boolean export, Module dep){

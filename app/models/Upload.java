@@ -24,6 +24,9 @@ public class Upload extends Model {
     @OneToMany(mappedBy = "upload", cascade = CascadeType.REMOVE)
     public List<MavenDependency> mavenDependencies = new ArrayList<MavenDependency>();
 
+    @OneToMany(mappedBy = "upload", cascade = CascadeType.REMOVE)
+    public List<HerdDependency> herdDependencies = new ArrayList<HerdDependency>();
+
 	
 	@Transient
 	public long getSize(){
@@ -46,6 +49,14 @@ public class Upload extends Model {
         for(MavenDependency md : mavenDependencies){
             if(md.name.equals(name) && md.version.equals(version))
                 return md;
+        }
+        return null;
+    }
+
+    public HerdDependency findHerdDependency(String name, String version) {
+        for(HerdDependency hd : herdDependencies){
+            if(hd.name.equals(name) && hd.version.equals(version))
+                return hd;
         }
         return null;
     }
