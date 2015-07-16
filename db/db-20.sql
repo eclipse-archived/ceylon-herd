@@ -14,6 +14,9 @@
     alter table Dependency 
         drop constraint FK7540AF6B7BF02576;
 
+    alter table HerdDependency 
+        drop constraint FKABC46CBA7C8A23E;
+
     alter table MavenDependency 
         drop constraint FK50917167C8A23E;
 
@@ -70,6 +73,8 @@
 
     drop table Dependency cascade;
 
+    drop table HerdDependency cascade;
+
     drop table MavenDependency cascade;
 
     drop table Module cascade;
@@ -90,11 +95,11 @@
 
     drop table Upload cascade;
 
+    drop table herd_metainf cascade;
+
     drop table module_admin_user cascade;
 
     drop table user_table cascade;
-
-    drop table herd_metainf cascade;
 
     drop sequence hibernate_sequence;
 
@@ -126,6 +131,7 @@
         export bool not null,
         name varchar(255),
         optional bool not null,
+        resolvedFromHerd bool not null,
         resolvedFromMaven bool not null,
         version varchar(255),
         moduleVersion_id int8,
@@ -189,11 +195,11 @@
     create table ModuleScript (
         id int8 not null,
         description varchar(255),
+        module varchar(255),
         name varchar(255),
+        plugin bool not null,
         unix bool not null,
         moduleVersion_id int8,
-        plugin bool not null,
-        module varchar(255),
         primary key (id)
     );
 
@@ -250,6 +256,13 @@
         primary key (id)
     );
 
+    create table herd_metainf (
+        id int8 not null,
+        key varchar(255) not null unique,
+        value varchar(255),
+        primary key (id)
+    );
+
     create table module_admin_user (
         module int8 not null,
         admin int8 not null
@@ -272,16 +285,6 @@
         primary key (id)
     );
 
-    create table herd_metainf (
-        id int8 not null,
-        key varchar(255) not null unique,
-        value varchar(255),
-        primary key (id)
-    );
-
-    insert into herd_metainf (id, key, value)
-    values (1, 'db_schema_version', :DB_SCHEMA_VERSION);
-
     alter table Comment 
         add constraint FK9BDE863F856AF776 
         foreign key (project_id) 
@@ -296,6 +299,11 @@
         add constraint FK7540AF6B7BF02576 
         foreign key (moduleVersion_id) 
         references ModuleVersion;
+
+    alter table HerdDependency 
+        add constraint FKABC46CBA7C8A23E 
+        foreign key (upload_id) 
+        references Upload;
 
     alter table MavenDependency 
         add constraint FK50917167C8A23E 
