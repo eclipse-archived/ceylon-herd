@@ -137,8 +137,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	    return getPath() + "/" + "module-doc.zip";
 	}
 
-    public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven) {
-        Dependency dep = new Dependency(this, name, version, optional, export, resolvedFromMaven);
+    public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven, boolean resolvedFromHerd) {
+        Dependency dep = new Dependency(this, name, version, optional, export, resolvedFromMaven, resolvedFromHerd);
         dep.create();
         dependencies.add(dep);
     }

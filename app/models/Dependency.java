@@ -19,14 +19,16 @@ public class Dependency extends Model {
     public boolean export;
     public boolean optional;
     public boolean resolvedFromMaven;
+    public boolean resolvedFromHerd;
 
-    public Dependency(ModuleVersion moduleVersion, String name, String version, boolean optional, boolean export, boolean resolvedFromMaven) {
+    public Dependency(ModuleVersion moduleVersion, String name, String version, boolean optional, boolean export, boolean resolvedFromMaven, boolean resolvedFromHerd) {
         this.moduleVersion = moduleVersion;
         this.name = name;
         this.version = version;
         this.export = export;
         this.optional = optional;
         this.resolvedFromMaven = resolvedFromMaven;
+        this.resolvedFromHerd = resolvedFromHerd;
     }
     
     @Transient
@@ -57,5 +59,11 @@ public class Dependency extends Model {
         }
         // try to help
         return "http://search.maven.org/#artifactdetails%7C"+name+"%7C"+version+"%7Cjar";
+    }
+
+    @Transient
+    public String getHerdUrl(){
+        // http://modules.ceylon-lang.org/modules/ceylon.language/1.1.0
+        return "http://modules.ceylon-lang.org/modules/"+name+"/"+version;
     }
 }

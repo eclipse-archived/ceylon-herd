@@ -345,10 +345,10 @@ public class Uploads extends LoggedInController {
 			// If both exist they should be the same
 			if (!module.carDependencies.isEmpty()) {
     			for(Import imp : module.carDependencies)
-    			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null);
+    			    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, imp.mavenDependency != null, imp.herdDependency != null);
 			} else {
                 for(Import imp : module.jsDependencies)
-                    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, false);
+                    modVersion.addDependency(imp.name, imp.version, imp.optional, imp.export, false, imp.herdDependency != null);
 			}
 			
 			for(ModuleChecker.Member member : module.members)
