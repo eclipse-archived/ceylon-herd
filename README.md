@@ -43,6 +43,10 @@ This can only be done by hand for now:
 1. Set yourself as admin
     1. `UPDATE user_table SET admin = true WHERE username = 'your-user-name';`
 
+# Updating the DB to a new version
+
+Just run the `query-db-version.sh` command to see if and how to update
+
 # Troubleshooting
 
 1. If you get the error `FATAL: Ident authentication failed for user "ceylon-herd"` look [here for a possible solution](http://www.cyberciti.biz/faq/psql-fatal-ident-authentication-failed-for-user/)
