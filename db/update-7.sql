@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter table moduleversion add column iscarpresent boolean;
 alter table moduleversion add column isjspresent boolean;
 alter table moduleversion add column isjarpresent boolean;
@@ -38,3 +40,6 @@ alter table ModuleVersion_Author
 
 alter table moduleversion add column doc text;
 alter table moduleversion add column license text;
+
+COMMIT;
+

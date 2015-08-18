@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter TABLE moduleversion add column isDocPresent boolean;
 UPDATE moduleversion set isDocPresent = false;
 alter TABLE moduleversion alter column isDocPresent set not null;
@@ -15,3 +17,5 @@ alter table ModuleMember
     add constraint FK4A8AF0467BF02576 
     foreign key (moduleVersion_id) 
     references ModuleVersion;
+
+COMMIT;

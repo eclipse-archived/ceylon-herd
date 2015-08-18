@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 create table module_admin_user (
     module int8 not null,
     admin int8 not null
@@ -13,3 +15,4 @@ alter table module_admin_user
     foreign key (module) 
     references Module;
 
+COMMIT;

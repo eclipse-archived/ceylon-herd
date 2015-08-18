@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 create table Dependency (
     id int8 not null,
     export bool not null,
@@ -13,4 +15,6 @@ alter table Dependency
     add constraint FK7540AF6B7BF02576 
     foreign key (moduleVersion_id) 
     references ModuleVersion;
+
+COMMIT;
 

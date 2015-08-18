@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter table ModuleScript 
     drop constraint FK54AE36777BF02576;
 
@@ -16,3 +18,5 @@ alter table ModuleScript
     add constraint FK54AE36777BF02576 
     foreign key (moduleVersion_id) 
     references ModuleVersion;
+
+COMMIT;

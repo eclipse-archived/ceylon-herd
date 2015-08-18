@@ -1,5 +1,7 @@
 -- #64
 
+START TRANSACTION;
+
 create table ModuleComment (
     id int8 not null,
     date timestamp,
@@ -41,3 +43,5 @@ alter table Module
     add constraint FK89B0928CFA266C1E 
     foreign key (category_id) 
     references Category;
+
+COMMIT;

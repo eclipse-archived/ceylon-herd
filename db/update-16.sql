@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter TABLE moduleversion add column jsBinMajor int4;
 alter TABLE moduleversion add column jsBinMinor int4;
 UPDATE moduleversion set jsBinMajor = ceylonMajor;
@@ -11,3 +13,5 @@ alter TABLE moduleversion rename column ceylonMinor to jvmBinMinor;
 alter TABLE moduleversion add column isResourcesPresent bool;
 UPDATE moduleversion set isResourcesPresent = false;
 alter TABLE moduleversion alter column isResourcesPresent set not null;
+
+COMMIT;

@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter table dependency add column resolvedFromMaven boolean;
 update dependency set resolvedFromMaven = false;
 alter table dependency alter column resolvedFromMaven set not null;
@@ -14,3 +16,6 @@ alter table MavenDependency
     add constraint FK50917167C8A23E 
     foreign key (upload_id) 
     references Upload;
+
+COMMIT;
+

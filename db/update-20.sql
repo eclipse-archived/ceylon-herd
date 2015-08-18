@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 \set DB_SCHEMA_VERSION '\'20\''
 
 create table HerdDependency (
@@ -18,4 +20,6 @@ update Dependency set resolvedFromHerd = false;
 alter table Dependency alter column resolvedFromHerd set not null;
  
 update herd_metainf set value = :DB_SCHEMA_VERSION where key = 'db_schema_version';
+
+COMMIT;
 

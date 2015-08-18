@@ -1,3 +1,5 @@
+START TRANSACTION;
+
 alter table ModuleVersion 
    drop constraint FKE3396CACB2FABF16;
 
@@ -30,3 +32,5 @@ alter table ModuleVersion
     add constraint FKE3396CAC53B2465E 
     foreign key (module_id) 
     references Module;
+
+COMMIT;
