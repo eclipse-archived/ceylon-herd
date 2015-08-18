@@ -263,6 +263,9 @@
         primary key (id)
     );
 
+    insert into herd_metainf (id, key, value)
+        values (1, 'db_schema_version', :DB_SCHEMA_VERSION);
+
     create table module_admin_user (
         module int8 not null,
         admin int8 not null
