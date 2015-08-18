@@ -13,8 +13,9 @@ alter table HerdDependency
     foreign key (upload_id) 
     references Upload;
 
-alter table module_version add column resolvedFromHerd bool;
-update module_version set resolvedFromHerd = false;
-alter table module_version alter column resolvedFromHerd set not null;
+alter table Dependency add column resolvedFromHerd bool;
+update Dependency set resolvedFromHerd = false;
+alter table Dependency alter column resolvedFromHerd set not null;
  
 update herd_metainf set value = :DB_SCHEMA_VERSION where key = 'db_schema_version';
+
