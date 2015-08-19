@@ -53,13 +53,16 @@ Just run the `query-db-version.sh` command to see if and how to update
 
 # Setting up Herd in Eclipse
 
-1. Create a new Java Project using existing sources of `ceylon-herd`
-1. Create a `User Library` for `Play 1.2`
-    1. Add the `framework/play.jar`
-    1. Add every `framework/lib/*.jar`
-1. Add the `Play 1.2` User Library to the `ceylon-herd` project build path
-1. Add the JARs found in `ceylon-herd/lib` to the project build path as well
+1. Create a project using Play by going to the `ceylon-herd` project and running:
+    1. `play eclipsify`
+1. Import the resulting project into Eclipse
 
+This also creates some useful launch configurations in the `eclipse`
+folder that you can use to run the application within Eclipse.
+But unfortunately the configurations are not 100% correct, so to make
+things work you need to go into the properties of each configuration and
+add the following to the `VM Arguments` section: `-XX:-UseSplitVerifier -Dfile.encoding=utf-8 -XX:CompileCommand=exclude,jregex/Pretokenizer,next`
+    
 # License
 
 The content of this repository is released under AGPLv3 as provided in
