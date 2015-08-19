@@ -3,7 +3,7 @@
 Note: at the moment Herd requires Play 1.2 which does not work on Java 8, so proceed with Java 7. We
 are going to move it to Play 1.3 as soon as possible to fix that.
 
-1. [Download Play Framework 1.2.7](http://download.playframework.org/releases/play-1.2.7.zip) and install it
+1. [Download Play Framework 1.2.7.2](http://download.playframework.org/releases/play-1.2.7.2.zip) and install it
 1. Clone the [Herd repository](https://github.com/ceylon/ceylon-herd)
 1. Open a shell and go to the `ceylon-herd` directory you just cloned
 1. Run `play dependencies` to download the required modules
