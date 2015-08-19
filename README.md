@@ -58,6 +58,7 @@ Just run the `query-db-version.sh` command to see if and how to update
     1. Add the `framework/play.jar`
     1. Add every `framework/lib/*.jar`
 1. Add the `Play 1.2` User Library to the `ceylon-herd` project build path
+1. Add the JARs found in `ceylon-herd/lib` to the project build path as well
 
 # License
 
