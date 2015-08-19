@@ -8,13 +8,13 @@ are going to move it to Play 1.3 as soon as possible to fix that.
 1. Open a shell and go to the `ceylon-herd` directory you just cloned
 1. Run `play dependencies` to download the required modules
 1. Create your Postgres DB
-    1. sudo su - postgres 
-    1. createuser -PSRD ceylon-herd
+    1. `sudo su - postgres`
+    1. `createuser -PSRD ceylon-herd`
     1. _enter `ceylon-herd` as password when prompted_
-    1. createdb -O ceylon-herd -E utf8 ceylon-herd
+    1. `createdb -O ceylon-herd -E utf8 ceylon-herd`
     1. exit
 1. Run the application
-    1. play run
+    1. `play run`
 
 # How to make your user (if registration is disabled, which is the default for now)
 
