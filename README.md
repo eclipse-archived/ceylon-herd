@@ -7,6 +7,20 @@ are going to move it to Play 1.3 as soon as possible to fix that.
 1. Clone the [Herd repository](https://github.com/ceylon/ceylon-herd)
 1. Open a shell and go to the `ceylon-herd` directory you just cloned
 1. Run `play dependencies` to download the required modules
+    - Note: the `play` script requires Python 2, but runs on `/usr/bin/env python`,
+      which may default to Python 3 depending on your system.
+      If you get an error like this:
+
+      ```
+        File "/tmp/play-1.2.7.2/play", line 50
+          print r"~        _            _ "
+                                          ^
+      SyntaxError: Missing parentheses in call to 'print'
+      ```
+      then change the first line of the script to
+      ```python
+      #!/usr/bin/env python2
+      ```
 1. Create your Postgres DB
     1. `sudo su - postgres`
     1. `createuser -PSRD ceylon-herd`
