@@ -133,6 +133,8 @@
         optional bool not null,
         resolvedFromHerd bool not null,
         resolvedFromMaven bool not null,
+        nativeJs bool not null,
+        nativeJvm bool not null,
         version varchar(255),
         moduleVersion_id int8,
         primary key (id)

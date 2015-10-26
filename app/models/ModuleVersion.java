@@ -137,8 +137,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 	    return getPath() + "/" + "module-doc.zip";
 	}
 
-    public void addDependency(String name, String version, boolean optional, boolean export, boolean resolvedFromMaven, boolean resolvedFromHerd) {
-        Dependency dep = new Dependency(this, name, version, optional, export, resolvedFromMaven, resolvedFromHerd);
+    public void addDependency(String name, String version, boolean optional, boolean export, 
+            boolean resolvedFromMaven, boolean resolvedFromHerd, 
+            boolean nativeJvm, boolean nativeJs) {
+        Dependency dep = new Dependency(this, name, version, optional, export, 
+                resolvedFromMaven, resolvedFromHerd, nativeJvm, nativeJs);
         dep.create();
         dependencies.add(dep);
     }
@@ -415,5 +418,35 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
     public boolean containsPackage(String packageName) {
         return getPackages().contains(packageName);
+    }
+    
+    @Transient
+    public List<Dependency> getJvmDependencies(){
+        List<Dependency> ret = new ArrayList<>(dependencies.size());
+        for(Dependency dep : dependencies){
+            if(dep.nativeJvm)
+                ret.add(dep);
+        }
+        return ret;
+    }
+
+    @Transient
+    public List<Dependency> getJsDependencies(){
+        List<Dependency> ret = new ArrayList<>(dependencies.size());
+        for(Dependency dep : dependencies){
+            if(dep.nativeJs)
+                ret.add(dep);
+        }
+        return ret;
+    }
+
+    @Transient
+    public List<Dependency> getCommonDependencies(){
+        List<Dependency> ret = new ArrayList<>(dependencies.size());
+        for(Dependency dep : dependencies){
+            if(!dep.nativeJvm && !dep.nativeJs)
+                ret.add(dep);
+        }
+        return ret;
     }
 }

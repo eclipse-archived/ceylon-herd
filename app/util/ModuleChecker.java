@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -284,17 +285,36 @@ public class ModuleChecker {
             if (m.carDependencies.size() != m.jsDependencies.size()
                     || !m.carDependencies.containsAll(m.jsDependencies)
                     || !m.jsDependencies.containsAll(m.carDependencies)) {
-                Diagnostic diag = new Diagnostic("error", "The list of dependencies defined by the .car file and the .js file are NOT the same");
-                diag.dependenciesMismatch = true;
-                diag.jsDependencies = m.jsDependencies;
-                diag.jvmDependencies = m.carDependencies;
-                m.diagnostics.add(diag);
-                return;
+                if(hasDependenceMismatch(m.carDependencies, m.jsDependencies)){
+                    Diagnostic diag = new Diagnostic("error", "The list of dependencies defined by the .car file and the .js file are NOT the same");
+                    diag.dependenciesMismatch = true;
+                    diag.jsDependencies = m.jsDependencies;
+                    diag.jvmDependencies = m.carDependencies;
+                    m.diagnostics.add(diag);
+                }
             }
         }
     }
+    private static boolean hasDependenceMismatch(List<Import> carDependencies, List<Import> jsDependencies) {
+        List<Import> onlyInJvm = new ArrayList<Import>();
+        onlyInJvm.addAll(carDependencies);
+        onlyInJvm.removeAll(jsDependencies);
+        for(Import inJvm : onlyInJvm){
+            if(!inJvm.isNativeJvm() || inJvm.shouldExistInJs())
+                return true;
+        }
+        List<Import> onlyInJs = new ArrayList<Import>();
+        onlyInJs.addAll(jsDependencies);
+        onlyInJs.removeAll(carDependencies);
+        for(Import inJs : onlyInJs){
+            if(!inJs.isNativeJs() || inJs.shouldExistInJvm())
+                return true;
+        }
+        return false;
+    }
 
     public static void checkModule(File uploadsDir,
+
             Map<String, File> fileByPath, Module m, User user, List<Module> modules, Upload upload) {
 
         // check the path first (we always start and end with a separator)
@@ -793,7 +813,8 @@ public class ModuleChecker {
                         continue;
                     }
                     // must make sure it exists
-                    checkDependencyExistsJvm(name, version, optional, shared, m, modules, upload, m.carDependencies);
+                    checkDependencyExistsJvm(name, version, optional, shared, m, modules, 
+                            Collections.<String>emptyList(), upload, m.carDependencies);
                 }
             }finally{
                 reader.close();
@@ -859,7 +880,8 @@ public class ModuleChecker {
                     String export = dependency.getAttribute("export");
                     boolean isExported = "true".equals(export);
                     // must make sure it exists
-                    checkDependencyExistsJvm(name, version, isOptional, isExported, m, modules, upload, m.carDependencies);
+                    checkDependencyExistsJvm(name, version, isOptional, isExported, m, modules, 
+                            Collections.<String>emptyList(), upload, m.carDependencies);
                 }
             }
         } catch (Exception e) {
@@ -993,6 +1015,7 @@ public class ModuleChecker {
             m.diagnostics.add(new Diagnostic("error", "Invalid dependency value (expecting annotation)"));
             return;
         }
+
         Annotation dependency = ((AnnotationMemberValue)dependencyValue).getValue();
         if(!dependency.getTypeName().equals("com.redhat.ceylon.compiler.java.metadata.Import")){
             m.diagnostics.add(new Diagnostic("error", "Invalid 'dependency' value (expecting @Import)"));
@@ -1031,9 +1054,26 @@ public class ModuleChecker {
             }
             export = ((BooleanMemberValue)exportValue).getValue();
         }
-        
+
+        MemberValue nativeBackendsValue = dependency.getMemberValue("nativeBackends");
+        List<String> nativeBackends = new ArrayList<String>();
+        if(nativeBackendsValue != null){
+            if(!(nativeBackendsValue instanceof ArrayMemberValue)){
+                m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'nativeBackends' value (expecting array)"));
+                return;
+            }
+            MemberValue[] value = ((ArrayMemberValue)nativeBackendsValue).getValue();
+            for(MemberValue val : value){
+                if(!(val instanceof StringMemberValue)){
+                    m.diagnostics.add(new Diagnostic("error", "Invalid @Import 'nativeBackends' value (expecting array of strings)"));
+                    return;
+                }
+                nativeBackends.add(((StringMemberValue)val).getValue());
+            }
+        }
+
         // must make sure it exists
-        checkDependencyExistsJvm(name, version, optional, export, m, modules, upload, m.carDependencies);
+        checkDependencyExistsJvm(name, version, optional, export, m, modules, nativeBackends, upload, m.carDependencies);
     }
 
 	private static void checkDependencyExistsJvm(String name, 
@@ -1042,9 +1082,11 @@ public class ModuleChecker {
                                                  boolean export, 
                                                  Module m, 
                                                  List<Module> modules, 
+                                                 List<String> nativeBackends, 
                                                  Upload upload, 
                                                  List<Import> dependencies) {
-		checkDependencyExists(name, version, optional, export, m, modules, upload, dependencies, CeylonRuntime.jvm);
+		checkDependencyExists(name, version, optional, export, m, modules, nativeBackends, 
+		        upload, dependencies, CeylonRuntime.jvm);
 	}
 
 	private static void checkDependencyExistsJavaScript(String name, 
@@ -1053,13 +1095,16 @@ public class ModuleChecker {
                                                  boolean export, 
                                                  Module m, 
                                                  List<Module> modules, 
+                                                 List<String> nativeBackends, 
                                                  Upload upload, 
                                                  List<Import> dependencies) {
-		checkDependencyExists(name, version, optional, export, m, modules, upload, dependencies, CeylonRuntime.javascript);
+		checkDependencyExists(name, version, optional, export, m, modules, nativeBackends, 
+		        upload, dependencies, CeylonRuntime.javascript);
 	}
 
     private static void checkDependencyExists(String name, String version, boolean optional, boolean export,
-            Module m, List<Module> modules, Upload upload, List<Import> dependencies, CeylonRuntime ceylonRuntime) {
+            Module m, List<Module> modules, List<String> nativeBackends, 
+            Upload upload, List<Import> dependencies, CeylonRuntime ceylonRuntime) {
         String lead;
         if(optional && export)
             lead = "Shared and optional dependency";
@@ -1073,14 +1118,14 @@ public class ModuleChecker {
         // JDK modules are always available
         if(JDKUtil.isJdkModule(name)){
             m.diagnostics.add(new Diagnostic("success", lead+" is a JDK module"));
-            dependencies.add(new Import(name, version, optional, export));
+            dependencies.add(new Import(name, version, optional, export, nativeBackends));
             return;
         }
         // try to find it in the list of uploaded modules
         for(Module module : modules){
             if(module.name.equals(name) && module.version.equals(version)){
                 m.diagnostics.add(new Diagnostic("success", lead+" is to be uploaded"));
-                dependencies.add(new Import(name, version, optional, export, module));
+                dependencies.add(new Import(name, version, optional, export, nativeBackends, module));
                 if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
                     Diagnostic diagnostic = new Diagnostic("warning", lead+" resolved from Maven Central but present in your upload");
                     diagnostic.dependencyResolvedFromMaven = true;
@@ -1104,7 +1149,7 @@ public class ModuleChecker {
         if(dep == null){
             if(optional){
                 m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
-                dependencies.add(new Import(name, version, optional, export));
+                dependencies.add(new Import(name, version, optional, export, nativeBackends));
             } else {
             	if(CeylonRuntime.jvm == ceylonRuntime && 
             			(upload.findMavenDependency(name, version) == null && upload.findHerdDependency(name, version) == null)){
@@ -1120,14 +1165,14 @@ public class ModuleChecker {
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
             	} else if (upload.findHerdDependency(name, version) != null){
-                    dependencies.add(new Import(name, version, optional, export, upload.findHerdDependency(name, version)));
+                    dependencies.add(new Import(name, version, optional, export, nativeBackends, upload.findHerdDependency(name, version)));
                     Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Herd");
                     diagnostic.dependencyResolvedFromHerd = true;
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
                 }else if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
-                    dependencies.add(new Import(name, version, optional, export, upload.findMavenDependency(name, version)));
+                    dependencies.add(new Import(name, version, optional, export, nativeBackends, upload.findMavenDependency(name, version)));
                     Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
                     diagnostic.dependencyResolvedFromMaven = true;
                     diagnostic.dependencyName = name;
@@ -1136,7 +1181,7 @@ public class ModuleChecker {
                 }
             }
         }else{
-            dependencies.add(new Import(name, version, optional, export, dep));
+            dependencies.add(new Import(name, version, optional, export, nativeBackends, dep));
             m.diagnostics.add(new Diagnostic("success", lead+" present in repo"));
             
             if(upload.findHerdDependency(name, version) != null){
@@ -1313,6 +1358,7 @@ public class ModuleChecker {
         String module = null;
         boolean optional = false;
         boolean exported = false;
+        List<String> nativeBackends = Collections.emptyList();
         
         if (dep.isJsonPrimitive()) {
             module = asString(dep);
@@ -1321,6 +1367,13 @@ public class ModuleChecker {
             module = asString(depObj.get("path"));
             optional = depObj.has("opt");
             exported = depObj.has("exp");
+            if(depObj.has("nat")){
+                JsonArray jsonArray = depObj.getAsJsonArray("nat");
+                nativeBackends = new ArrayList<>(jsonArray.size());
+                for(JsonElement val : jsonArray){
+                    nativeBackends.add(val.getAsString());
+                }
+            }
         }
         if (module == null) {
             m.diagnostics.add(new Diagnostic("error", ".js meta model has unexpected structure"));
@@ -1344,7 +1397,7 @@ public class ModuleChecker {
         }
 
         // must make sure it exists
-        checkDependencyExistsJavaScript(name, version, optional, exported, m, modules, upload, m.jsDependencies);
+        checkDependencyExistsJavaScript(name, version, optional, exported, m, modules, nativeBackends, upload, m.jsDependencies);
     }
     
 
@@ -1484,32 +1537,34 @@ public class ModuleChecker {
         public Module newDependency;
         public MavenDependency mavenDependency;
         public HerdDependency herdDependency;
+        public List<String> nativeBackends;
 
-        Import(String name, String version, boolean optional, boolean export, ModuleVersion dep){
-            this(name, version, optional, export);
+        Import(String name, String version, boolean optional, boolean export, List<String> nativeBackends, ModuleVersion dep){
+            this(name, version, optional, export, nativeBackends);
             this.existingDependency = dep;
         }
 
-        Import(String name, String version, boolean optional, boolean export, MavenDependency dep){
-            this(name, version, optional, export);
+        Import(String name, String version, boolean optional, boolean export, List<String> nativeBackends, MavenDependency dep){
+            this(name, version, optional, export, nativeBackends);
             this.mavenDependency = dep;
         }
 
-        Import(String name, String version, boolean optional, boolean export, HerdDependency dep){
-            this(name, version, optional, export);
+        Import(String name, String version, boolean optional, boolean export, List<String> nativeBackends, HerdDependency dep){
+            this(name, version, optional, export, nativeBackends);
             this.herdDependency = dep;
         }
 
-        Import(String name, String version, boolean optional, boolean export, Module dep){
-            this(name, version, optional, export);
+        Import(String name, String version, boolean optional, boolean export, List<String> nativeBackends, Module dep){
+            this(name, version, optional, export, nativeBackends);
             this.newDependency = dep;
         }
 
-        Import(String name, String version, boolean optional, boolean export) {
+        Import(String name, String version, boolean optional, boolean export, List<String> nativeBackends) {
             this.name = name;
             this.version = version;
             this.optional = optional;
             this.export = export;
+            this.nativeBackends = nativeBackends;
         }
 
         @Override
@@ -1543,6 +1598,21 @@ public class ModuleChecker {
             return true;
         }
         
+        public boolean shouldExistInJs(){
+            return nativeBackends.isEmpty() || nativeBackends.contains("js");
+        }
+
+        public boolean shouldExistInJvm(){
+            return nativeBackends.isEmpty() || nativeBackends.contains("jvm");
+        }
+
+        public boolean isNativeJvm() {
+            return nativeBackends.contains("jvm");
+        }
+
+        public boolean isNativeJs() {
+            return nativeBackends.contains("js");
+        }
     }
 
     public enum ChecksumState {
@@ -1625,6 +1695,13 @@ public class ModuleChecker {
 
         public String getDocPath(){
             return path.substring(1) + "module-doc" + "/" + "api" + "/" + "index.html";
+        }
+
+        public Set<Import> getAllDependencies() {
+            Set<Import> ret = new HashSet<Import>();
+            ret.addAll(carDependencies);
+            ret.addAll(jsDependencies);
+            return ret;
         }
     }
 

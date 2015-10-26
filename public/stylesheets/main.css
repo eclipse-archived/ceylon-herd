@@ -503,3 +503,10 @@ pre.rainbow {
 .diff-added {
     background: #A4FFA1;
 }
+
+/* Fix for bootstrap bug */
+
+.table:not(.table-bordered) > tbody > tr > td,
+.table:not(.table-bordered) > tbody > tr > th {
+    border-left: none;
+}

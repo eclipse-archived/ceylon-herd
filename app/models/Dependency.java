@@ -20,8 +20,11 @@ public class Dependency extends Model {
     public boolean optional;
     public boolean resolvedFromMaven;
     public boolean resolvedFromHerd;
+    public boolean nativeJvm;
+    public boolean nativeJs;
 
-    public Dependency(ModuleVersion moduleVersion, String name, String version, boolean optional, boolean export, boolean resolvedFromMaven, boolean resolvedFromHerd) {
+    public Dependency(ModuleVersion moduleVersion, String name, String version, boolean optional, boolean export, boolean resolvedFromMaven, boolean resolvedFromHerd, 
+            boolean nativeJvm, boolean nativeJs) {
         this.moduleVersion = moduleVersion;
         this.name = name;
         this.version = version;
@@ -29,6 +32,8 @@ public class Dependency extends Model {
         this.optional = optional;
         this.resolvedFromMaven = resolvedFromMaven;
         this.resolvedFromHerd = resolvedFromHerd;
+        this.nativeJvm = nativeJvm;
+        this.nativeJs = nativeJs;
     }
     
     @Transient

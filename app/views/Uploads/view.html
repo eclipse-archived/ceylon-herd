@@ -343,20 +343,20 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                            <td>
                                                #{list items: diagnostic.jsDependencies, as: 'dep'}
                                                    %{
-                                                       boolean depAdded = !diagnostic.jvmDependencies.contains(dep);
+                                                       boolean depAdded = !diagnostic.jvmDependencies.contains(dep) && (!dep.nativeJs || dep.shouldExistInJvm());
                                                    }%
                                                    <div #{if depAdded}class="diff-added"#{/if}>
-                                                       ${dep.name}/${dep.version}
+                                                       ${dep.name}/${dep.version}#{if dep.nativeBackends} (for backends: ${dep.nativeBackends.join(", ")})#{/if}
                                                    </div>
                                                #{/list}
                                            </td>
                                            <td>
                                                #{list items: diagnostic.jvmDependencies, as: 'dep'}
                                                    %{
-                                                       boolean depAdded = !diagnostic.jsDependencies.contains(dep);
+                                                       boolean depAdded = !diagnostic.jsDependencies.contains(dep) && (!dep.nativeJvm || dep.shouldExistInJs());
                                                    }%
                                                    <div #{if depAdded}class="diff-added"#{/if}>
-                                                       ${dep.name}/${dep.version}
+                                                       ${dep.name}/${dep.version}#{if dep.nativeBackends} (for backends: ${dep.nativeBackends.join(", ")})#{/if}
                                                    </div>
                                                #{/list}
                                            </td>
