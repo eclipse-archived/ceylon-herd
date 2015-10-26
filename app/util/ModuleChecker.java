@@ -284,7 +284,11 @@ public class ModuleChecker {
             if (m.carDependencies.size() != m.jsDependencies.size()
                     || !m.carDependencies.containsAll(m.jsDependencies)
                     || !m.jsDependencies.containsAll(m.carDependencies)) {
-                m.diagnostics.add(new Diagnostic("error", "The list of dependencies defined by the .car file and the .js file are NOT the same"));
+                Diagnostic diag = new Diagnostic("error", "The list of dependencies defined by the .car file and the .js file are NOT the same");
+                diag.dependenciesMismatch = true;
+                diag.jsDependencies = m.jsDependencies;
+                diag.jvmDependencies = m.carDependencies;
+                m.diagnostics.add(diag);
                 return;
             }
         }
@@ -1454,6 +1458,9 @@ public class ModuleChecker {
         public String dependencyName;
         public String dependencyVersion;
         public boolean noModuleDescriptor;
+        public boolean dependenciesMismatch;
+        public List<Import> jsDependencies;
+        public List<Import> jvmDependencies;
 
         Diagnostic(String type, String message){
             this.type = type;

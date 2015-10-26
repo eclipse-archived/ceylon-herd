@@ -333,6 +333,36 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                    &nbsp;<a href='http://ceylon-lang.org/documentation/1.0/reference/structure/module/#legacy_modules'
                                             title='View documentation about this on ceylon-lang.org'>Learn how to describe these dependencies</a>
                                 #{/elseif}
+                                #{elseif diagnostic.dependenciesMismatch}
+                                   <table>
+                                       <tr>
+                                           <th>JS dependencies</th>
+                                           <th>JVM dependencies</th>
+                                       </tr>
+                                       <tr>
+                                           <td>
+                                               #{list items: diagnostic.jsDependencies, as: 'dep'}
+                                                   %{
+                                                       boolean depAdded = !diagnostic.jvmDependencies.contains(dep);
+                                                   }%
+                                                   <div #{if depAdded}class="diff-added"#{/if}>
+                                                       ${dep.name}/${dep.version}
+                                                   </div>
+                                               #{/list}
+                                           </td>
+                                           <td>
+                                               #{list items: diagnostic.jvmDependencies, as: 'dep'}
+                                                   %{
+                                                       boolean depAdded = !diagnostic.jsDependencies.contains(dep);
+                                                   }%
+                                                   <div #{if depAdded}class="diff-added"#{/if}>
+                                                       ${dep.name}/${dep.version}
+                                                   </div>
+                                               #{/list}
+                                           </td>
+                                       </tr>
+                                   </table>
+                                #{/elseif}
                             </li>
                         #{/list}
                         #{if diagnosticsHidden}

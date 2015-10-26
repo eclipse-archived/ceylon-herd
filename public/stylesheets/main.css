@@ -499,3 +499,7 @@ td [class^='ceylondoc-icon-'] {
 pre.rainbow {
     margin: 0 0 10px;
 }
+
+.diff-added {
+    background: #A4FFA1;
+}
