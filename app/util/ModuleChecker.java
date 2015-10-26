@@ -1343,10 +1343,6 @@ public class ModuleChecker {
             return;
         }
 
-        if ("ceylon.language".equals(name)) {
-            return;
-        }
-        
         // must make sure it exists
         checkDependencyExistsJavaScript(name, version, optional, exported, m, modules, upload, m.jsDependencies);
     }
