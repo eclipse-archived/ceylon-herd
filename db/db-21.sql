@@ -3,7 +3,7 @@
     -- Also, don't forget that the "update-XX.sql" needs to update the version
     -- number in the database and that the number must also be updated in the code
     -- in file "app/models/HerdMetainf.java"
-    \set DB_SCHEMA_VERSION '\'20\''
+    \set DB_SCHEMA_VERSION '\'21\''
 
     alter table Comment 
         drop constraint FK9BDE863F856AF776;
@@ -133,6 +133,8 @@
         optional bool not null,
         resolvedFromHerd bool not null,
         resolvedFromMaven bool not null,
+        nativeJs bool not null,
+        nativeJvm bool not null,
         version varchar(255),
         moduleVersion_id int8,
         primary key (id)
@@ -217,6 +219,8 @@
         isRunnable bool not null,
         isScriptsPresent bool not null,
         isSourcePresent bool not null,
+        isNativeJs bool not null,
+        isNativeJvm bool not null,
         jsBinMajor int4 not null,
         jsBinMinor int4 not null,
         jsdownloads int8 not null,

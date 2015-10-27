@@ -21,7 +21,7 @@ public class HerdMetainf extends GenericModel {
 
     // IMPORTANT This number must be the same as the one found in
     // the latest `db/db-XX.sql` and `db/update-XX.sql` files !!!
-    public static final int DB_SCHEMA_VERSION = 20;
+    public static final int DB_SCHEMA_VERSION = 21;
     
     public static final String KEY_DB_SCHEMA_VERSION = "db_schema_version";
     
