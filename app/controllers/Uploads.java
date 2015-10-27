@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -306,6 +307,7 @@ public class Uploads extends LoggedInController {
 			view(id);
 		}
 		
+		List<models.ModuleVersion> versions = new LinkedList<models.ModuleVersion>();
 		for(Module module : uploadInfo.modules){
 			models.Module mod = models.Module.find("name = ?", module.name).first();
 			if(mod == null){
@@ -353,6 +355,8 @@ public class Uploads extends LoggedInController {
 
 			for(ModuleChecker.Script script : module.scriptDescriptions)
                 modVersion.addScript(script.name, script.description, script.unix, script.plugin, script.module);
+			
+			versions.add(modVersion);
 		}
 		
 		FileUtils.copyDirectory(uploadsDir, Util.getRepoDir(), NonEmptyDirectoryFilter);
@@ -362,8 +366,14 @@ public class Uploads extends LoggedInController {
 		MyCache.evictUploadsForOwner(user);
 		MyCache.evictModulesForOwner(user);
 		
-		flash("message", "Repository published");
-		index();
+		if(versions.size() == 1){
+	        flash("message", "Your module has been published");
+		    models.ModuleVersion moduleVersion = versions.get(0);
+		    Repo.view(moduleVersion.module.name, moduleVersion.version);
+		}else{
+            flash("message", "Your modules have been published");
+		    render(versions);
+		}
 	}
 	
 	public static void uploadRepoForm(Long id){
