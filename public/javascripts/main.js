@@ -128,3 +128,28 @@ function isEventTargetInput(e) {
     }
     return false;
 }
+
+function showHelp(){
+    jQuery("#help").show();
+}
+function hideHelp(){
+    jQuery("#help").hide();
+}
+function toggleHelp(){
+    jQuery("#help").toggle();
+}
+jQuery(function(){
+    // plug in the behaviour of expendable items
+    jQuery("[data-behaviour=expandable]").each(function(i, elem){
+        var $elem = jQuery(elem);
+        jQuery("<div class='collapse-icons'>&#x25B4 &#x25B4 &#x25B4</div>").appendTo($elem);
+        jQuery("<div class='expand-icons'>&#x25BE &#x25BE &#x25BE</div>").appendTo($elem);
+        $elem.attr("title", "Click to expand/collapse");
+        $elem.addClass("expandable");
+        $elem.addClass("collapsed");
+        $elem.click(function(){
+            $elem.toggleClass("collapsed");
+            //return false;
+        });
+    });
+});

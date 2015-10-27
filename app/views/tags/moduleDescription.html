@@ -1,13 +1,5 @@
 #{if _moduleVersion.doc != null && !_moduleVersion.doc.isEmpty()}
-    #{if _moduleVersion.doc.size() > 150}
-        <div class="moduleDescription">
-            <a href="#" data-behaviour="expandable">Expand</a>
-            <div class="expandable collapsed">
-               ${_moduleVersion.doc.md(_moduleVersion)}
-            </div>
-        </div>
-    #{/if}
-    #{else }
-        ${_moduleVersion.doc.md(_moduleVersion)}
-    #{/else}
+    <div class="moduleDescription" #{if _moduleVersion.doc.size() > 150}data-behaviour="expandable"#{/if}>
+       ${_moduleVersion.doc.md(_moduleVersion)}
+    </div>
 #{/if}

@@ -1,13 +1,5 @@
 #{if _arg != null}
-    #{if _arg.description?.length() > 150}
-        <div class="categoryDescription">
-            <a href="#" data-behaviour="expandable">Expand</a>
-            <div class="expandable collapsed">
-                ${_arg.description.md()}
-            </div>
-        </div>
-    #{/if}
-    #{else}
+    <div class="categoryDescription" #{if _arg.description?.length() > 150}data-behaviour="expandable"#{/if}>
         ${_arg.description.md()}
-    #{/else}
+    </div>
 #{/if}

@@ -132,17 +132,9 @@
                         </a>
                     #{/if}
                     #{if moduleVersion.changelog}
-                        #{if moduleVersion.changelog.size() > 150}
-                            <div class="moduleChangelog">
-                                <a href="#" data-behaviour="expandable">Expand</a>
-                                <div class="expandable collapsed">
-                                   ${moduleVersion.changelog.md(moduleVersion)}
-                                </div>
-                            </div>
-                        #{/if}
-                        #{else }
+                        <div class="moduleChangelog" #{if moduleVersion.changelog.size() > 150}data-behaviour="expandable"#{/if}>
                             ${moduleVersion.changelog.md(moduleVersion)}
-                        #{/else}
+                        </div>
                     #{/if}
                 </td>
             </tr>

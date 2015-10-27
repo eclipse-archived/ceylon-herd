@@ -274,9 +274,38 @@ form.inline {
     background-color: #00995F;
 }
 
+.expandable {
+    cursor: pointer;
+    position: relative;
+}
+
 .expandable.collapsed {
     height: 2em;
     overflow: hidden;
+}
+
+.collapse-icons,
+.expand-icons {
+    position: absolute;
+    bottom: 0px;
+    color: gray;
+    text-align: center;
+    width: 100%;
+    height: 12px;
+    font-size: 7px;
+}
+
+.expandable > .collapse-icons{
+    display: block;
+}
+.expandable > .expand-icons{
+    display: none;
+}
+.expandable.collapsed > .collapse-icons{
+    display: none;
+}
+.expandable.collapsed > .expand-icons{
+    display: block;
 }
 
 .syntaxhighlighter {
