@@ -71,6 +71,14 @@
                 </td>
             </tr>
         #{/if}
+        #{elseif moduleVersion.isJsPresent}
+            <tr>
+                <th>Compatible Ceylon release</th>
+                <td>
+                    #{moduleJsCompatibility moduleVersion/}
+                </td>
+            </tr>
+        #{/elseif}
         <tr>
             <th>Published</th>
             <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
