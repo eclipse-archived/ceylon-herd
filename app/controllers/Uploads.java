@@ -331,6 +331,8 @@ public class Uploads extends LoggedInController {
             modVersion.jvmBinMinor = module.jvmBinMinor;
             modVersion.jsBinMajor = module.jsBinMajor;
             modVersion.jsBinMinor = module.jsBinMinor;
+            modVersion.isNativeJvm = module.isNativeJvm();
+            modVersion.isNativeJs = module.isNativeJs();
 			modVersion.published = Util.currentTimeInUTC();
 			modVersion.doc = module.doc;
 			modVersion.license = module.license;

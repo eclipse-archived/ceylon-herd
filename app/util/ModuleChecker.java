@@ -398,7 +398,7 @@ public class ModuleChecker {
         // car check
 
         String carName = m.name + "-" + m.version + ".car";
-        if (checkArtifact("car", carName, uploadsDir, fileByPath, m, m.car, true, false)) {
+        if (checkArtifact("car", carName, uploadsDir, fileByPath, m, m.car, true, false, true)) {
             String artifactPath = m.path + carName;
             loadModuleInfoFromCar(uploadsDir, artifactPath, m, modules, upload);
             checkIsRunnable(uploadsDir, artifactPath, m);
@@ -409,16 +409,20 @@ public class ModuleChecker {
         // js check
 
         String jsName = m.name + "-" + m.version + ".js";
-        if (checkArtifact("js", jsName, uploadsDir, fileByPath, m, m.js, true, false)) {
+        if (checkArtifact("js", jsName, uploadsDir, fileByPath, m, m.js, true, false, true)) {
             String jsPath = m.path + jsName;
             loadModuleInfoFromJs(uploadsDir, jsPath, m, modules, upload);
             String jsModelName = m.name + "-" + m.version + "-model.js";
-            if (!checkArtifact("js model", jsModelName, uploadsDir, fileByPath, m, m.jsModel, false, false)) {
+            if (!checkArtifact("js model", jsModelName, uploadsDir, fileByPath, m, m.jsModel, false, false, false)) {
                 if (m.jsBinMajor >= 7) {
                     m.diagnostics.add(new Diagnostic("error", "Missing Js Model", m.path + jsName));
                 }
             }
         }
+        
+        // now we have module info loaded we can check for native existence
+        addArtifactDiagnostics("car", carName, m, m.car, true, false, !m.shouldExistInJvm());
+        addArtifactDiagnostics("js", jsName, m, m.js, true, false, !m.shouldExistInJs());
 
         // must have at least js or car or jar
         if (!m.car.exists && !m.js.exists && !m.jar.exists) {
@@ -428,12 +432,12 @@ public class ModuleChecker {
         // src check
 
         String srcName = m.name + "-" + m.version + ".src";
-        checkArtifact("source", srcName, uploadsDir, fileByPath, m, m.source, true, true);
+        checkArtifact("source", srcName, uploadsDir, fileByPath, m, m.source, true, true, false);
 
         // scripts check
 
         String scriptsName = m.name + "-" + m.version + ".scripts.zip";
-        if(checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false, false)){
+        if(checkArtifact("scripts", scriptsName, uploadsDir, fileByPath, m, m.scripts, false, false, false)){
             loadScriptNames(uploadsDir, m.path + scriptsName, m);
         }
 
@@ -531,34 +535,47 @@ public class ModuleChecker {
     }
 
     private static boolean checkArtifact(String name, String artifactName, File uploadsDir, Map<String, File> fileByPath, Module m, Artifact art, 
-            boolean showWarning, boolean allowWithJar) {
+            boolean showWarning, boolean allowWithJar, boolean delayDiagnosticsForNative) {
         String artifactPath = m.path + artifactName;
         art.exists = fileByPath.containsKey(artifactPath);
+        boolean ret;
         if(art.exists){
             fileByPath.remove(artifactPath);
 
+            art.checksum = handleChecksumFile(uploadsDir, fileByPath, m, artifactName, name, m.jar.exists);
+            ret = true;
+        }else{
+            ret = false;
+        }
+        if(!delayDiagnosticsForNative)
+            addArtifactDiagnostics(name, artifactPath, m, art, showWarning, allowWithJar, false);
+        return ret;
+    }
+
+    private static void addArtifactDiagnostics(String name, String artifactName, Module m, Artifact art, 
+            boolean showWarning, boolean allowWithJar, boolean mustNotExist) {
+        if(art.exists){
             if (!m.jar.exists || allowWithJar) {
-                m.diagnostics.add(new Diagnostic("success", "Has " + name + ": " + artifactName));
+                if(!mustNotExist)
+                    m.diagnostics.add(new Diagnostic("success", "Has " + name + ": " + artifactName));
+                else
+                    m.diagnostics.add(new Diagnostic("error", "Native module " + name + " has disallowed backend: " + artifactName));
             } else {
                 m.diagnostics.add(new Diagnostic("error", "If a module contains a jar it cannot contain other archives: "+artifactName));
             }
-
-            art.checksum = handleChecksumFile(uploadsDir, fileByPath, m, artifactName, name, m.jar.exists);
-            return true;
         }else if (!m.jar.exists) {
-            if(showWarning){
-                m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive"));
-            }else{
+            if(!showWarning || mustNotExist){
                 m.diagnostics.add(new Diagnostic("success", "No " + name + " archive"));
+            }else{
+                m.diagnostics.add(new Diagnostic("warning", "Missing " + name + " archive"));
             }
         }
-        return false;
     }
 
     private static void folderCheck(String name, String folderName, String folderZipName, File uploadsDir, Map<String, File> fileByPath, Module m, ZippedFolderArtifact art, boolean showWarning) {
         // zipped folder check
         File folderZipFile = new File(uploadsDir, m.path + folderZipName);
-        if (checkArtifact(name, folderZipName, uploadsDir, fileByPath, m, art, false, false)) {
+        if (checkArtifact(name, folderZipName, uploadsDir, fileByPath, m, art, false, false, false)) {
             // All ok
         }else if (folderZipFile.exists() && !folderZipFile.isFile()) {
             m.diagnostics.add(new Diagnostic("error", folderZipName + " exists but is not a file"));
@@ -981,6 +998,12 @@ public class ModuleChecker {
                 if (m.authors != null && m.authors.length != 0) {
                     m.diagnostics.add(new Diagnostic("success", "Has authors"));
                 }
+                String[] nativeBackends = getStringArray(moduleAnnotation, "nativeBackends", m, true);
+                if (nativeBackends != null) {
+                    for(String nativeBackend : nativeBackends)
+                        m.nativeBackends.add(nativeBackend);
+                    m.diagnostics.add(new Diagnostic("success", "Has native backends (in JVM): "+m.nativeBackends));
+                }
                 
                 // dependencies
                 
@@ -1337,6 +1360,14 @@ public class ModuleChecker {
             m.jsBinMinor = minor;
             m.diagnostics.add(new Diagnostic("success", ".js file has binary version " + major + "." + minor));
         }
+        JsonElement nativeArray = model.get("$mod-nat");
+        if(nativeArray != null && nativeArray.isJsonArray()){
+            JsonArray jsonArray = nativeArray.getAsJsonArray();
+            for(JsonElement val : jsonArray){
+                m.nativeBackends.add(val.getAsString());
+            }
+            m.diagnostics.add(new Diagnostic("success", "Has native backends (in JS): "+m.nativeBackends));
+        }
 
         JsonElement array = model.get("$mod-deps");
         if (array == null || (array.isJsonArray() && array.getAsJsonArray().size() == 0)){
@@ -1661,6 +1692,7 @@ public class ModuleChecker {
         public boolean isRunnable;
         public SortedSet<Member> members = new TreeSet<Member>();
         public SortedSet<Script> scriptDescriptions = new TreeSet<Script>();
+        public Set<String> nativeBackends = new TreeSet<String>();
 
         Module(String name, String version, String path){
             this.name = name;
@@ -1703,7 +1735,23 @@ public class ModuleChecker {
             ret.addAll(jsDependencies);
             return ret;
         }
-    }
+
+        public boolean shouldExistInJs(){
+            return nativeBackends.isEmpty() || nativeBackends.contains("js");
+        }
+
+        public boolean shouldExistInJvm(){
+            return nativeBackends.isEmpty() || nativeBackends.contains("jvm");
+        }
+
+        public boolean isNativeJvm() {
+            return nativeBackends.contains("jvm");
+        }
+
+        public boolean isNativeJs() {
+            return nativeBackends.contains("js");
+        }
+}
 
     public static class UploadInfo {
 
