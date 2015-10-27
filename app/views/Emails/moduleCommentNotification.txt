@@ -1,0 +1,7 @@
+#{extends 'email.txt' /}
+
+${user.userName} has just added the following comment on the ${module.name} module:
+
+${comment.text}
+--
+See comment online: @@{Repo.versions(module.name)}#comment-${comment.id}

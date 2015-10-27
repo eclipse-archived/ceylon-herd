@@ -346,6 +346,7 @@ public class LoggedInRepo extends LoggedInController {
         moduleRating.save();
 	    
 	    flash("commentMessage2", "Comment added");
+        Emails.moduleCommentNotification(comment, user);
 	    Repo.versions(moduleName);
 	}
 

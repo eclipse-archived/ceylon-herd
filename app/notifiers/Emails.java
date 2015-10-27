@@ -9,6 +9,7 @@ import java.util.Set;
 
 import models.Comment;
 import models.Module;
+import models.ModuleComment;
 import models.Project;
 import models.User;
 import models.UserStatus;
@@ -43,7 +44,7 @@ public class Emails extends Mailer {
 	public static void projectClaimNotification(Project project, User user) {
 		setSubject(SUBJECT_PREFIX + "New project claim for "+project.moduleName+" from "+user.userName);
 		setFrom(FROM);
-		for(String recipient : getNotificationRecipients(null, user)){
+		for(String recipient : getNotificationRecipients((Project)null, user)){
 			setRecipient(recipient);
 			send(project, user);
 		}
@@ -65,6 +66,16 @@ public class Emails extends Mailer {
         for (String recipient : getNotificationRecipients(project, user)) {
             setRecipient(recipient);
             send(project, user);
+        }
+    }
+
+    public static void moduleCommentNotification(ModuleComment comment, User user) {
+        Module module = comment.module;
+        setSubject(SUBJECT_PREFIX + "New comment from "+user.userName+" on module "+module.name);
+        setFrom(FROM);
+        for(String recipient : getNotificationRecipients(module, user)){
+            setRecipient(recipient);
+            send(module, comment, user);
         }
     }
 
@@ -101,14 +112,33 @@ public class Emails extends Mailer {
 		// possibly the project claimer if not current user
 		if(project != null && project.owner != user)
 			users.add(project.owner);
-		String[] emails = new String[users.size()];
-		Iterator<User> iterator = users.iterator();
-		for(int i=0;i<emails.length;i++)
-			emails[i] = iterator.next().email;
-		return emails;
+        return getEmails(users);
 	}
-	
-	private static void setRecipient(String recipient){
+
+	private static String[] getNotificationRecipients(Module module, User user) {
+	    // every commenter/owner/admin except current user
+	    Set<User> users = new HashSet<User>(); 
+	    for(ModuleComment comment : module.comments){
+	        users.add(comment.owner);
+	    }
+	    users.add(module.owner);
+        for(User admin : module.admins){
+            users.add(admin);
+        }
+        // not the current user
+        users.remove(user);
+        return getEmails(users);
+	}
+
+	private static String[] getEmails(Set<User> users) {
+        String[] emails = new String[users.size()];
+        Iterator<User> iterator = users.iterator();
+        for(int i=0;i<emails.length;i++)
+            emails[i] = iterator.next().email;
+        return emails;
+    }
+
+    private static void setRecipient(String recipient){
         HashMap<String, Object> map = infos.get();
         List<String> list = new ArrayList<String>();
         list.add(recipient);
