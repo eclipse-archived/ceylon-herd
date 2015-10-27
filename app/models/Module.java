@@ -316,6 +316,7 @@ public class Module extends Model {
         JPA.em().createNativeQuery("DELETE FROM modulemember m WHERE m.moduleversion_id IN (SELECT v.id FROM moduleversion v WHERE v.module_id = :moduleId);").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM moduleversion v WHERE v.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM modulecomment c WHERE c.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
+        JPA.em().createNativeQuery("DELETE FROM modulerating r WHERE r.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM module_admin_user u WHERE u.module = :moduleId").setParameter("moduleId", id).executeUpdate();
 	    return super.delete();
 	}
