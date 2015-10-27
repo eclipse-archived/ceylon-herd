@@ -351,7 +351,7 @@ public class Uploads extends LoggedInController {
 			            imp.isNativeJvm(), imp.isNativeJs());
 			
 			for(ModuleChecker.Member member : module.members)
-			    modVersion.addMember(member.packageName, member.name, member.type);
+			    modVersion.addMember(member.packageName, member.name, member.type, member.shared);
 
 			for(ModuleChecker.Script script : module.scriptDescriptions)
                 modVersion.addScript(script.name, script.description, script.unix, script.plugin, script.module);

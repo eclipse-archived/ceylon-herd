@@ -428,7 +428,11 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
             <tbody>
                 #{list items:module.members, as:'member'}
                     <tr>
-                        <td>#{ceylondoc-member-icon member.type/} ${member.packageName}::${member.name}</td>
+                        <td>
+                            #{ceylondoc-member-icon member.type/}
+                            #{if member.shared}<span class="modifier">shared</span>#{/if}
+                            ${member.packageName}::${member.name}
+                        </td>
                     </tr>
                 #{/list}
             </tbody>

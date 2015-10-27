@@ -154,8 +154,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         dependencies.add(dep);
     }
 
-    public void addMember(String packageName, String name, CeylonElementType type) {
-        ModuleMember member = new ModuleMember(this, packageName, name, type);
+    public void addMember(String packageName, String name, CeylonElementType type, boolean shared) {
+        ModuleMember member = new ModuleMember(this, packageName, name, type, shared);
         member.create();
         members.add(member);
     }

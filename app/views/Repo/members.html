@@ -30,6 +30,7 @@
                     #{if link}
                         <a href="${util.Util.viewRepoUrl(link)}">
                     #{/if}
+                    #{if member.shared}<span class="modifier">shared</span>#{/if}
                     ${member.packageName}::${member.name}
                     #{if link}
                         </a>

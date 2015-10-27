@@ -525,6 +525,10 @@ td [class^='ceylondoc-icon-'] {
     color: #005580;
 }
 
+.modifier {
+    color: rgb(51,153,204);
+}
+
 pre.rainbow {
     margin: 0 0 10px;
 }

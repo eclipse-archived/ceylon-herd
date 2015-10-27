@@ -67,11 +67,13 @@ public class ModuleChecker {
         public final CeylonElementType type;
         public final String name;
         public final String packageName;
+        public boolean shared;
         
-        public Member(CeylonElementType type, String packageName, String name) {
+        public Member(CeylonElementType type, String packageName, String name, boolean shared) {
             this.type = type;
             this.packageName = packageName;
             this.name = name;
+            this.shared = shared;
         }
 
         @Override
@@ -706,6 +708,7 @@ public class ModuleChecker {
         int lastDot = name.lastIndexOf('.');
         String packageName = lastDot != -1 ? name.substring(0, lastDot) : ""; 
         String simpleName = lastDot != -1 ? name.substring(lastDot+1) : name; 
+        boolean shared;
 
         boolean ceylon = visible != null && visible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ceylon") != null;
         CeylonElementType type = null;
@@ -742,9 +745,38 @@ public class ModuleChecker {
             simpleName = unquoteMember(simpleName);
             // remove any dollars from the package names (eg. 'ceylon.math.$float')
             packageName = packageName.replace("$", "");
+
+            String annotatedMethodName = null;
+            if(type != null){
+                switch(type){
+                case Value:
+                    annotatedMethodName = "get_";
+                    break;
+                case Function:
+                case AnnotationConstructor:
+                    annotatedMethodName = simpleName;
+                    break;
+                }
+            }
+            AnnotationsAttribute sharedAnnotationsVisible = visible;
+            if(annotatedMethodName != null){
+                List<MethodInfo> methods = classFile.getMethods();
+                for(MethodInfo method : methods){
+                    AnnotationsAttribute methodVisible = (AnnotationsAttribute) method.getAttribute(AnnotationsAttribute.visibleTag);
+                    if(methodVisible != null
+                            && methodVisible.getAnnotation("com.redhat.ceylon.compiler.java.metadata.Ignore") == null
+                            && (AccessFlag.STATIC & method.getAccessFlags()) != 0
+                            && annotatedMethodName.equals(method.getName())){
+                        sharedAnnotationsVisible = methodVisible;
+                        break;
+                    }
+                }
+            }
+            shared = sharedAnnotationsVisible.getAnnotation("ceylon.language.SharedAnnotation$annotation$") != null;
         } else {
             // turn any dollar sep into a dot
             simpleName = simpleName.replace('$', '.');
+            shared = (AccessFlag.PUBLIC & classFile.getAccessFlags()) != 0;
         }
         if(type == null){
             if((classFile.getAccessFlags() & ANNOTATION_BIT) != 0)
@@ -760,7 +792,7 @@ public class ModuleChecker {
         // special fix for ceylon.language
         if(m.name.equals("ceylon.language") && !packageName.startsWith("ceylon.language"))
             return;
-        m.addMember(type, packageName, simpleName);
+        m.addMember(type, packageName, simpleName, shared);
     }
 
     // Turn things like 'utf8_.$float' into 'utf8.float'
@@ -1708,8 +1740,8 @@ public class ModuleChecker {
             scriptDescriptions.add(new Script(name, summary, module));
         }
 
-        public void addMember(CeylonElementType type, String packageName, String className) {
-            members.add(new Member(type, packageName, className));
+        public void addMember(CeylonElementType type, String packageName, String className, boolean shared) {
+            members.add(new Member(type, packageName, className, shared));
         }
 
         public String getType(){

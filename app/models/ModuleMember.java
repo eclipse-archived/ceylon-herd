@@ -18,15 +18,17 @@ public class ModuleMember extends Model implements Comparable<ModuleMember> {
     
     public String name;
     public String packageName;
+    public boolean shared;
     
     @Enumerated(EnumType.STRING)
     public CeylonElementType type;
 
-    public ModuleMember(ModuleVersion moduleVersion, String packageName, String name, CeylonElementType type) {
+    public ModuleMember(ModuleVersion moduleVersion, String packageName, String name, CeylonElementType type, boolean shared) {
         this.moduleVersion = moduleVersion;
         this.packageName = packageName;
         this.name = name;
         this.type = type;
+        this.shared = shared;
     }
 
     @Override
