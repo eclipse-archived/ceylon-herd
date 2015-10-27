@@ -45,7 +45,8 @@ document.cookie = "user_tz="+name;
         <div class="navbar navbar-inverse navbar-static-top">
             <div class="navbar-inner">
                 <div class="container" id="menubar-container">
-                    <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"/></a>
+                    <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"
+                        srcset="@{'/public/images/logo-top-2x.png'} 2x"/></a>
                     <ul class="nav">
                         #{if session.username != null && user}
                             <li class="user">
