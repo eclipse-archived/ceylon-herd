@@ -90,7 +90,10 @@ public class Repo extends MyController {
             index();
         }
         List<Module> modules = Module.searchByName(q);
-        render(modules, q);
+        if(modules.size() == 1)
+            versions(modules.get(0).name);
+        else
+            render(modules, q);
     }
 	
     public static void searchAdvanced() {
