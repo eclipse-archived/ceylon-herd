@@ -27,18 +27,18 @@ GET     /api/{apiVersion}/search-modules                   RepoAPI.searchModules
 
 GET     /feed.atom                                         Feed.repo
                                                            
-GET     /register                                          Register.index
+GET     /register/?                                        Register.index
 POST    /register/confirmation-sent                        Register.register
 GET     /register/confirm/{confirmationCode}               Register.confirm
 POST    /register/welcome                                  Register.complete
                                                            
-GET     /projects                                          Projects.index
+GET     /projects/?                                        Projects.index
 GET     /projects/adminClaim                               Projects.adminClaimForm
 GET     /projects/claim                                    Projects.claimform
 POST    /projects/claim                                    Projects.claim
 GET     /projects/alreadyClaimed                           Projects.alreadyClaimed
 POST    /projects/askForParticipation                      Projects.askForParticipation
-GET     /projects/{id}                                     Projects.view
+GET     /projects/{id}/?                                   Projects.view
 POST    /projects/{id}/comment                             Projects.addComment
 GET     /projects/{id}/needs-transfer                      Projects.cannotDelete
 GET     /projects/{id}/edit                                Projects.edit
@@ -51,12 +51,12 @@ POST    /projects/{projectId}/comments/{commentId}/edit    Projects.editComment
 
 GET     /admin/projects/claims/pending                     Projects.pendingClaims
 GET     /admin/projects/claims/search                      Projects.search
-GET     /admin/projects/claims                             Projects.allClaims
+GET     /admin/projects/claims/?                           Projects.allClaims
 POST    /admin/projects/{id}/accept                        Projects.accept
 POST    /admin/projects/{id}/reject                        Projects.reject
 GET     /users/{userName}/claims                           Projects.userClaims(userName)
 
-GET     /admin/categories                                  AdminCategories.index
+GET     /admin/categories/?                                AdminCategories.index
 GET     /admin/categories/new                              AdminCategories.addForm
 POST    /admin/categories/new                              AdminCategories.add
 GET     /admin/categories/{id}/delete                      AdminCategories.confirmDelete
@@ -66,9 +66,9 @@ POST    /admin/categories/{id}/edit                        AdminCategories.edit
                                                             
 GET     /admin/users/index                                 AdminUsers.index
                                                      
-GET     /uploads                                           Uploads.index
+GET     /uploads/?                                         Uploads.index
 POST    /uploads/new                                       Uploads.newUpload
-GET     /uploads/{id}                                      Uploads.view
+GET     /uploads/{id}/?                                    Uploads.view
 GET     /uploads/{id}/doc/{moduleName}/{version}           Uploads.viewDoc
 GET     /uploads/{id}/upload                               Uploads.uploadRepoForm
 POST    /uploads/{id}/upload                               UploadAPI.uploadRepo
@@ -92,8 +92,8 @@ GET     /categories                                        Repo.categories
 GET     /categories/{categoryName}                         Repo.category
 GET     /most-popular                                      Repo.popular
 GET     /most-downloaded                                   Repo.downloaded
-GET     /modules                                           Repo.index
-GET     /modules/{moduleName}                              Repo.versions
+GET     /modules/?                                         Repo.index
+GET     /modules/{moduleName}/?                            Repo.versions
 GET     /modules/{moduleName}/feed.atom                    Feed.module
 GET     /modules/{moduleName}/edit                         LoggedInRepo.editForm
 POST    /modules/{moduleName}/edit                         LoggedInRepo.edit
@@ -109,7 +109,7 @@ GET     /modules/{moduleName}/remove1                      LoggedInRepo.removeMo
 GET     /modules/{moduleName}/remove2                      LoggedInRepo.removeModule2
 POST    /modules/{moduleName}/remove3                      LoggedInRepo.removeModule3
 GET     /modules/{moduleName}/importers                    Repo.importers
-GET     /modules/{moduleName}/{version}                    Repo.view
+GET     /modules/{moduleName}/{version}/?                  Repo.view
 GET     /modules/{moduleName}/{version}/doc                Repo.viewDoc
 GET     /modules/{moduleName}/{version}/members            Repo.members
 GET     /modules/{moduleName}/{version}/scripts            Repo.scripts
@@ -120,15 +120,15 @@ POST    /modules/{moduleName}/{version}/remove3            LoggedInRepo.removeMo
 GET     /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChangelog
 POST    /modules/{moduleName}/{version}/changelog          LoggedInRepo.editChangelog2
 
-GET     /search                                            Repo.search
-GET     /search/advanced                                   Repo.searchAdvanced
+GET     /search/?                                          Repo.search
+GET     /search/advanced/?                                 Repo.searchAdvanced
 GET     /search/advanced/results                           Repo.searchAdvanced2
                                                            
 GET     /repo/1/{<.*>path}                                 Repo.viewFile
 GET     /test/                                             404
 GET     /test/{<.*>path}                                   404
                                                            
-GET     /users/{username}                                  Users.view
+GET     /users/{username}/?                                Users.view
 GET     /users/{username}/feed.atom                        Feed.user
 GET     /complete/users                                    LoggedInRepo.userList
 GET     /users/{username}/modules                          LoggedInRepo.myModules
