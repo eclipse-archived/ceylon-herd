@@ -312,6 +312,7 @@ public class Module extends Model {
 	public <T extends JPABase> T delete() {
 	    JPA.em().createNativeQuery("DELETE FROM dependency d WHERE d.id IN (SELECT d.id FROM dependency d, moduleversion v WHERE d.moduleversion_id = v.id AND v.module_id = :moduleId)").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM moduleversion_author a WHERE a.moduleversion_id IN (SELECT v.id FROM moduleversion v WHERE v.module_id = :moduleId);").setParameter("moduleId", id).executeUpdate();
+        JPA.em().createNativeQuery("DELETE FROM modulescript s WHERE s.moduleversion_id IN (SELECT v.id FROM moduleversion v WHERE v.module_id = :moduleId);").setParameter("moduleId", id).executeUpdate();
         JPA.em().createNativeQuery("DELETE FROM modulemember m WHERE m.moduleversion_id IN (SELECT v.id FROM moduleversion v WHERE v.module_id = :moduleId);").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM moduleversion v WHERE v.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
 	    JPA.em().createNativeQuery("DELETE FROM modulecomment c WHERE c.module_id = :moduleId").setParameter("moduleId", id).executeUpdate();
