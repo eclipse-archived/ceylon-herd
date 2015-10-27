@@ -108,10 +108,13 @@ public class JavaExtensions extends play.templates.JavaExtensions {
 	}
 	
 	public static Object md(String mdString, ModuleVersion module) {
+	    // in theory this is not required anymore now that txtmark has "panic mode"
+	    // but I don't see any problems with it so let's leave it in
 	    String escaped = HTML.htmlEscape(mdString);
 	    
 	    Configuration config = Configuration.builder()
 	            .forceExtentedProfile()
+	            .setEnablePanicMode(true)
 	            .setCodeBlockEmitter(MarkdownBlockEmitter.INSTANCE)
 	            .setSpecialLinkEmitter(module == null ? MarkdownSpanEmitter.INSTANCE : new MarkdownSpanEmitter(module))
 	            .build();
