@@ -22,7 +22,19 @@
     <tbody>
         #{list items:moduleVersion.members, as:'member'}
             <tr>
-                <td>#{ceylondoc-member-icon member.type/} ${member.packageName}::${member.name}</td>
+                <td>
+                    #{ceylondoc-member-icon member.type/}
+                    %{
+                        link = member.docUrl;
+                    }%
+                    #{if link}
+                        <a href="${util.Util.viewRepoUrl(link)}">
+                    #{/if}
+                    ${member.packageName}::${member.name}
+                    #{if link}
+                        </a>
+                    #{/if}
+                </td>
             </tr>
         #{/list}
     </tbody>

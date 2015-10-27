@@ -110,6 +110,11 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 		return getPath() + "/module-doc/api/index.html";
 	}
 
+	@Transient
+	public String getAPIRootPath(){
+	    return getPath() + "/module-doc/api";
+	}
+
     @Transient
     public String getCarPath(){
         return getPath() + "/" + module.name + "-" + version + ".car";
