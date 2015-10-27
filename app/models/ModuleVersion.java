@@ -35,6 +35,7 @@ import org.hibernate.annotations.SortType;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.CeylonElementType;
+import util.MavenVersionComparator;
 import util.Util;
 import controllers.RepoAPI;
 
@@ -174,7 +175,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
     @Override
     public int compareTo(ModuleVersion other) {
-        return Util.compareVersions(version, other.version);
+        return MavenVersionComparator.compareVersions(version, other.version);
     }
     
 	//

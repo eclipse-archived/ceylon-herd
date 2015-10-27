@@ -5,6 +5,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,8 @@ public class Repo extends MyController {
 			index();
 		}
 		List<models.ModuleVersion> versions = models.ModuleVersion.findByModule(module);
+		Collections.sort(versions);
+		Collections.reverse(versions);
 		
 		render(module, versions);
 	}

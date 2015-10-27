@@ -125,6 +125,9 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
                         #{/if}
                     </td>
                     <td>
+                        Published ${version.published.sinceInUserTZ(true)}
+                    </td>
+                    <td>
                         <a href="${util.Util.viewRepoUrl(version.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
                     </td>
                     <td>
