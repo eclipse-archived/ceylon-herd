@@ -35,7 +35,8 @@ function fullscreen(){
     <div class="navbar navbar-fixed-top navbar-inverse">
         <div class="navbar-inner">
             <div class="container" id="menubar-container">
-                <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"/> Ceylon Herd</a>
+                <a class="brand" href="@{Application.index()}"><img src="@{'/public/images/logo-top.png'}"
+                   srcset="@{'/public/images/logo-top-2x.png'} 2x"/></a>
                 <ul class="nav">
                     <li><a href="@{Repo.view(module.name, moduleVersion.version)}"><i class="icon-arrow-left icon-white"></i> Back to module version</a></li>
                 </ul>
