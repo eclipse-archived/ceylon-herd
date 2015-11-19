@@ -3,12 +3,18 @@ package controllers;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import models.Author;
 import models.HerdDependency;
@@ -18,9 +24,13 @@ import models.User;
 import play.Logger;
 import play.data.validation.Required;
 import play.data.validation.Validation;
+import play.libs.MimeTypes;
 import play.libs.WS;
 import play.libs.WS.HttpResponse;
+import play.mvc.Scope;
+import util.JavaExtensions;
 import util.ModuleChecker;
+import util.ModuleSpec;
 import util.ModuleChecker.Diagnostic;
 import util.ModuleChecker.Import;
 import util.ModuleChecker.Module;
@@ -29,6 +39,8 @@ import util.MyCache;
 import util.Util;
 
 public class Uploads extends LoggedInController {
+
+    private static final String[] SupportedExtensions = new String[]{".car", ".jar", ".src", ".js"};
 
 	private static final FileFilter NonEmptyDirectoryFilter = new FileFilter(){
 		@Override
@@ -92,7 +104,7 @@ public class Uploads extends LoggedInController {
 			uploadedFiles.add(file);
 	}
 
-	static models.Upload getUpload(Long id) {
+	private static models.Upload getUpload(Long id) {
 		if(id == null){
 			Validation.addError(null, "Missing upload id");
 			prepareForErrorRedirect();
@@ -380,4 +392,225 @@ public class Uploads extends LoggedInController {
 		models.Upload upload = Uploads.getUpload(id);
 		render(upload);
 	}
+
+    public static void deleteFile(Long id, String path, boolean returnToBrowse) throws IOException {
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+
+        deleteFileImpl(path, file, uploadsDir, upload);
+
+        if (returnToBrowse) {
+            File parent = file.getParentFile();
+            String parentPath = JavaExtensions.relativeTo(parent, upload);
+            // if we do viewFile directly we get silly %2F escapes in the URL
+            redirect(Util.viewUploadUrl(upload, parentPath));
+        } else {
+            Uploads.view(id);
+        }
+    }
+
+    public static void deleteFileAsync(Long id, String path) throws IOException {
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+
+        deleteFileImpl(path, file, uploadsDir, upload);
+
+        String message = Scope.Flash.current().get("message");
+        renderJSON("{\"message\":\"" + message + "\"}");
+    }
+
+    private static void deleteFileImpl(String path, File file, File uploadsDir, Upload upload) throws IOException {
+        checkUploadPath(file, uploadsDir);
+
+        if (!file.exists()) {
+            notFound(path);
+        }
+
+        Logger.info("delete: %s exists: %s", path, file.exists());
+
+        if (uploadsDir.getCanonicalPath().equals(file.getCanonicalPath())) {
+            // clear the entire repo
+            for (File f : uploadsDir.listFiles()) {
+                if (f.isDirectory())
+                    FileUtils.deleteDirectory(f);
+                else
+                    f.delete();
+            }
+            // let's be helpful and remove maven dependencies too
+            for (MavenDependency md : upload.mavenDependencies) {
+                md.delete();
+            }
+            flash("message", "Upload cleared");
+        } else if (file.isDirectory()) {
+            FileUtils.deleteDirectory(file);
+            flash("message", "Directory deleted");
+        } else {
+            file.delete();
+            flash("message", "File deleted");
+        }
+    }
+    
+    public static void addChecksum(Long id, String path) throws IOException{
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+        checkUploadPath(file, uploadsDir);
+
+        if(!file.exists())
+            notFound(path);
+
+        Logger.info("add checksum: %s exists: %s", path, file.exists());
+        
+        String sha1 = ModuleChecker.sha1(file);
+        File sha1File = new File(uploadsDir, path+".sha1");
+        FileUtils.write(sha1File, sha1);
+        
+        Uploads.view(id);
+    }
+
+    public static void uploadRepo(Long id, @Required File repo, String module, String version) throws ZipException, IOException{
+        models.Upload upload = Uploads.getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+
+        if(validationFailed()){
+            Uploads.uploadRepoForm(id);
+        }
+        
+        String name = repo.getName().toLowerCase();
+        
+        if(name.endsWith(".zip"))
+            uploadZip(repo, null, uploadsDir);
+        else{
+            boolean found = false;
+            for(String postfix : SupportedExtensions){
+                if(name.endsWith(postfix)){
+                    uploadArchive(repo, postfix, uploadsDir, module, version, id);
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid uploaded file (must be zip, car, jar or src)");
+        }
+        
+        
+        Uploads.view(id);
+    }
+
+    private static void uploadArchive(File file, String postfix, File uploadsDir, String module, String version, Long uploadId) throws IOException {
+        try{
+            // parse unless it's a jar and we have alternate info
+            ModuleSpec spec;
+            Logger.info("postfix: %s, module: %s, version: %s", postfix, module, version);
+            if(postfix.equals(".jar") && (!StringUtils.isEmpty(module) || !StringUtils.isEmpty(version))){
+                Validation.required("module", module);
+                if("default".equals(module))
+                    Validation.addError("module", "Default module not allowed");
+                Validation.required("version", version);
+                if(validationFailed()){
+                    Uploads.uploadRepoForm(uploadId);
+                }
+                spec = new ModuleSpec(module, version);
+            }else{
+                spec = ModuleSpec.parse(file.getName(), postfix);
+            }
+            
+            // build dest file
+            String path = spec.name.replace('.', File.separatorChar) 
+                    + File.separatorChar + spec.version 
+                    + File.separatorChar + spec.name + '-' + spec.version + postfix;
+            File destFile = new File(uploadsDir, path);
+            
+            // check
+            checkUploadPath(destFile, uploadsDir);
+            if(destFile.isDirectory())
+                error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid path for upload: "+destFile.getName()+" (is a directory)");
+            
+            // all good, let's copy
+            destFile.getParentFile().mkdirs();
+            FileUtils.copyFile(file, destFile);
+            
+            // now let's sha1 it
+            String sha1 = ModuleChecker.sha1(destFile);
+            File sha1File = new File(uploadsDir, path+".sha1");
+            FileUtils.write(sha1File, sha1);
+            
+            flash("message", "Uploaded archive file");
+        }catch(ModuleSpec.ModuleSpecException x){
+            error(HttpURLConnection.HTTP_BAD_REQUEST, x.getMessage());
+        }
+    }
+
+    static void uploadZip(File repo, String prefixFilter, File uploadsDir) throws ZipException, IOException {
+        ZipFile zip = new ZipFile(repo);
+        try{
+            // first check them all
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                // skip directories
+                if(entry.isDirectory())
+                    continue;
+                if(prefixFilter != null && !entry.getName().toLowerCase().startsWith(prefixFilter))
+                    continue;
+                File file = new File(uploadsDir, entry.getName());
+                checkUploadPath(file, uploadsDir);
+                if(file.isDirectory())
+                    error(HttpURLConnection.HTTP_BAD_REQUEST, "Invalid path for upload: "+entry.getName()+" (is a directory)");
+            }
+            // then store
+            entries = zip.entries();
+            int files = 0;
+            while(entries.hasMoreElements()){
+                ZipEntry entry = entries.nextElement();
+                // skip directories
+                if(entry.isDirectory())
+                    continue;
+                String targetName = entry.getName();
+                if(prefixFilter != null){
+                    if(!targetName.toLowerCase().startsWith(prefixFilter))
+                        continue;
+                    targetName = targetName.substring(prefixFilter.length());
+                }
+                File file = new File(uploadsDir, targetName);
+
+                files++;
+                file.getParentFile().mkdirs();
+                InputStream inputStream = zip.getInputStream(entry);
+                try{
+                    FileUtils.copyInputStreamToFile(inputStream, file);
+                }finally{
+                    inputStream.close();
+                }
+            }
+            flash("message", "Uploaded "+files+" file"+(files>1 ?"s":""));
+        }finally{
+            zip.close();
+        }
+    }
+
+    static void checkUploadPath(File file, File uploadsDir) throws IOException{
+        String uploadsPath = uploadsDir.getCanonicalPath();
+        String filePath = file.getCanonicalPath();
+        if(!filePath.startsWith(uploadsPath))
+            forbidden("Path is not in your uploads repository");
+    }
+
+    public static void listFolder(Long id, String path) throws IOException{
+        models.Upload upload = getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+        Uploads.checkUploadPath(file, uploadsDir);
+        
+        if(!file.exists())
+            notFound(path);
+        
+        if(file.isDirectory()){
+            render("Uploads/listFolder.html", upload, file);
+        }else{
+            notFound();
+        }
+    }
 }

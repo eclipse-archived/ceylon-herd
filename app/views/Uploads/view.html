@@ -204,7 +204,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     <button type="submit" class="btn btn-danger"
                             title="Drop upload"><i class="icon-trash icon-white"></i> Delete</button>
                 #{/form}
-                #{form @UploadAPI.deleteFile(upload.id, '/'), class:"form-no-margin inline"}
+                #{form @Uploads.deleteFile(upload.id, '/'), class:"form-no-margin inline"}
                     <button type="submit" class="btn btn-warning"
                             title="Reset upload: remove every uploaded file"><i class="icon-off icon-white"></i> Reset</button>
                 #{/form}
@@ -239,7 +239,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                 </td>
                 <td>
                     #{if diagnostic.unknownPath}
-                        #{form @UploadAPI.deleteFileAsync(upload.id, diagnostic.unknownPath), class:"form-no-margin inline pull-right"}
+                        #{form @Uploads.deleteFileAsync(upload.id, diagnostic.unknownPath), class:"form-no-margin inline pull-right"}
                             <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
                                 <i class="icon-trash icon-white"></i> Delete
                             </button>
@@ -263,7 +263,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     #{uploadStatus type /}
                 </td>
                 <td>
-                    #{form @UploadAPI.deleteFileAsync(upload.id, module.path.substring(1)), class:"form-no-margin inline pull-right"}
+                    #{form @Uploads.deleteFileAsync(upload.id, module.path.substring(1)), class:"form-no-margin inline pull-right"}
                         <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this module from upload"><i class="icon-trash icon-white">
                             </i> Delete
                         </button>
@@ -296,7 +296,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                                 #{/if}
                                 #{elseif diagnostic.missingChecksum}
                                     &nbsp;
-                                    #{form @UploadAPI.addChecksum(upload.id, diagnostic.fileToChecksum), class:"form-no-margin inline"}
+                                    #{form @Uploads.addChecksum(upload.id, diagnostic.fileToChecksum), class:"form-no-margin inline"}
                                         <button type="submit" class="btn btn-mini"
                                             title="Generate a new checksum for this file"><i class="icon-plus"></i> Generate Checksum</button>
                                     #{/form}
@@ -406,7 +406,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     <td><a href="${util.Util.viewUploadUrl(upload, path)}" title="View file">/${path}</a></td>
                     <td>${file.length().formatSize()}</td>
                     <td>
-                        #{form @UploadAPI.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}
+                        #{form @Uploads.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}
                             <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
                                 <i class="icon-trash icon-white"></i> Delete
                             </button>

@@ -188,8 +188,10 @@ public class Repo extends MyController {
             }
 			notFound(path);
 		}
-		
 		if(file.isDirectory()){
+            if(!Util.isOnUiHost()){
+                redirect(Util.viewRepoUrl(path, true), true);
+            }
 		    // try a module version
 		    ModuleVersion moduleVersion = findModuleVersion(file);
 		    Module module = null;
@@ -199,6 +201,9 @@ public class Repo extends MyController {
 		    }
 			render("Repo/viewFile.html", file, moduleVersion, module);
 		}else{
+            if(!Util.isOnDataHost()){
+	            notFound();
+	        }
 		    response.contentType = MimeTypes.getContentType(file.getName());
 		    increaseStats(file);
 			renderBinary(file);
