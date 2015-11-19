@@ -199,7 +199,7 @@ public class Repo extends MyController {
 		        // try a module
 		        module= findModule(file);
 		    }
-			render("Repo/viewFile.html", file, moduleVersion, module);
+			render("Repo/listFolder.html", file, moduleVersion, module);
 		}else{
             if(!Util.isOnDataHost()){
 	            notFound();

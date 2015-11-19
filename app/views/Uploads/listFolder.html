@@ -15,18 +15,18 @@
         <caption>Browse ${file.relativeTo(upload) ?: 'root'}</caption>
         #{if !file.isRoot(upload)}
         <tr>
-            <td colspan="3"><a href="${util.Util.viewUploadUrl(upload.id, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
+            <td colspan="3"><a href="${util.Util.viewUploadUrl(upload, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
         </tr>
         #{/if}
         #{list items:file.listFilesSorted(), as:'child'}
         <tr>
-            <td><a href="${util.Util.viewUploadUrl(upload.id, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td><a href="${util.Util.viewUploadUrl(upload, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
             <td>
                 #{if child.directory}${child.folderSize().formatSize()}#{/if}
                 #{else}${child.length().formatSize()}#{/else}
             </td>
             <td>
-                #{form @UploadAPI.deleteFile(upload.id, child.relativeTo(upload), true), class:"form-no-margin inline"}
+                #{form @Uploads.deleteFile(upload.id, child.relativeTo(upload), true), class:"form-no-margin inline"}
                     <button type="submit" class="btn btn-danger btn-mini"
                         title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
                 #{/form}
