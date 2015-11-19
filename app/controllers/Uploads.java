@@ -279,7 +279,7 @@ public class Uploads extends LoggedInController {
                 + File.separatorChar + "api"
                 + File.separatorChar + "index.html"; 
 	    
-	    render(upload, moduleName, version, docPath);
+        redirect(Util.viewUploadUrl(upload, docPath));
 	}
 
 	public static void delete(Long id) throws IOException {
