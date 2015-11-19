@@ -65,6 +65,10 @@ function deleteFileAsync(source) {
     #{/if}
 </div>
 
+%{
+    String uploadRepoUrl = util.Util.viewUploadUrl(upload, '', true, true);
+}%
+
 <table class="table table-bordered">
     <caption>Upload</caption>
     <tbody>
@@ -90,7 +94,7 @@ function deleteFileAsync(source) {
             <th>Repo URL</th>
             <td>
                 <p>
-                    <a href="${util.Util.viewUploadUrl(upload.id, '')}" title="Browse uploaded files">${util.Util.viewUploadUrl(upload.id, "")}</a>
+                    <a href="${util.Util.viewUploadUrl(upload, '')}" title="Browse uploaded files">${util.Util.viewUploadUrl(upload, "")}</a>
                 </p>
                 <form class="form-horizontal">
                     <fieldset>
@@ -98,7 +102,7 @@ function deleteFileAsync(source) {
                             <span class="add-on"
                                 title="Copy this URL to use it as an output repo"
                                 ><i class="icon-bookmark"></i></span
-                            ><input value="@@{UploadAPI.viewFile(upload.id, '')}" class="input-xxlarge"
+                            ><input value="${uploadRepoUrl}" class="input-xxlarge"
                                 onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
                                 title="Copy this URL to use it as an output repo"
                                 type="text" readonly/>
@@ -122,16 +126,16 @@ function deleteFileAsync(source) {
                     <div class="tab-content">
                         <div class="tab-pane active" id="tab1">
                             <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                            <pre>$ <span class="xml-tag">ceylon compile</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
-$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
-$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
-$ <span class="xml-tag">ceylon import-jar</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> moduleName/version file.jar</pre>
+                            <pre>$ <span class="xml-tag">ceylon compile</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon import-jar</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> moduleName/version file.jar</pre>
                         </div>
                         <div class="tab-pane" id="tab2">
                             <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
-                            <pre>$ <span class="xml-tag">ceylon compile-js</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
-$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
-$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">@@{UploadAPI.viewFile(upload.id, '')}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list}</pre> 
+                            <pre>$ <span class="xml-tag">ceylon compile-js</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list}</pre> 
                         </div>
                         <div class="tab-pane" id="tab3">
                             <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
@@ -144,16 +148,16 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
 <span class="xml-tag">&lt;typedef</span> <span class="xml-attr">resource</span>=<span class="xml-val">"com/redhat/ceylon/ant/antlib.xml"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
 
 <span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
-  <span class="xml-tag">&lt;ceylon-compile</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-compile</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
 #{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
 #{/list}  <span class="xml-tag">&lt;/ceylon-compile&gt;</span>
-  <span class="xml-tag">&lt;ceylon-compile-js</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-compile-js</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
 #{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
 #{/list}  <span class="xml-tag">&lt;/ceylon-compile-js&gt;</span>
-  <span class="xml-tag">&lt;ceylon-doc</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-doc</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
 #{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
 #{/list}  <span class="xml-tag">&lt;/ceylon-doc&gt;</span>
-  <span class="xml-tag">&lt;ceylon-plugin</span> <span class="xml-attr">mode</span>=<span class="xml-val">pack</span> <span class="xml-attr">out</span>=<span class="xml-val">"@@{UploadAPI.viewFile(upload.id, '')}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-plugin</span> <span class="xml-attr">mode</span>=<span class="xml-val">pack</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
 #{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
 #{/list}  <span class="xml-tag">&lt;/ceylon-plugin&gt;</span>
 <span class="xml-tag">&lt;/target&gt;</span></pre>
@@ -241,7 +245,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                             </button>
                         #{/form}
                         Unknown file:
-                        <a href="${util.Util.viewUploadUrl(upload.id, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
+                        <a href="${util.Util.viewUploadUrl(upload, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
                     #{/if}
                     #{else}
                         ${diagnostic.message}
@@ -370,7 +374,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                             <li><a href='#' onclick="jQuery('#diagnostics-${module.name.slugify()}-${module.version.slugify()}').children().show(); jQuery(this).parent().hide(); return false;">Show all diagnostics</a></li>
                         #{/if}
                     </ul>
-                    <a href="${util.Util.viewUploadUrl(upload.id, module.path.substring(1))}"
+                    <a href="${util.Util.viewUploadUrl(upload, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
                     #{if module.docs.exists}
                         <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
@@ -399,7 +403,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     %{
                         path = file.relativeTo(upload); 
                     }%
-                    <td><a href="${util.Util.viewUploadUrl(upload.id, path)}" title="View file">/${path}</a></td>
+                    <td><a href="${util.Util.viewUploadUrl(upload, path)}" title="View file">/${path}</a></td>
                     <td>${file.length().formatSize()}</td>
                     <td>
                         #{form @UploadAPI.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}

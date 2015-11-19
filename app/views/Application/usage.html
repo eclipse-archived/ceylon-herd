@@ -20,7 +20,7 @@
             <span class="add-on"
                 title="Copy this URL to use it as a module repo"
                 ><i class="icon-bookmark"></i></span
-            ><input value="@@{Repo.viewFile('').insecure()}" class="input-xxlarge"
+            ><input value="${util.Util.viewRepoUrl('', true, true)}" class="input-xxlarge"
                 onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
                 title="Copy this URL to use it as a module repo"
                 type="text" readonly/>
@@ -29,6 +29,6 @@
 </form>
 
 <h3>Access Ceylon Herd directly from your Ceylon tools</h3>
-<pre>$ <span class="xml-tag">ceylon compile</span> <span class="xml-attr">--rep</span> <span class="xml-val">@@{Repo.viewFile('').insecure()}</span> <span class="xml-tag">com.acme.module</span>
-$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--rep</span> <span class="xml-val">@@{Repo.viewFile('').insecure()}</span> <span class="xml-tag">com.acme.module</span>
-$ <span class="xml-tag">ceylon run</span> <span class="xml-attr">--rep</span> <span class="xml-val">@@{Repo.viewFile('').insecure()}</span> <span class="xml-tag">com.acme.module/1.2</span></pre>
+<pre>$ <span class="xml-tag">ceylon compile</span> <span class="xml-attr">--rep</span> <span class="xml-val">${util.Util.viewRepoUrl('', true, true)}</span> <span class="xml-tag">com.acme.module</span>
+$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--rep</span> <span class="xml-val">${util.Util.viewRepoUrl('', true, true)}</span> <span class="xml-tag">com.acme.module</span>
+$ <span class="xml-tag">ceylon run</span> <span class="xml-attr">--rep</span> <span class="xml-val">${util.Util.viewRepoUrl('', true, true)}</span> <span class="xml-tag">com.acme.module/1.2</span></pre>

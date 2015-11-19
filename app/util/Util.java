@@ -13,9 +13,12 @@ import play.Logger;
 import play.Play;
 import play.libs.IO;
 import play.mvc.Http.Request;
+import play.mvc.Http;
 import play.mvc.Router;
 
 import com.google.gson.Gson;
+
+import models.Upload;
 
 public class Util {
 
@@ -71,16 +74,110 @@ public class Util {
 	    return MavenVersionComparator.compareVersions(versionAString, versionBString);
     }
     
-    public static String viewUploadUrl(Long id, String path){
+    public static String viewUploadUrl(Upload upload, String path){
+        return viewUploadUrl(upload, path, false);
+    }
+    
+    public static String viewUploadUrl(Upload upload, String path, boolean forceAbsolute){
+        return viewUploadUrl(upload, path, forceAbsolute, false);
+    }
+    
+    public static String viewUploadUrl(Upload upload, String path, boolean forceAbsolute, boolean useRepoHost){
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+        String prefix = getHostPrefix(file, forceAbsolute, useRepoHost);
+
         Map<String, Object> args = new HashMap<String,Object>();
         args.put("path", path);
-        args.put("id", id);
-        return Router.reverse("UploadAPI.viewFile", args).toString().replace("%2F", "/");
+        args.put("id", upload.id);
+        String pathPart = 
+                Router.reverse("UploadRESTReadOnly.viewFile", args)
+                    .toString().replace("%2F", "/");
+        return makeUrl(prefix, pathPart);
     }
 
     public static String viewRepoUrl(String path){
+        return viewRepoUrl(path, false);
+    }
+    
+    public static String viewRepoUrl(String path, boolean forceAbsolute){
+        return viewRepoUrl(path, forceAbsolute, false);
+    }
+    
+    public static String viewRepoUrl(String path, boolean forceAbsolute, boolean useRepoHost){
+        File repoDir = Util.getRepoDir();
+        File file = new File(repoDir, path);
+        String prefix = getHostPrefix(file, forceAbsolute, useRepoHost);
+            
         Map<String, Object> args = new HashMap<String,Object>();
         args.put("path", path);
-        return Router.reverse("Repo.viewFile", args).toString().replace("%2F", "/");
+        String pathPart = Router.reverse("Repo.viewFile", args).toString().replace("%2F", "/");
+        return makeUrl(prefix, pathPart);
+    }
+
+    private static String makeUrl(String prefix, String pathPart) {
+        if(prefix.isEmpty())
+            return pathPart;
+        if(pathPart.isEmpty())
+            return prefix;
+        if(pathPart.startsWith("/"))
+            return prefix + pathPart;
+        return prefix + "/" + pathPart;
+    }
+
+    private static String getHostPrefix(File file, boolean forceAbsolute, boolean useRepoHost) {
+        boolean isSecure = Http.Request.current() == null ? false : Http.Request.current().secure;
+        String proto = isSecure ? "https://" : "http://";
+        if(file.exists()){
+            if(!file.isDirectory()){
+                return proto + getDataHost();
+            }
+        }
+        if(forceAbsolute){
+            if(useRepoHost)
+                return proto + getDataHost();
+            else
+                return proto + getUiHost();
+        }
+        return "";
+    }
+    
+    public static boolean isSplitHost(){
+        String property = Play.configuration.getProperty("splitHost.enabled");
+        return property != null 
+                && (property.toLowerCase().equals("true")
+                        || property.toLowerCase().equals("yes"));
+    }
+    
+    public static String getDataHost(){
+        if(isSplitHost()){
+            String host = Play.configuration.getProperty("splitHost.dataHost");
+            if(host == null)
+                throw new RuntimeException("Missing splitHost.dataHost host name when splitHost.enabled is true");
+            return host;
+        }
+        return Http.Request.current().host;
+    }
+
+    public static String getUiHost(){
+        if(isSplitHost()){
+            String host = Play.configuration.getProperty("splitHost.uiHost");
+            if(host == null)
+                throw new RuntimeException("Missing splitHost.uiHost host name when splitHost.enabled is true");
+            return host;
+        }
+        return Http.Request.current().host;
+    }
+
+    public static boolean isOnUiHost() {
+        if(!isSplitHost())
+            return true;
+        return Http.Request.current().host.equals(getUiHost());
+    }
+
+    public static boolean isOnDataHost() {
+        if(!isSplitHost())
+            return true;
+        return Http.Request.current().host.equals(getDataHost());
     }
 }
