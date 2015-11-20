@@ -94,7 +94,7 @@ function deleteFileAsync(source) {
             <th>Repo URL</th>
             <td>
                 <p>
-                    <a href="${util.Util.viewUploadUrl(upload, '')}" title="Browse uploaded files">${util.Util.viewUploadUrl(upload, "")}</a>
+                    <a href="${util.Util.viewPublicUploadUrl(upload, '')}" title="Browse uploaded files">${util.Util.viewPublicUploadUrl(upload, "")}</a>
                 </p>
                 <form class="form-horizontal">
                     <fieldset>
@@ -245,7 +245,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                             </button>
                         #{/form}
                         Unknown file:
-                        <a href="${util.Util.viewUploadUrl(upload, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
+                        <a href="${util.Util.viewPublicUploadUrl(upload, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
                     #{/if}
                     #{else}
                         ${diagnostic.message}
@@ -374,7 +374,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                             <li><a href='#' onclick="jQuery('#diagnostics-${module.name.slugify()}-${module.version.slugify()}').children().show(); jQuery(this).parent().hide(); return false;">Show all diagnostics</a></li>
                         #{/if}
                     </ul>
-                    <a href="${util.Util.viewUploadUrl(upload, module.path.substring(1))}"
+                    <a href="${util.Util.viewPublicUploadUrl(upload, module.path.substring(1))}"
                         title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
                     #{if module.docs.exists}
                         <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
@@ -403,7 +403,7 @@ $ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</
                     %{
                         path = file.relativeTo(upload); 
                     }%
-                    <td><a href="${util.Util.viewUploadUrl(upload, path)}" title="View file">/${path}</a></td>
+                    <td><a href="${util.Util.viewPublicUploadUrl(upload, path)}" title="View file">/${path}</a></td>
                     <td>${file.length().formatSize()}</td>
                     <td>
                         #{form @Uploads.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}

@@ -10,31 +10,58 @@ import org.apache.commons.lang.StringUtils;
 import models.Upload;
 import models.User;
 import play.Logger;
+import play.libs.MimeTypes;
 import play.mvc.Before;
 import util.JavaExtensions;
 import util.Util;
 
+/**
+ * This controller is for the CLI and tools, and requires to be on the data host and
+ * a valid user/pass with Basic Auth. It does not initiate a session. 
+ */
 public class UploadRESTReadWrite extends MyController {
 
     @Before
 	static void before(){
+        // FIXME: require data host here
 		Logger.info("UploadAPI [%s] %s %s", Security.connected(), request.method, request.path);
+        // public
+        if(!Util.isOnDataHost()){
+            notFound();
+        }
 		String user = request.user;
 		String password = request.password;
 		if(!StringUtils.isEmpty(user)
 				&& !StringUtils.isEmpty(password)){
-			Logger.info("Try auth");
 			if(Security.authenticate(user, password)){
-				Logger.info("OK");
-				session.put("username", user);
+	            User userObject = User.findRegisteredByUserName(user);
+	            renderArgs.put("user", userObject);
 			}else{
-				Logger.info("Failed");
 				forbidden("Invalid user and/or password");
 			}
-		}else // required by most non-browser clients to force them to try basic auth
+		}else{ // required by most non-browser clients to force them to try basic auth
+		    Logger.info("unauth");
 			unauthorized();
+		}
 	}
 	
+    public static void viewFile(Long id, String path) throws IOException{
+        models.Upload upload = getUpload(id);
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+        Uploads.checkUploadPath(file, uploadsDir);
+        
+        if(!file.exists())
+            notFound(path);
+        
+        if(file.isDirectory()){
+            notFound(path);
+        }else{
+            response.contentType = MimeTypes.getContentType(file.getName());
+            renderBinary(file);
+        }
+    }
+
 	public static void dispatch(Long id, String path) throws IOException{
 		if("MKCOL".equals(request.method))
 			mkdir(id, path);

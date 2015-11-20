@@ -27,7 +27,7 @@ public class UploadRESTReadOnly extends MyController {
 		
 		if(file.isDirectory()){
             if(!Util.isOnUiHost()){
-                redirect(Util.viewUploadUrl(upload, path, true));
+                redirect(Util.viewPublicUploadUrl(upload, path, true));
             }
             // require user and check
             User user = requireUser();

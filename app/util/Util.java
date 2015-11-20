@@ -91,6 +91,28 @@ public class Util {
         args.put("path", path);
         args.put("id", upload.id);
         String pathPart = 
+                Router.reverse("UploadRESTReadWrite.viewFile", args)
+                    .toString().replace("%2F", "/");
+        return makeUrl(prefix, pathPart);
+    }
+
+    public static String viewPublicUploadUrl(Upload upload, String path){
+        return viewPublicUploadUrl(upload, path, false);
+    }
+    
+    public static String viewPublicUploadUrl(Upload upload, String path, boolean forceAbsolute){
+        return viewPublicUploadUrl(upload, path, forceAbsolute, false);
+    }
+    
+    public static String viewPublicUploadUrl(Upload upload, String path, boolean forceAbsolute, boolean useRepoHost){
+        File uploadsDir = Util.getUploadDir(upload.id);
+        File file = new File(uploadsDir, path);
+        String prefix = getHostPrefix(file, forceAbsolute, useRepoHost);
+
+        Map<String, Object> args = new HashMap<String,Object>();
+        args.put("path", path);
+        args.put("id", upload.id);
+        String pathPart = 
                 Router.reverse("UploadRESTReadOnly.viewFile", args)
                     .toString().replace("%2F", "/");
         return makeUrl(prefix, pathPart);

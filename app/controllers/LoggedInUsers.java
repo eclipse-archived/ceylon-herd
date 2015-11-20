@@ -1,18 +1,17 @@
 package controllers;
 
-import models.User;
-import models.UserStatus;
-import notifiers.Emails;
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
+
+import models.User;
+import notifiers.Emails;
 import play.Play;
 import play.data.validation.Email;
 import play.data.validation.MaxSize;
 import play.data.validation.Required;
 import play.data.validation.Validation;
-import play.libs.Codec;
 import util.Util;
-
-import java.util.UUID;
 
 public class LoggedInUsers extends LoggedInController {
 

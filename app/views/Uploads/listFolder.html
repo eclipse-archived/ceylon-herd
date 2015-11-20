@@ -15,12 +15,12 @@
         <caption>Browse ${file.relativeTo(upload) ?: 'root'}</caption>
         #{if !file.isRoot(upload)}
         <tr>
-            <td colspan="3"><a href="${util.Util.viewUploadUrl(upload, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
+            <td colspan="3"><a href="${util.Util.viewPublicUploadUrl(upload, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
         </tr>
         #{/if}
         #{list items:file.listFilesSorted(), as:'child'}
         <tr>
-            <td><a href="${util.Util.viewUploadUrl(upload, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td><a href="${util.Util.viewPublicUploadUrl(upload, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
             <td>
                 #{if child.directory}${child.folderSize().formatSize()}#{/if}
                 #{else}${child.length().formatSize()}#{/else}

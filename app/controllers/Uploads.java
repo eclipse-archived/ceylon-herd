@@ -291,7 +291,7 @@ public class Uploads extends LoggedInController {
                 + File.separatorChar + "api"
                 + File.separatorChar + "index.html"; 
 	    
-        redirect(Util.viewUploadUrl(upload, docPath));
+        redirect(Util.viewPublicUploadUrl(upload, docPath));
 	}
 
 	public static void delete(Long id) throws IOException {
@@ -404,7 +404,7 @@ public class Uploads extends LoggedInController {
             File parent = file.getParentFile();
             String parentPath = JavaExtensions.relativeTo(parent, upload);
             // if we do viewFile directly we get silly %2F escapes in the URL
-            redirect(Util.viewUploadUrl(upload, parentPath));
+            redirect(Util.viewPublicUploadUrl(upload, parentPath));
         } else {
             Uploads.view(id);
         }
