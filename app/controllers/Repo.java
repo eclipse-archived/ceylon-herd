@@ -92,7 +92,7 @@ public class Repo extends MyController {
 		render(module, versions);
 	}
 
-    public static void search(String q, Integer page) throws UnsupportedEncodingException {
+    public static void search(String q, Integer page) {
         if (isEmpty(q)) {
             index(null);
         }

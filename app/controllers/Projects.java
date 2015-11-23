@@ -70,7 +70,7 @@ public class Projects extends LoggedInController {
     }
 
     @Check("admin")
-    public static void search(String q, Integer page) throws UnsupportedEncodingException {
+    public static void search(String q, Integer page) {
         if(StringUtils.isEmpty(q))
             allClaims(page);
         if(page == null)
