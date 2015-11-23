@@ -1,8 +1,22 @@
 #{extends 'main.html' /}
 #{set title:'View upload' /}
 
+%{
+    String uploadRepoUrl = util.Util.viewUploadUrl(upload, '', true, true);
+    String publicUploadRepoUrl = util.Util.viewPublicUploadUrl(upload, '', true, true);
+}%
+
 #{set 'moreScripts'}
 <script type="text/javascript">
+var isPrivate = true;
+var privateRepo = "${uploadRepoUrl}";
+var publicRepo = "${publicUploadRepoUrl}";
+function toggleRepoUrl(){
+    isPrivate = !isPrivate;
+    jQuery("#repoButtonText").text(isPrivate ? "Private (read-write)" : "Public (read-only)")
+    jQuery("#repoMenu").text(!isPrivate ? "Private (read-write)" : "Public (read-only)")
+    jQuery("#repoInput").val(isPrivate ? privateRepo : publicRepo);
+}
 function deleteFileAsync(source) {
     var btn = $(source);
     var form = btn.parent();
@@ -65,10 +79,6 @@ function deleteFileAsync(source) {
     #{/if}
 </div>
 
-%{
-    String uploadRepoUrl = util.Util.viewUploadUrl(upload, '', true, true);
-}%
-
 <table class="table table-bordered">
     <caption>Upload</caption>
     <tbody>
@@ -98,14 +108,25 @@ function deleteFileAsync(source) {
                 </p>
                 <form class="form-horizontal">
                     <fieldset>
-                        <div class="input-prepend">
+                        <div class="input-prepend input-append">
+                            <div class="btn-group">
+                              <button class="btn dropdown-toggle" data-toggle="dropdown" style="width: 12em;">
+                                <span id="repoButtonText">Private (read-write)</span>
+                                <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li><a href="#" id="repoMenu" onclick="toggleRepoUrl(); return false;">Public (read-only)</a></li>
+                              </ul>
+                            </div>
+                            <input value="${uploadRepoUrl}" class="input-xxlarge"
+                                onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
+                                title="Copy this URL to use it as an output repo"
+                                id="repoInput"
+                                type="text" readonly/>
                             <span class="add-on"
                                 title="Copy this URL to use it as an output repo"
                                 ><i class="icon-bookmark"></i></span
-                            ><input value="${uploadRepoUrl}" class="input-xxlarge"
-                                onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
-                                title="Copy this URL to use it as an output repo"
-                                type="text" readonly/>
+                            >
                         </div>
                     </fieldset>
                 </form>
