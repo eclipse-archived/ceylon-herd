@@ -32,12 +32,12 @@ public class LoggedInRepo extends LoggedInController {
 
     private static ModuleVersion getModuleVersion(String moduleName, String version) {
         if (validationFailed())
-            Repo.index();
+            Repo.index(null);
         ModuleVersion moduleVersion = ModuleVersion.findByVersion(moduleName, version);
         if (moduleVersion == null) {
             Validation.addError(null, "Unknown module version");
             prepareForErrorRedirect();
-            Repo.index();
+            Repo.index(null);
         }
         return moduleVersion;
     }
@@ -48,7 +48,7 @@ public class LoggedInRepo extends LoggedInController {
         if (!moduleVersion.module.canEdit(user)) {
             Validation.addError(null, "Unauthorised");
             prepareForErrorRedirect();
-            Repo.index();
+            Repo.index(null);
         }
         return moduleVersion;
     }
@@ -57,13 +57,13 @@ public class LoggedInRepo extends LoggedInController {
 	    if(moduleName == null){
 	        Validation.addError(null, "Module name required");
 	        prepareForErrorRedirect();
-	        Repo.index();
+	        Repo.index(null);
 	    }
 	    models.Module module = models.Module.findByName(moduleName);
 	    if(module == null){
 	        Validation.addError(null, "Unknown module");
 	        prepareForErrorRedirect();
-	        Repo.index();
+	        Repo.index(null);
 	    }
 	    return module;
 	}
@@ -74,7 +74,7 @@ public class LoggedInRepo extends LoggedInController {
 		if(!module.canEdit(user)){
 			Validation.addError(null, "Unauthorised");
 			prepareForErrorRedirect();
-			Repo.index();
+			Repo.index(null);
 		}
 		return module;
 	}
@@ -255,7 +255,7 @@ public class LoggedInRepo extends LoggedInController {
         
         module.delete();
         
-        Repo.index();
+        Repo.index(null);
     }
 
     private static void removeModuleDependantsCheck(String moduleName) {
@@ -303,7 +303,7 @@ public class LoggedInRepo extends LoggedInController {
 		
 		moduleVersion.delete();
 		
-		Repo.index();
+		Repo.index(null);
 	}
 	
     public static void myModules(@Required String username){

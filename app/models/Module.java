@@ -34,6 +34,7 @@ import play.db.jpa.JPA;
 import play.db.jpa.JPABase;
 import play.db.jpa.Model;
 import util.ApiVersion;
+import util.Util;
 import util.VersionComparator;
 import controllers.RepoAPI;
 
@@ -324,12 +325,12 @@ public class Module extends Model {
 	//
 	// Static helpers
 	
-    public static List<Module> findAllFetchOwnerAndVersions() {
+    public static List<Module> findAllFetchOwnerAndVersions(int page) {
         return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
                 "LEFT JOIN FETCH m.ratings " +
-                "ORDER BY m.name").fetch();
+                "ORDER BY m.name").fetch(page, Util.PAGE_SIZE);
     }
 
     public static List<Module> findMostPopular() {
@@ -339,11 +340,11 @@ public class Module extends Model {
                 "ORDER BY SUM(ratings.mark) DESC").fetch();
     }
 
-    public static List<Module> findMostDownloaded() {
+    public static List<Module> findMostDownloaded(int page) {
         return find("SELECT m FROM Module m " +
                 "RIGHT OUTER JOIN m.versions AS versions " +
                 "GROUP BY m.id, m.category, m.codeURL, m.friendlyName, m.homeURL, m.issueTrackerURL, m.name, m.owner " +
-                "ORDER BY SUM(versions.downloads + versions.jsdownloads + versions.sourceDownloads) DESC").fetch();
+                "ORDER BY SUM(versions.downloads + versions.jsdownloads + versions.sourceDownloads) DESC").fetch(page, Util.PAGE_SIZE);
     }
 
     public static List<Module> findByCategoryFetchOwnerAndVersions(Category category) {
@@ -359,16 +360,20 @@ public class Module extends Model {
 		return find("name = ?", moduleName).first();
 	}
 
-    public static List<Module> searchByName(String q) {
+    public static List<Module> searchByName(String q, int page) {
         return find("SELECT DISTINCT m FROM Module m " +
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
                 "LEFT JOIN FETCH m.ratings " +
                 "WHERE LOCATE(?, m.name) <> 0 " +
-                "ORDER BY m.name", q).fetch();
+                "ORDER BY m.name", q).fetch(page, Util.PAGE_SIZE);
+    }
+
+    public static long searchByNameCount(String q) {
+        return count("LOCATE(?, e.name) <> 0", q);
     }
     
-    public static List<Module> searchByCriteria(String name, String friendlyName, String member, String license, String category) {
+    public static List<Module> searchByCriteria(String name, String friendlyName, String member, String license, String category, int page) {
         String q = "SELECT DISTINCT m FROM Module m ";
         if(isNotEmpty(member)){
             q += "LEFT OUTER JOIN m.versions as v LEFT OUTER JOIN v.members as memb ";
@@ -417,9 +422,60 @@ public class Module extends Model {
             jpaQuery.bind("member", member);
         }
 
-        return jpaQuery.fetch();
+        return jpaQuery.fetch(page, Util.PAGE_SIZE);
     }
-    
+
+    public static long countByCriteria(String name, String friendlyName, String member, String license, String category) {
+        String q = "SELECT COUNT(DISTINCT m) FROM Module m ";
+        if(isNotEmpty(member)){
+            q += "LEFT OUTER JOIN m.versions as v LEFT OUTER JOIN v.members as memb ";
+        }
+        if (isNotEmpty(license)) {
+            q += ",Project p ";
+        }
+        q += "LEFT JOIN m.owner ";
+        if(!isNotEmpty(member)){
+            q += "LEFT JOIN m.versions ";
+        }
+        q += "LEFT JOIN m.ratings ";
+        q += "WHERE ";
+        if (isNotEmpty(name)) {
+            q += "LOCATE(LOWER(:name), LOWER(m.name)) <> 0 AND ";
+        }
+        if (isNotEmpty(friendlyName)) {
+            q += "LOCATE(LOWER(:friendlyName), LOWER(m.friendlyName)) <> 0 AND ";
+        }
+        if (isNotEmpty(member)) {
+            q += "(LOCATE(LOWER(:member), LOWER(memb.packageName)) <> 0 OR LOCATE(LOWER(:member), LOWER(memb.name)) <> 0) AND ";
+        }
+        if (isNotEmpty(license)) {
+            q += "m.name = p.moduleName AND LOCATE(LOWER(:license), LOWER(p.license)) <> 0 AND ";
+        }
+        if (isNotEmpty(category)) {
+            q += "LOCATE(LOWER(:category), LOWER(m.category.name)) <> 0 AND ";
+        }
+        q = removeEnd(q, "AND ");
+
+        JPAQuery jpaQuery = find(q);
+        if (isNotEmpty(name)) {
+            jpaQuery.bind("name", name);
+        }
+        if (isNotEmpty(friendlyName)) {
+            jpaQuery.bind("friendlyName", friendlyName);
+        }
+        if (isNotEmpty(license)) {
+            jpaQuery.bind("license", license);
+        }
+        if (isNotEmpty(category)) {
+            jpaQuery.bind("category", category);
+        }
+        if (isNotEmpty(member)) {
+            jpaQuery.bind("member", member);
+        }
+
+        return jpaQuery.first();
+    }
+
 	public static List<Module> findByOwner(User owner) {
 		return find("owner = ? ORDER BY name", owner).fetch();
 	}

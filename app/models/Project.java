@@ -15,6 +15,7 @@ import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
 import play.db.jpa.Model;
+import util.Util;
 
 @SuppressWarnings("serial")
 @Entity
@@ -82,12 +83,16 @@ public class Project extends Model {
         return find("status = ? ORDER BY moduleName", ProjectStatus.CLAIMED).fetch();
     }
 
-    public static List<Project> findAllClaims() {
-        return find("ORDER BY moduleName").fetch();
+    public static List<Project> findAllClaims(int page) {
+        return find("ORDER BY moduleName").fetch(page, Util.PAGE_SIZE);
     }
 
-    public static List<Project> findAllMatchingClaims(String q) {
-        return find("LOCATE(?, moduleName) <> 0 ORDER BY moduleName", q).fetch();
+    public static List<Project> findAllMatchingClaims(String q, int page) {
+        return find("LOCATE(?, moduleName) <> 0 ORDER BY moduleName", q).fetch(page, Util.PAGE_SIZE);
+    }
+
+    public static long countAllMatchingClaims(String q) {
+        return count("LOCATE(?, moduleName) <> 0", q);
     }
 
     public static List<Project> findForOwner(User owner) {

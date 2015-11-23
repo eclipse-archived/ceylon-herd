@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.SortedSet;
 
+import com.google.gson.Gson;
+
 import models.Category;
 import models.Module;
 import models.ModuleVersion;
@@ -22,11 +24,8 @@ import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
 import play.mvc.Router;
-import play.mvc.Router.ActionDefinition;
 import util.JavaExtensions;
 import util.Util;
-
-import com.google.gson.Gson;
 
 public class Repo extends MyController {
 
@@ -53,9 +52,13 @@ public class Repo extends MyController {
         render(category, modules);
     }
 
-    public static void index() {
-        List<Module> modules = Module.findAllFetchOwnerAndVersions();
-        render(modules);
+    public static void index(Integer page) {
+        if(page == null)
+            page = 1;
+        List<Module> modules = Module.findAllFetchOwnerAndVersions(page);
+        long total = Module.count();
+        int pages = Util.pageCount(total);
+        render(modules, page, total, pages);
     }
 
     public static void popular() {
@@ -63,20 +66,24 @@ public class Repo extends MyController {
         render(modules);
     }
 
-    public static void downloaded() {
-        List<Module> modules = Module.findMostDownloaded();
-        render(modules);
+    public static void downloaded(Integer page) {
+        if(page == null)
+            page = 1;
+        List<Module> modules = Module.findMostDownloaded(page);
+        long total = Module.count();
+        int pages = Util.pageCount(total);
+        render(modules, page, total, pages);
     }
 
 	public static void versions(@Required String moduleName){
 		if(validationFailed()){
-			index();
+			index(null);
 		}
 		models.Module module = models.Module.findByName(moduleName);
 		if(module == null){
 			Validation.addError(null, "Unknown module: "+moduleName);
 			prepareForErrorRedirect();
-			index();
+			index(null);
 		}
 		List<models.ModuleVersion> versions = models.ModuleVersion.findByModule(module);
 		Collections.sort(versions);
@@ -85,15 +92,21 @@ public class Repo extends MyController {
 		render(module, versions);
 	}
 
-    public static void search(String q) {
+    public static void search(String q, Integer page) throws UnsupportedEncodingException {
         if (isEmpty(q)) {
-            index();
+            index(null);
         }
-        List<Module> modules = Module.searchByName(q);
+        if(page == null)
+            page = 1;
+        List<Module> modules = Module.searchByName(q, page);
         if(modules.size() == 1)
             versions(modules.get(0).name);
-        else
-            render(modules, q);
+        else{
+            long total = Module.searchByNameCount(q);
+            int pages = Util.pageCount(total);
+            String queryPart = Util.unpageQuery(page);
+            render(modules, q, page, pages, total, queryPart);
+        }
     }
 	
     public static void searchAdvanced() {
@@ -102,20 +115,25 @@ public class Repo extends MyController {
         render(categoriesJson);
     }
     
-    public static void searchAdvanced2(String name, String friendlyName, String member, String license, String category) {
+    public static void searchAdvanced2(String name, String friendlyName, String member, String license, String category, Integer page) {
         name = trimToNull(name);
         friendlyName = trimToNull(friendlyName);
         license = trimToNull(license);
         category = trimToNull(category);
         member = trimToNull(member);
+        if(page == null)
+            page = 1;
         
         if (isEmpty(name) && isEmpty(friendlyName) && isEmpty(license) && isEmpty(category) && isEmpty(member)) {
             flash("message", "No search criteria was set.");
             searchAdvanced();
         }
         
-        List<Module> modules = Module.searchByCriteria(name, friendlyName, member, license, category);
-        renderTemplate("Repo/search.html", name, friendlyName, member, license, category, modules);
+        List<Module> modules = Module.searchByCriteria(name, friendlyName, member, license, category, page);
+        long total = Module.countByCriteria(name, friendlyName, member, license, category);
+        int pages = Util.pageCount(total);
+        String queryPart = Util.unpageQuery(page);
+        renderTemplate("Repo/search.html", name, friendlyName, member, license, category, modules, page, pages, total, queryPart);
     }
 
 	public static void view(@Required String moduleName, @Required String version){
@@ -161,12 +179,12 @@ public class Repo extends MyController {
 
 	private static ModuleVersion getModuleVersion(String moduleName, String version) {
 		if(validationFailed())
-			index();
+			index(null);
 		models.ModuleVersion moduleVersion = models.ModuleVersion.findByVersion(moduleName, version);
 		if(moduleVersion == null){
 			Validation.addError(null, "Unknown module");
 			prepareForErrorRedirect();
-			index();
+			index(null);
 		}
 		return moduleVersion;
 	}

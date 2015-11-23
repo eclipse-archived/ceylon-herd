@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import models.Comment;
 import models.Module;
 import models.ModuleVersion;
@@ -14,9 +16,6 @@ import models.Project;
 import models.ProjectStatus;
 import models.User;
 import notifiers.Emails;
-
-import org.apache.commons.lang.StringUtils;
-
 import play.Logger;
 import play.data.validation.Match;
 import play.data.validation.MaxSize;
@@ -29,19 +28,29 @@ import util.Util;
 
 public class Projects extends LoggedInController {
 
-    public static void index() {
+    public static void index(Integer page) {
+        if(page == null)
+            page = 1;
     	User user = getUser();
-    	List<models.Project> projects = user.projects;
-        render(projects);
+    	List<models.Project> userProjects = user.projects;
+    	List<models.Project> projects = Util.page(userProjects, page);
+        long total = userProjects.size();
+        int pages = Util.pageCount(total);
+        render(projects, page, pages, total);
     }
 
     @Check("admin")
-    public static void userClaims(@Required String userName) {
+    public static void userClaims(@Required String userName, Integer page) {
+        if(page == null)
+            page = 1;
         User viewedUser = User.findRegisteredByUserName(userName);
         notFoundIfNull(viewedUser);
         
-        List<models.Project> projects = viewedUser.projects;
-        render(viewedUser, projects);
+        List<models.Project> userProjects = viewedUser.projects;
+        List<models.Project> projects = Util.page(userProjects, page);
+        long total = userProjects.size();
+        int pages = Util.pageCount(total);
+        render(viewedUser, projects, page, pages, total);
     }
 
     @Check("admin")
@@ -51,17 +60,26 @@ public class Projects extends LoggedInController {
     }
 
     @Check("admin")
-    public static void allClaims() {
-        List<models.Project> projects = models.Project.findAllClaims();
-        render(projects);
+    public static void allClaims(Integer page) {
+        if(page == null)
+            page = 1;
+        List<models.Project> projects = models.Project.findAllClaims(page);
+        long total = models.Project.count();
+        int pages = Util.pageCount(total);
+        render(projects, page, pages, total);
     }
 
     @Check("admin")
-    public static void search(String q) {
+    public static void search(String q, Integer page) throws UnsupportedEncodingException {
         if(StringUtils.isEmpty(q))
-            allClaims();
-        List<models.Project> projects = models.Project.findAllMatchingClaims(q);
-        render(q, projects);
+            allClaims(page);
+        if(page == null)
+            page = 1;
+        List<models.Project> projects = models.Project.findAllMatchingClaims(q, page);
+        long total = models.Project.countAllMatchingClaims(q);
+        int pages = Util.pageCount(total);
+        String queryPart = Util.unpageQuery(page);
+        render(q, projects, page, pages, total, queryPart);
     }
 
 	public static void claimForm(String module) {
@@ -185,7 +203,7 @@ public class Projects extends LoggedInController {
                 && !user.isAdmin){
             Validation.addError(null, "Only claimed projects can be edited");
             prepareForErrorRedirect();
-            index();
+            index(null);
         }
         
         if (validationFailed()) {
@@ -248,27 +266,27 @@ public class Projects extends LoggedInController {
 		project.delete();
 		
 		flash("message", "Project deleted");
-		index();
+		index(null);
 	}
 	
 	private static models.Project getProject(Long id) {
 		if(id == null){
 			Validation.addError(null, "Missing project id");
 			prepareForErrorRedirect();
-			index();
+			index(null);
 		}
 		models.Project project = models.Project.findById(id);
 		if(project == null){
 			Validation.addError(null, "Invalid project id");
 			prepareForErrorRedirect();
-			index();
+			index(null);
 		}
 		User user = getUser();
 		// for these things you have to be owner or site admin, not module admin
 		if(project.owner != user && !user.isAdmin){
 			Validation.addError(null, "You are not authorised to view this project");
 			prepareForErrorRedirect();
-			index();
+			index(null);
 		}
 		return project;
 	}
@@ -481,7 +499,7 @@ public class Projects extends LoggedInController {
 		}
 		
 		flash("message", "Project transfered to "+newOwner.userName);
-		Projects.index();
+		Projects.index(null);
 	}
 
 	private static User getUser(Long userId) {

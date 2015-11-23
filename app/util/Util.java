@@ -3,6 +3,7 @@ package util;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import play.mvc.Router;
 
 import com.google.gson.Gson;
 
+import models.Project;
 import models.Upload;
 
 public class Util {
@@ -34,6 +36,8 @@ public class Util {
 	
     public static final String LICENSES_JSON;
 
+    public static final int PAGE_SIZE = 10;
+
     static {
         List<String> licenses = IO.readLines(Play.getFile("conf/licenses.conf"));
         LICENSES_JSON = new Gson().toJson(licenses);
@@ -41,6 +45,7 @@ public class Util {
 
     // Pattern for module names checking
     public static final String MODULE_NAME_PATTERN = "[a-zA-Z][-a-zA-Z0-9]*(\\.[a-zA-Z][-a-zA-Z0-9]*)+";
+
 
 	public static File getUploadDir(Long id) {
 		return new File("uploads"+File.separator+id);
@@ -201,5 +206,24 @@ public class Util {
         if(!isSplitHost())
             return true;
         return Http.Request.current().host.equals(getDataHost());
+    }
+
+    public static int pageCount(long total) {
+        return (int)Math.ceil((double)total / Util.PAGE_SIZE);
+    }
+
+    public static <T> List<T> page(List<T> list, int page) {
+        List<T> ret = new ArrayList<T>(PAGE_SIZE);
+        for(int i=(page-1)*PAGE_SIZE, end = Math.min(list.size(), i+PAGE_SIZE) ; i < end; i++){
+            ret.add(list.get(i));
+        }
+        return ret;
+    }
+
+    public static String unpageQuery(Integer page) {
+        String query = Http.Request.current().querystring;
+        if(page == null)
+            return query;
+        return query.replace("?page="+page, "?").replace("&page="+page, "");
     }
 }

@@ -9,6 +9,7 @@
     </div>
 #{/if}
 #{else}
+    #{pager page: page, pages: pages, total: total, queryPart: queryPart/}
     <table class="table table-striped table-selectable">
         <caption>Project claims matching query "${q}":</caption>
         #{list items:projects, as:'project'}
