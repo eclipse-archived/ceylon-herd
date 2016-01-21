@@ -46,13 +46,18 @@ public class Util {
     // Pattern for module names checking
     public static final String MODULE_NAME_PATTERN = "[a-zA-Z][-a-zA-Z0-9]*(\\.[a-zA-Z][-a-zA-Z0-9]*)+";
 
+    public static File getUploadDir() {
+        String name = Play.configuration.getProperty("uploads.folder.name", "uploads");
+        return new File(Play.applicationPath, name);
+    }
 
 	public static File getUploadDir(Long id) {
-		return new File("uploads"+File.separator+id);
+		return new File(getUploadDir(), String.valueOf(id));
 	}
 
 	public static File getRepoDir() {
-		return new File("repo");
+        String name = Play.configuration.getProperty("repo.folder.name", "repo");
+		return new File(Play.applicationPath, name);
 	}
 
     public static void logSecurityAction(String message, Object... params) {

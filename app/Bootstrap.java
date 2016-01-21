@@ -11,12 +11,12 @@ public class Bootstrap extends Job {
  
     public void doJob() {
        
-    	File repo = new File(Play.applicationPath, "repo");
+    	File repo = Util.getRepoDir();
     	if (!repo.exists()) {
     		repo.mkdir();
     	}
     	
-    	File uploads = new File(Play.applicationPath, "uploads");
+    	File uploads = Util.getUploadDir();
     	if (!uploads.exists()) {
     		uploads.mkdir();
     	}
