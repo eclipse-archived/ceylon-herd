@@ -23,20 +23,19 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Transient;
 
-import models.Module.QueryParams.Retrieval;
-import models.Module.QueryParams.Suffix;
-
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
+import controllers.RepoAPI;
+import models.Module.QueryParams.Retrieval;
+import models.Module.QueryParams.Suffix;
 import play.db.jpa.JPA;
 import play.db.jpa.JPABase;
 import play.db.jpa.Model;
 import util.ApiVersion;
 import util.Util;
 import util.VersionComparator;
-import controllers.RepoAPI;
 
 @Entity
 @SuppressWarnings("serial")
@@ -53,8 +52,10 @@ public class Module extends Model {
         private Suffix[] suffixes;
         private Retrieval retrieval;
         
-        public Integer binaryMajor;
-        public Integer binaryMinor;
+        public Integer jvmBinaryMajor;
+        public Integer jvmBinaryMinor;
+        public Integer jsBinaryMajor;
+        public Integer jsBinaryMinor;
         public String memberName;
         public boolean memberSearchPackageOnly;
         public boolean memberSearchExact;
@@ -251,13 +252,15 @@ public class Module extends Model {
     	        boolean include = false;
     	        switch(suffix){
                 case CAR:
-                    include = version.isCarPresent && version.matchesBinaryVersion(params.binaryMajor, params.binaryMinor);
+                    include = version.isCarPresent 
+                    && version.matchesBinaryVersion(params.jvmBinaryMajor, params.jvmBinaryMinor, null, null);
                     break;
                 case JAR:
                     include = version.isJarPresent;
                     break;
                 case JS:
-                    include = version.isJsPresent && version.matchesBinaryVersion(params.binaryMajor, params.binaryMinor);
+                    include = version.isJsPresent 
+                    && version.matchesBinaryVersion(null, null, params.jsBinaryMajor, params.jsBinaryMinor);
                     break;
                 case SRC:
                     include = version.isSourcePresent;
@@ -297,13 +300,14 @@ public class Module extends Model {
 	    return versions.isEmpty() ? null : versions.last();
 	}
 
-	public ModuleVersion getLastVersion(Integer binaryMajor, Integer binaryMinor){
+	public ModuleVersion getLastVersion(Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+	        Integer jsBinaryMajor, Integer jsBinaryMinor){
 	    // we can't use NavigableSet interface because Hibernate's SortedSet does not implement it
 	    ModuleVersion[] array = new ModuleVersion[versions.size()];
 	    versions.toArray(array);
 	    for(int i=array.length-1;i>=0;i--){
 	        ModuleVersion version = array[i];
-	        if(version.matchesBinaryVersion(binaryMajor, binaryMinor))
+	        if(version.matchesBinaryVersion(jvmBinaryMajor, jvmBinaryMinor, jsBinaryMajor, jsBinaryMinor))
 	            return version;
 	    }
 	    return null;
@@ -498,7 +502,8 @@ public class Module extends Model {
         if(module == null)
             module = "";
         String typeQuery = ModuleVersion.getBackendQuery("v.", params);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.jvmBinaryMajor, params.jvmBinaryMinor,
+                params.jsBinaryMajor, params.jsBinaryMinor);
 
         String select = "";
         if (selectCount) {
@@ -532,7 +537,8 @@ public class Module extends Model {
         if (isNotEmpty(params.memberName)) {
             query.bind("memberName", params.memberName.toLowerCase());
         }
-        ModuleVersion.addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
+        ModuleVersion.addBinaryQueryParameters(query, params.jvmBinaryMajor, params.jvmBinaryMinor,
+                params.jsBinaryMajor, params.jsBinaryMinor);
                 
         return query;
     }
@@ -552,8 +558,9 @@ public class Module extends Model {
     
     private static JPAQuery createQueryForBackend(ApiVersion v, boolean selectCount, String query, QueryParams params) {
         String typeQuery = ModuleVersion.getBackendQuery("v.", params);
-        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
-        
+        String binaryQuery = ModuleVersion.getBinaryQuery("v.", params.jvmBinaryMajor, params.jvmBinaryMinor,
+                params.jsBinaryMajor, params.jsBinaryMinor);
+
         String select = "";
         if (selectCount) {
             select += "SELECT COUNT(DISTINCT m) ";
@@ -598,7 +605,8 @@ public class Module extends Model {
         if (isNotEmpty(params.memberName)) {
             jpaQuery.bind("memberName", params.memberName.toLowerCase());
         }
-        ModuleVersion.addBinaryQueryParameters(jpaQuery, params.binaryMajor, params.binaryMinor);
+        ModuleVersion.addBinaryQueryParameters(jpaQuery, params.jvmBinaryMajor, params.jvmBinaryMinor,
+                params.jsBinaryMajor, params.jsBinaryMinor);
 
         return jpaQuery;
     }

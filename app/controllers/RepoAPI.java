@@ -1,7 +1,5 @@
 package controllers;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
-
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +29,24 @@ public class RepoAPI extends MyController {
         response.contentType = "application/"+request.format+"; charset="+response.encoding;
     }
     
-    public static void completeVersions(String apiVersion, String module, String version, String type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
+    public static void completeVersions(String apiVersion, String module, String version, String type,
+            // < V5
+            Integer binaryMajor, Integer binaryMinor,
+            // >= V5
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor,
+            // >= V4
+            String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
         if(module == null || module.isEmpty())
             badRequest("module parameter required");
         Module mod = Module.findByName(module);
         if(mod == null)
             notFound("Module not found");
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor,
+                jvmBinaryMajor, jvmBinaryMinor,
+                jsBinaryMajor, jsBinaryMinor,
+                memberName, memberSearchPackageOnly, memberSearchExact);
         
         List<ModuleVersion> versions = ModuleVersion.completeVersionForModuleAndBackend(mod, version, t);
         
@@ -46,9 +54,22 @@ public class RepoAPI extends MyController {
         render(versions);
     }
 
-    private static QueryParams getQueryParams(ApiVersion v, String type, String retrieval, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
+    private static QueryParams getQueryParams(ApiVersion v, String type,
+            // V4
+            String retrieval,
+            // < V5
+            Integer binaryMajor, Integer binaryMinor,
+            // >= V5
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor,
+            // V4
+            String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact) {
         if (v.ordinal() >= ApiVersion.API4.ordinal()) {
-            QueryParams params = getQueryParamsV4(type, retrieval, binaryMajor, binaryMinor);
+            QueryParams params;
+            if(v.ordinal() >= ApiVersion.API5.ordinal())
+                params = getQueryParamsV4(type, retrieval, jvmBinaryMajor, jvmBinaryMinor, jsBinaryMajor, jsBinaryMinor);
+            else
+                params = getQueryParamsV4(type, retrieval, binaryMajor, binaryMinor, binaryMajor, binaryMinor);
             params.memberName = memberName;
             params.memberSearchExact = (memberSearchExact != null) ? memberSearchExact : false;
             params.memberSearchPackageOnly = (memberSearchPackageOnly != null) ? memberSearchPackageOnly : false;
@@ -58,9 +79,17 @@ public class RepoAPI extends MyController {
         }
     }
 
-    private static QueryParams getQueryParamsV4(String type, String retrieval, Integer binaryMajor, Integer binaryMinor) {
-        if(type == null || type.isEmpty())
-            return QueryParams.JVM();
+    private static QueryParams getQueryParamsV4(String type, String retrieval, 
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor) {
+        if(type == null || type.isEmpty()){
+            QueryParams qp = QueryParams.JVM();
+            qp.jvmBinaryMajor = jvmBinaryMajor;
+            qp.jvmBinaryMinor = jvmBinaryMinor;
+            qp.jsBinaryMajor = jsBinaryMajor;
+            qp.jsBinaryMinor = jsBinaryMinor;
+            return qp;
+        }
         String[] artifacts = type.split(",");
         ArrayList<Suffix> suffixes = new ArrayList<Suffix>(artifacts.length);
         for (String art : artifacts) {
@@ -94,8 +123,10 @@ public class RepoAPI extends MyController {
             }
         }
         QueryParams qp = new QueryParams(ret, suffixes.toArray(sufs));
-        qp.binaryMajor = binaryMajor;
-        qp.binaryMinor = binaryMinor;
+        qp.jvmBinaryMajor = jvmBinaryMajor;
+        qp.jvmBinaryMinor = jvmBinaryMinor;
+        qp.jsBinaryMajor = jsBinaryMajor;
+        qp.jsBinaryMinor = jsBinaryMinor;
         return qp;
     }
 
@@ -121,15 +152,27 @@ public class RepoAPI extends MyController {
             error(HttpURLConnection.HTTP_BAD_REQUEST, "Unknown type, must be one of: car,jvm,javascript,source,all,code,ceylon");
             return null; // We'll never get here
         }
-        qp.binaryMajor = binaryMajor;
-        qp.binaryMinor = binaryMinor;
+        qp.jvmBinaryMajor = binaryMajor;
+        qp.jvmBinaryMinor = binaryMinor;
+        qp.jsBinaryMajor = binaryMajor;
+        qp.jsBinaryMinor = binaryMinor;
         return qp;
     }
 
-    public static void completeModules(String apiVersion, String module, String type, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
+    public static void completeModules(String apiVersion, String module, String type, 
+            // < V5
+            Integer binaryMajor, Integer binaryMinor,
+            // >= V5
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor,
+            // >= V4
+            String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval){
         Integer start = 0;
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        QueryParams t = getQueryParams(v, type, retrieval, 
+                binaryMajor, binaryMinor, 
+                jvmBinaryMajor, jvmBinaryMinor, jsBinaryMajor, jsBinaryMinor,
+                memberName, memberSearchPackageOnly, memberSearchExact);
 
         List<Module> modules = Module.completeForBackend(module, t);
         long total = Module.completeForBackendCount(module, t);
@@ -137,11 +180,21 @@ public class RepoAPI extends MyController {
         renderModulesTemplate(v, t, modules, start, total);
     }
 
-    public static void searchModules(String apiVersion, String query, String type, Integer start, Integer count, Integer binaryMajor, Integer binaryMinor, String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval) {
+    public static void searchModules(String apiVersion, String query, String type, Integer start, Integer count, 
+            // < V5
+            Integer binaryMajor, Integer binaryMinor,
+            // >= V5
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor,
+            // >= V4
+            String memberName, Boolean memberSearchPackageOnly, Boolean memberSearchExact, String retrieval) {
         start = checkStartParam(start);
         count = checkCountParam(count);
         ApiVersion v = getApiVersion(apiVersion);
-        QueryParams t = getQueryParams(v, type, retrieval, binaryMajor, binaryMinor, memberName, memberSearchPackageOnly, memberSearchExact);
+        QueryParams t = getQueryParams(v, type, retrieval, 
+                binaryMajor, binaryMinor,
+                jvmBinaryMajor, jvmBinaryMinor, jsBinaryMajor, jsBinaryMinor,
+                memberName, memberSearchPackageOnly, memberSearchExact);
         
         List<Module> modules = Module.searchForBackend(v, query, t, start, count);
         long total = Module.searchForBackendCount(v, query, t);
@@ -153,8 +206,10 @@ public class RepoAPI extends MyController {
         // we need to put those in renderArgs rather than render() because they may be null
         renderArgs.put("type", params);
         renderArgs.put("apiVersion", v);
-        renderArgs.put("binaryMajor", params.binaryMajor);
-        renderArgs.put("binaryMinor", params.binaryMinor);
+        renderArgs.put("jvmBinaryMajor", params.jvmBinaryMajor);
+        renderArgs.put("jvmBinaryMinor", params.jvmBinaryMinor);
+        renderArgs.put("jsBinaryMajor", params.jsBinaryMajor);
+        renderArgs.put("jsBinaryMinor", params.jsBinaryMinor);
         renderTemplate("RepoAPI/modules." + request.format, modules, start, total);
     }
 

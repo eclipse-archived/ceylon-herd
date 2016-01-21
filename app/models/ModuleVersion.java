@@ -330,7 +330,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         String typeQuery = getBackendQuery("v.", params);
         if(version == null)
             version = "";
-        String binaryQuery = getBinaryQuery("v.", params.binaryMajor, params.binaryMinor);
+        String binaryQuery = getBinaryQuery("v.", params.jvmBinaryMajor, params.jvmBinaryMinor, 
+                params.jsBinaryMajor, params.jsBinaryMinor);
         
         String select = "SELECT DISTINCT v FROM ModuleVersion v ";
         String where = "WHERE v.module = :module AND LOCATE(:version, v.version) = 1 AND ("+typeQuery+")"
@@ -349,7 +350,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         if (isNotEmpty(params.memberName)) {
             query.bind("memberName", params.memberName.toLowerCase());
         }
-        addBinaryQueryParameters(query, params.binaryMajor, params.binaryMinor);
+        addBinaryQueryParameters(query, params.jvmBinaryMajor, params.jvmBinaryMinor,
+                params.jsBinaryMajor, params.jsBinaryMinor);
         
         return query.fetch(RepoAPI.RESULT_LIMIT);
     }
@@ -374,44 +376,79 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
         return where;
     }
     
-    static void addBinaryQueryParameters(JPAQuery query, Integer binaryMajor, Integer binaryMinor) {
+    static void addBinaryQueryParameters(JPAQuery query, Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor) {
         // Note that we use query.query.setParameter here rather than query.bindParameter because the latter
         // has a bug that turns Integer instances into Long instances (WTF?)
-        if(binaryMajor != null)
-            query.query.setParameter("binaryMajor", binaryMajor);
-        if(binaryMinor != null)
-            query.query.setParameter("binaryMinor", binaryMinor);
+        if(jvmBinaryMajor != null)
+            query.query.setParameter("jvmBinaryMajor", jvmBinaryMajor);
+        if(jvmBinaryMinor != null)
+            query.query.setParameter("jvmBinaryMinor", jvmBinaryMinor);
+        if(jsBinaryMajor != null)
+            query.query.setParameter("jsBinaryMajor", jsBinaryMajor);
+        if(jsBinaryMinor != null)
+            query.query.setParameter("jsBinaryMinor", jsBinaryMinor);
     }
 
-    static String getBinaryQuery(String prefix, Integer binaryMajor, Integer binaryMinor) {
-        if(binaryMajor == null && binaryMinor == null)
+    static String getBinaryQuery(String prefix, 
+            Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor) {
+        if(jvmBinaryMajor == null && jvmBinaryMinor == null
+                && jsBinaryMajor == null && jsBinaryMinor == null)
             return "";
-        StringBuilder ret = new StringBuilder("AND (").append(prefix).append("isCarPresent = false AND ").append(prefix).append("isJsPresent = false OR (");
+        StringBuilder ret = new StringBuilder("AND ((")
+                .append(prefix).append("isCarPresent = false AND ")
+                .append(prefix).append("isJsPresent = false) OR (");
         // these only apply to ceylon modules
-        if(binaryMajor != null)
-            ret.append(prefix).append("jvmBinMajor = :binaryMajor");
-        if(binaryMinor != null){
-            if(binaryMajor != null)
+        
+        if(jvmBinaryMajor != null || jvmBinaryMinor != null)
+            ret.append(prefix).append("isCarPresent = false OR (");
+        if(jvmBinaryMajor != null)
+            ret.append(prefix).append("jvmBinMajor = :jvmBinaryMajor");
+        if(jvmBinaryMinor != null){
+            if(jvmBinaryMajor != null)
                 ret.append(" AND ");
-            ret.append(prefix).append("jsBinMinor = :binaryMinor");
+            ret.append(prefix).append("jvmBinMinor = :jvmBinaryMinor");
         }
-        ret.append(") OR (");
-        if(binaryMajor != null)
-            ret.append(prefix).append("jsBinMajor = :binaryMajor");
-        if(binaryMinor != null){
-            if(binaryMajor != null)
+        if(jvmBinaryMajor != null || jvmBinaryMinor != null)
+            ret.append(")");
+        
+        // only put the AND if we have both tests, otherwise we have a single test and we're fine
+        if((jvmBinaryMajor != null || jvmBinaryMinor != null)
+                && (jsBinaryMajor != null || jsBinaryMinor != null))
+            ret.append(") AND (");
+        
+        if(jsBinaryMajor != null || jsBinaryMinor != null)
+            ret.append(prefix).append("isJsPresent = false OR (");
+        if(jsBinaryMajor != null)
+            ret.append(prefix).append("jsBinMajor = :jsBinaryMajor");
+        if(jsBinaryMinor != null){
+            if(jsBinaryMajor != null)
                 ret.append(" AND ");
-            ret.append(prefix).append("jsBinMinor = :binaryMinor");
+            ret.append(prefix).append("jsBinMinor = :jsBinaryMinor");
         }
+        if(jsBinaryMajor != null || jsBinaryMinor != null)
+            ret.append(")");
         ret.append("))");
         return ret.toString();
     }
 
-    public boolean matchesBinaryVersion(Integer binaryMajor, Integer binaryMinor) {
-        if(binaryMajor != null && jvmBinMajor != binaryMajor && jsBinMajor != binaryMajor)
-            return false;
-        if(binaryMinor != null && jvmBinMinor != binaryMinor && jsBinMinor != binaryMinor)
-            return false;
+    public boolean matchesBinaryVersion(Integer jvmBinaryMajor, Integer jvmBinaryMinor,
+            Integer jsBinaryMajor, Integer jsBinaryMinor) {
+        if(!isCarPresent && !isJsPresent)
+            return true;
+        if(isJsPresent){
+            if(jsBinaryMajor != null && jsBinMajor != jsBinaryMajor)
+                return false;
+            if(jsBinaryMinor != null && jsBinMinor != jsBinaryMinor)
+                return false;
+        }
+        if(isCarPresent){
+            if(jvmBinaryMajor != null && jvmBinMajor != jvmBinaryMajor)
+                return false;
+            if(jvmBinaryMinor != null && jvmBinMinor != jvmBinaryMinor)
+                return false;
+        }
         return true;
     }
 

@@ -6,8 +6,8 @@
 #{list module.getVersions(type), as: 'version'}
   <versions>${version.version?.xmlEscape()}</versions>
 #{/list}
-#{if module.getLastVersion(binaryMajor,binaryMinor)}
-#{apiModuleInfoXml module.getLastVersion(binaryMajor,binaryMinor), apiVersion: apiVersion/}
+#{if module.getLastVersion(jvmBinaryMajor,jvmBinaryMinor,jsBinaryMajor,jsBinaryMinor)}
+#{apiModuleInfoXml module.getLastVersion(jvmBinaryMajor,jvmBinaryMinor,jsBinaryMajor,jsBinaryMinor), apiVersion: apiVersion/}
 #{/if}
  </module>
 #{/list}
