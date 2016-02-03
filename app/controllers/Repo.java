@@ -174,7 +174,7 @@ public class Repo extends MyController {
 	public static void viewDoc(@Required String moduleName, @Required String version){
 	    models.ModuleVersion moduleVersion = getModuleVersion(moduleName, version);
 
-	    redirect(Util.viewRepoUrl(moduleVersion.getAPIPath()));
+	    redirect(Util.viewRepoUrl(moduleVersion.getAPIPath(), true, true));
 	}
 
 	private static ModuleVersion getModuleVersion(String moduleName, String version) {
