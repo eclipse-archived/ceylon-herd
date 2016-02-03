@@ -369,12 +369,12 @@ public class Module extends Model {
                 "LEFT JOIN FETCH m.owner " +
                 "LEFT JOIN FETCH m.versions " +
                 "LEFT JOIN FETCH m.ratings " +
-                "WHERE LOCATE(?, m.name) <> 0 " +
+                "WHERE LOCATE(LOWER(?), LOWER(m.name)) <> 0 " +
                 "ORDER BY m.name", q).fetch(page, Util.PAGE_SIZE);
     }
 
     public static long searchByNameCount(String q) {
-        return count("LOCATE(?, e.name) <> 0", q);
+        return count("LOCATE(LOWER(?), LOWER(e.name)) <> 0", q);
     }
     
     public static List<Module> searchByCriteria(String name, String friendlyName, String member, String license, String category, int page) {
