@@ -36,7 +36,7 @@ public class Util {
 	
     public static final String LICENSES_JSON;
 
-    public static final int PAGE_SIZE = 10;
+    public static final int PAGE_SIZE = 20;
 
     static {
         List<String> licenses = IO.readLines(Play.getFile("conf/licenses.conf"));
