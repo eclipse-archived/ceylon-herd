@@ -99,10 +99,10 @@ public class Repo extends MyController {
         if(page == null)
             page = 1;
         List<Module> modules = Module.searchByName(q, page);
-        if(modules.size() == 1)
+        long total = Module.searchByNameCount(q);
+        if(total == 1 && modules.size() == 1){
             versions(modules.get(0).name);
-        else{
-            long total = Module.searchByNameCount(q);
+        }else{
             int pages = Util.pageCount(total);
             String queryPart = Util.unpageQuery(page);
             render(modules, q, page, pages, total, queryPart);
@@ -131,9 +131,13 @@ public class Repo extends MyController {
         
         List<Module> modules = Module.searchByCriteria(name, friendlyName, member, license, category, page);
         long total = Module.countByCriteria(name, friendlyName, member, license, category);
-        int pages = Util.pageCount(total);
-        String queryPart = Util.unpageQuery(page);
-        renderTemplate("Repo/search.html", name, friendlyName, member, license, category, modules, page, pages, total, queryPart);
+        if(total == 1 && !modules.isEmpty()){
+            versions(modules.get(0).name);
+        }else{
+            int pages = Util.pageCount(total);
+            String queryPart = Util.unpageQuery(page);
+            renderTemplate("Repo/search.html", name, friendlyName, member, license, category, modules, page, pages, total, queryPart);
+        }
     }
 
 	public static void view(@Required String moduleName, @Required String version){
