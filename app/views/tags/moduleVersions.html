@@ -11,6 +11,9 @@
             #{if version.isCarPresent}
                 #{moduleCeylonCompatibility version/}
             #{/if}
+            #{if version.isJsPresent}
+                #{moduleJsCompatibility version/}
+            #{/if}
         </td>
         <td>
             Published ${version.published.sinceInUserTZ(true)}

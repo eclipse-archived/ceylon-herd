@@ -63,22 +63,19 @@
                 #{moduleBackends moduleVersion/}
             </td>
         </tr>
-        #{if moduleVersion.isCarPresent}
-            <tr>
-                <th>Compatible Ceylon release</th>
-                <td>
-                    #{moduleCeylonCompatibility moduleVersion/}
-                </td>
-            </tr>
-        #{/if}
-        #{elseif moduleVersion.isJsPresent}
-            <tr>
-                <th>Compatible Ceylon release</th>
-                <td>
+        #{if moduleVersion.isCarPresent || moduleVersion.isJsPresent}
+        <tr>
+            <th>Compatible Ceylon release</th>
+            <td>
+                #{if moduleVersion.isCarPresent}
+                    #{moduleCeylonCompatibility moduleVersion/}<br/>
+                #{/if}
+                #{if moduleVersion.isJsPresent}
                     #{moduleJsCompatibility moduleVersion/}
-                </td>
-            </tr>
-        #{/elseif}
+                #{/if}
+            </td>
+        </tr>
+        #{/if}
         <tr>
             <th>Published</th>
             <td>${moduleVersion.published.sinceInUserTZ(true)}</td>
