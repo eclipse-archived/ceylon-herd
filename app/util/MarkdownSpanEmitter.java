@@ -239,7 +239,7 @@ class MarkdownSpanEmitter implements SpanEmitter {
             path.append(PATH_SEPARATOR);
 
             try {
-                return Util.viewRepoUrl(path.toString());
+                return Util.viewRepoUrl(path.toString(), true, true);
             } catch (NoRouteFoundException e) {
                 // noop
             }
