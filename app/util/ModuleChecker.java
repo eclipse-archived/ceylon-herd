@@ -40,6 +40,7 @@ import com.google.gson.JsonParser;
 import javassist.bytecode.AccessFlag;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
+import javassist.bytecode.InnerClassesAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
@@ -53,7 +54,6 @@ import models.MavenDependency;
 import models.ModuleVersion;
 import models.Upload;
 import models.User;
-import play.Logger;
 import play.libs.XML;
 
 public class ModuleChecker {
@@ -776,6 +776,20 @@ public class ModuleChecker {
             }
             shared = sharedAnnotationsVisible.getAnnotation("ceylon.language.SharedAnnotation$annotation$") != null;
         } else {
+            // ignore anonymous classes
+            InnerClassesAttribute innerClasses = (InnerClassesAttribute) classFile.getAttribute("InnerClasses");
+            if(innerClasses != null){
+                // JLS says if we have an inner class reference (including this class) we must have that attribute
+                for(int i=0;i<innerClasses.tableLength();i++){
+                    // if we're listed in there it's about us
+                    if(innerClasses.innerClass(i).equals(classFile.getName())){
+                        // if that is null it's an anonymous class
+                        if(innerClasses.innerName(i) == null){
+                            return;
+                        }
+                    }
+                }
+            }
             // turn any dollar sep into a dot
             simpleName = simpleName.replace('$', '.');
             shared = (AccessFlag.PUBLIC & classFile.getAccessFlags()) != 0;
