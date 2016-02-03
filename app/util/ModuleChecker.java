@@ -364,6 +364,8 @@ public class ModuleChecker {
         if(m.jar.exists){
             fileByPath.remove(jarPath); // jar
             m.jar.checksum = handleChecksumFile(uploadsDir, fileByPath, m, jarName, "Jar", false);
+            String artifactPath = m.path + jarName;
+            loadClassNames(uploadsDir, artifactPath, m);
         }
 
         String jarModulePropertiesName = "module.properties";
