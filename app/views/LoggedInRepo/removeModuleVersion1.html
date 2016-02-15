@@ -19,8 +19,8 @@
         </ul>
     </div>
 
-    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
-    <a href="@{LoggedInRepo.removeModuleVersion2(module.name, moduleVersion.version)}" title="I know what I´m doing" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let’s go back to safety" class="btn">No, let’s cancel</a>
+    <a href="@{LoggedInRepo.removeModuleVersion2(module.name, moduleVersion.version)}" title="I know what I’m doing" class="btn btn-danger"><i class="icon-trash icon-white"></i> Yes I am sure</a>
 #{/if}
 #{else}
     <div class="alert alert-error">
@@ -35,5 +35,5 @@
         </ul>    
     </div>
 
-    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let´s go back" class="btn">Back</a>
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Let’s go back" class="btn">Back</a>
 #{/else}

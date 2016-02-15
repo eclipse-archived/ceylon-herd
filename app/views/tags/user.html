@@ -1,5 +1,5 @@
 <span class="user-link">
-<a href="@{Users.view(_arg.userName)}" title="View ${_arg.userName}´s profile">
+<a href="@{Users.view(_arg.userName)}" title="View ${_arg.userName}’s profile">
 #{if _img}
     #{gravatar.img _arg.email, size:(_size ?: 20), default:'mm', secure:request.secure /}
 #{/if}

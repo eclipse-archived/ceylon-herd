@@ -45,24 +45,24 @@ function deleteFileAsync(source) {
         issue that gets in the way of you publishing it.
     </p>
     <p>
-        From here, you can check the status of every module you´ve uploaded, <i class="icon-trash"></i> <b>delete</b>
+        From here, you can check the status of every module you’ve uploaded, <i class="icon-trash"></i> <b>delete</b>
         problematic files or modules, get information on how to upload your module using the Ceylon tools, or even
         <a class="btn" href="@{Uploads.uploadRepoForm(upload.id)}" 
                 title="Upload a repository as a zip file"><i class="icon-upload"></i> upload a repo archive</a>
         from the comfort of this page. 
     </p>
     <p>
-        If you´re not happy with the contents of this upload, feel free to 
+        If you’re not happy with the contents of this upload, feel free to 
         <span class="action-tip"><i class="icon-trash"></i> delete</span>
-        it: no harm done and let´s try again.
+        it: no harm done and let’s try again.
     </p>
 #{/set}
 
 <div class="alert alert-${uploadInfo.status}">
     #{if uploadInfo.status == "success"}
         <h4 class="alert-heading">Congratulations</h4>
-        This upload is ready to be published, but remember: once a module is published, it can´t be unpublished.
-        You´ve been warned :)
+        This upload is ready to be published, but remember: once a module is published, it can’t be unpublished.
+        You’ve been warned :)
     #{/if}
     #{if uploadInfo.status == "empty"}
         <h4 class="alert-heading">Empty upload</h4>
@@ -398,10 +398,10 @@ $ <span class="xml-tag">ceylon copy</span> <span class="xml-attr">--out</span> <
                         #{/if}
                     </ul>
                     <a href="${util.Util.viewPublicUploadUrl(upload, module.path.substring(1))}"
-                        title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
+                        title="Browse this module’s files"><i class="icon-folder-open"></i> Browse</a><br/>
                     #{if module.docs.exists}
                         <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
-                            title="View this module´s API documentation"><i class="icon-book"></i> View docs</a>
+                            title="View this module’s API documentation"><i class="icon-book"></i> View docs</a>
                     #{/if}
                 </td>
             </tr>

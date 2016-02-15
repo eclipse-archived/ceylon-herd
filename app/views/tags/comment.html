@@ -2,7 +2,7 @@
     #{if flash.commentId !=null && _comment.id.compareTo(new java.lang.Long(flash.commentId)) == 0}
         #{commentMessages/}
     #{/if}
-    <a href="@{Users.view(_comment.owner.userName)}" title="View ${_comment.owner.userName}´s profile">
+    <a href="@{Users.view(_comment.owner.userName)}" title="View ${_comment.owner.userName}’s profile">
         #{gravatar.img _comment.owner.email, size:50, default:'mm', secure:request.secure/}
     </a>
     <div class="data">

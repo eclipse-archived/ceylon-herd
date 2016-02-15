@@ -15,7 +15,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 #{if module.canEdit(user)}
 #{set 'help'}
     <p>
-        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
+        If you want to change the module’s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
         <b>issue tracker</b> URLs, as
         well as <b>grant administration permissions</b> on this module for your colleagues,
         or even <b>transfer it</b> to an other user,
@@ -113,7 +113,7 @@ loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
 #{/if}
 #{else}
     <table class="table table-striped">
-        <caption>List of published versions <a href="@{Feed.module(module.name)}" title="Subscribe to this module´s feed"><img src="@{'/public/images/feed.png'}"/></a></caption>
+        <caption>List of published versions <a href="@{Feed.module(module.name)}" title="Subscribe to this module’s feed"><img src="@{'/public/images/feed.png'}"/></a></caption>
         <tbody>
             #{moduleVersions versions/}
         </tbody>
