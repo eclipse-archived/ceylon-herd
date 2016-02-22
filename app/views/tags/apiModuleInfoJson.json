@@ -34,7 +34,7 @@
 #{/if}
 #{if _arg.isJsPresent}
    {
-    "suffix": ".js"
+    "suffix": ".js",
     "binaryMajorVersion": ${_arg.jsBinMajor},
     "binaryMinorVersion": ${_arg.jsBinMinor}
    }#{if _arg.isSourcePresent},#{/if} 
