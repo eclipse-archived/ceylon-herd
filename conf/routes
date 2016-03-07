@@ -125,6 +125,9 @@ GET     /search/advanced/results                           Repo.searchAdvanced2
 GET     /repo/1/{<.*>path}                                 Repo.viewFile
 GET     /test/                                             404
 GET     /test/{<.*>path}                                   404
+
+GET     /maven/1/{<.*>path}/maven-metadata.xml             MavenRepo.viewVersions
+GET     /maven/1/{<.*>path}                                MavenRepo.viewFile
                                                            
 GET     /users/{username}/?                                Users.view
 GET     /users/{username}/feed.atom                        Feed.user

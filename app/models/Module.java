@@ -299,6 +299,15 @@ public class Module extends Model {
 	public ModuleVersion getLastVersion(){
 	    return versions.isEmpty() ? null : versions.last();
 	}
+	
+	public Date getLastUpdated(){
+	    Date lastUpdated = null;
+	    for(ModuleVersion version : versions){
+	        if(lastUpdated == null || lastUpdated.before(version.published))
+	            lastUpdated = version.published;
+	    }
+	    return lastUpdated;
+	}
 
 	public ModuleVersion getLastVersion(Integer jvmBinaryMajor, Integer jvmBinaryMinor,
 	        Integer jsBinaryMajor, Integer jsBinaryMinor){
@@ -326,6 +335,22 @@ public class Module extends Model {
 	    return super.delete();
 	}
 	
+    @Transient
+    public String getGroupId(){
+        int lastDot = name.lastIndexOf('.');
+        if(lastDot == -1)
+            return "";
+        return name.substring(0, lastDot);
+    }
+
+    @Transient
+    public String getArtifactId(){
+        int lastDot = name.lastIndexOf('.');
+        if(lastDot == -1)
+            return name;
+        return name.substring(lastDot+1);
+    }
+
 	//
 	// Static helpers
 	

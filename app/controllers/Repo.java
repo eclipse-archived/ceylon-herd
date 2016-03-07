@@ -339,7 +339,7 @@ public class Repo extends MyController {
 	    render();
 	}
 
-	private static void checkPath(File file, File repoDir) throws IOException{
+	static void checkPath(File file, File repoDir) throws IOException{
 		String repoPath = repoDir.getCanonicalPath();
 		String filePath = file.getCanonicalPath();
 		if(!filePath.startsWith(repoPath))

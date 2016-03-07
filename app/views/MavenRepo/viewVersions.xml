@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<metadata modelVersion="1.1.0">
+ <groupId>${group}</groupId>
+ <artifactId>${artifact}</artifactId>
+ <versioning>
+  <latest>${module.lastVersion.version}</latest>
+  <release>${module.lastVersion.version}</release>
+  <versions>
+   #{list module.versions, as: 'version'}
+   <version>${version.version}</version>
+   #{/list}
+  </versions>
+ </versioning>
+ <lastUpdated>${module.lastUpdated.format("YYYYmmDDHHMMSS")}</lastUpdated>
+</metadata>

@@ -71,4 +71,24 @@ public class Dependency extends Model {
         // http://modules.ceylon-lang.org/modules/ceylon.language/1.1.0
         return "http://modules.ceylon-lang.org/modules/"+name+"/"+version;
     }
+
+    @Transient
+    public String getGroupId(){
+        int lastDot = name.lastIndexOf(':');
+        if(lastDot == -1)
+            lastDot = name.lastIndexOf('.');
+        if(lastDot == -1)
+            return "";
+        return name.substring(0, lastDot);
+    }
+
+    @Transient
+    public String getArtifactId(){
+        int lastDot = name.lastIndexOf(':');
+        if(lastDot == -1)
+            lastDot = name.lastIndexOf('.');
+        if(lastDot == -1)
+            return name;
+        return name.substring(lastDot+1);
+    }
 }
