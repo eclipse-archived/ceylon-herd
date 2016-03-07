@@ -8,6 +8,7 @@
   <version>${moduleVersion.version}</version>
   <dependencies>
     #{list moduleVersion.dependencies, as: 'dep'}
+    #{if !util.JDKUtil.isJdkModule(dep.name)}
     <dependency>
       <groupId>${dep.groupId}</groupId>
       <artifactId>${dep.artifactId}</artifactId>
@@ -16,6 +17,7 @@
       <optional>true</optional>
       #{/if}
     </dependency>
+    #{/if}
     #{/list}
   </dependencies>
   <name>${moduleVersion.module.friendlyName}</name>
