@@ -22,6 +22,7 @@ import models.MavenDependency;
 import models.Upload;
 import models.User;
 import play.Logger;
+import play.Play;
 import play.data.validation.Required;
 import play.data.validation.Validation;
 import play.libs.MimeTypes;
@@ -188,10 +189,11 @@ public class Uploads extends LoggedInController {
             prepareForErrorRedirect();
             view(id);
 	    }
+        String mavenUrl = Play.configuration.getProperty("maven.url", "http://repo1.maven.org/maven2");
 	    String groupId = name.substring(0, idSep);
         String groupIdPath = groupId.replace('.', '/');
 	    String artifactId = name.substring(idSep+1);
-	    String url = "http://repo1.maven.org/maven2/" + groupIdPath + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
+	    String url = mavenUrl + "/" + groupIdPath + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar";
 	    
 	    Logger.info("Looking up module in Maven Central at: %s", url);
 	    HttpResponse response = WS.url(url).head();
