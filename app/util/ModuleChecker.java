@@ -1222,30 +1222,31 @@ public class ModuleChecker {
                 m.diagnostics.add(new Diagnostic("warning", lead+" was not found but is optional"));
                 dependencies.add(new Import(name, version, optional, export, nativeBackends));
             } else {
-            	if(CeylonRuntime.jvm == ceylonRuntime && 
-            			(upload.findMavenDependency(name, version) == null && upload.findHerdDependency(name, version) == null)){
-                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
+                boolean foundInMaven = upload.findMavenDependency(name, version) != null;
+                boolean foundInHerd = upload.findHerdDependency(name, version) != null;
+            	if(CeylonRuntime.jvm == ceylonRuntime && !foundInMaven && !foundInHerd){
+                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot1 be found in upload or repo and is not optional");
                     diagnostic.dependencyNotFoundFromHerdAndMaven= true;// This shows/hides the "Resolve from Herd" button and "Resolve from Maven Central" buttons
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
-            	}else if (upload.findHerdDependency(name, version) == null){
-                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot be found in upload or repo and is not optional");
-                    diagnostic.dependencyNotFoundFromHerdOnly = true;// This shows/hides the "Resolve from Herd" button 
-                    diagnostic.dependencyName = name;
-                    diagnostic.dependencyVersion = version;
-                    m.diagnostics.add(diagnostic);
-            	} else if (upload.findHerdDependency(name, version) != null){
+            	} else if (foundInHerd){
                     dependencies.add(new Import(name, version, optional, export, nativeBackends, upload.findHerdDependency(name, version)));
                     Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Herd");
                     diagnostic.dependencyResolvedFromHerd = true;
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
-                }else if (CeylonRuntime.jvm == ceylonRuntime && upload.findMavenDependency(name, version) != null){
+                }else if (CeylonRuntime.jvm == ceylonRuntime && foundInMaven){
                     dependencies.add(new Import(name, version, optional, export, nativeBackends, upload.findMavenDependency(name, version)));
                     Diagnostic diagnostic = new Diagnostic("success", lead+" resolved from Maven Central");
                     diagnostic.dependencyResolvedFromMaven = true;
+                    diagnostic.dependencyName = name;
+                    diagnostic.dependencyVersion = version;
+                    m.diagnostics.add(diagnostic);
+                }else if (!foundInHerd){
+                    Diagnostic diagnostic = new Diagnostic("error", lead+" cannot2 be found in upload or repo and is not optional");
+                    diagnostic.dependencyNotFoundFromHerdOnly = true;// This shows/hides the "Resolve from Herd" button 
                     diagnostic.dependencyName = name;
                     diagnostic.dependencyVersion = version;
                     m.diagnostics.add(diagnostic);
