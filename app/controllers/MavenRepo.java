@@ -2,6 +2,9 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,13 +13,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 import models.Module;
 import models.ModuleVersion;
 import models.User;
-import play.Logger;
-import play.data.validation.Validation;
 import play.libs.MimeTypes;
 import play.mvc.Before;
 import play.mvc.Http;
 import play.mvc.Scope;
-import play.mvc.results.RenderTemplate;
 import play.templates.Template;
 import play.templates.TemplateLoader;
 import util.Util;
@@ -57,8 +57,10 @@ public class MavenRepo extends MyController {
 
     public static void viewFile(String path) throws IOException{
         Matcher matcher = ARTIFACT_PATTERN.matcher(path);
-        if(!matcher.matches())
-            notFound("Invalid path");
+        if(!matcher.matches()){
+            // partial path
+            handlePartialPath(path);
+        }
         String group = matcher.group(1).replace('/', '.');
         String artifact = matcher.group(2);
         String version = matcher.group(3);
@@ -75,8 +77,7 @@ public class MavenRepo extends MyController {
         else if(!classifier.isEmpty())
             notFound("Classifiers not supported yet");
 
-        String module = group + "." + artifact;
-        ModuleVersion moduleVersion = ModuleVersion.findByVersion(module, version);
+        ModuleVersion moduleVersion = ModuleVersion.findByMavenCoordinates(group, artifact, version);
         if(moduleVersion == null)
             notFound("No such version");
 
@@ -119,13 +120,11 @@ public class MavenRepo extends MyController {
                 response.contentType = "application/"+request.format+"; charset="+response.encoding;
                 render("MavenRepo/pom.xml", moduleVersion);
             }else{
-                Logger.info("sha1");
                 Scope.RenderArgs templateBinding = Scope.RenderArgs.current();
                 templateBinding.data.put("moduleVersion", moduleVersion);
                 Template template = TemplateLoader.load(template("MavenRepo/pom.xml"));
                 String contents = template.render(templateBinding.data);
                 String sha1 = DigestUtils.shaHex(contents);
-                Logger.info("sha1 text");
                 renderText(sha1);
             }
         }
@@ -133,4 +132,73 @@ public class MavenRepo extends MyController {
         notFound("Unknown file type");
     }
 
+    private static void handlePartialPath(String path) {
+        Set<String> prefixes = null;
+        Module module = null;
+        ModuleVersion moduleVersion = null;
+        String parentPath;
+        boolean isListOfFiles = false;
+        if(path.isEmpty()){
+            parentPath = null;
+            prefixes = ModuleVersion.findGroupIdPrefixes("");
+        }else{
+            int lastSlash = path.lastIndexOf('/');
+            if(lastSlash != -1){
+                parentPath = path.substring(0, lastSlash);
+            }else{
+                parentPath = "";
+            }
+            // is it an existing group id?
+            String groupId = path.replace('/', '.');
+            SortedSet<ModuleVersion> versions = ModuleVersion.findByGroupId(groupId);
+            if(versions.isEmpty()){
+                // Perhaps it's a groupId/artifactId?
+                if(lastSlash != -1){
+                    groupId = path.substring(0, lastSlash).replace('/', '.');
+                    String artifactId = path.substring(lastSlash+1);
+                    versions = ModuleVersion.findByMavenCoordinates(groupId, artifactId);
+                    if(!versions.isEmpty()){
+                        prefixes = new TreeSet<>();
+                        module = versions.first().module;
+                        for (ModuleVersion mv : versions) {
+                            prefixes.add(mv.version);
+                        }
+                    }else{
+                        // Perhaps it's a groupId/artifactId/version?
+                        String groupAndArtifactId = path.substring(0, lastSlash);
+                        String version = path.substring(lastSlash+1);
+                        lastSlash = groupAndArtifactId.lastIndexOf('/');
+                        if(lastSlash != -1){
+                            groupId = groupAndArtifactId.substring(0, lastSlash).replace('/', '.');
+                            artifactId = groupAndArtifactId.substring(lastSlash+1);
+                            moduleVersion = ModuleVersion.findByMavenCoordinates(groupId, artifactId, version);
+                            if(moduleVersion != null){
+                                // fake the files
+                                prefixes = new TreeSet<>();
+                                isListOfFiles = true;
+                                String prefix = moduleVersion.getVirtualArtifactId()+"-"+moduleVersion.version;
+                                prefixes.add(prefix+".pom");
+                                prefixes.add(prefix+".pom.sha1");
+                                prefixes.add(prefix+".jar");
+                                prefixes.add(prefix+".jar.sha1");
+                                if(moduleVersion.isSourcePresent){
+                                    prefixes.add(prefix+"-sources.jar");
+                                    prefixes.add(prefix+"-sources.jar.sha1");
+                                }
+                            }
+                        }
+                    }
+                }
+                // did not find anything
+                if(prefixes == null)
+                    prefixes = ModuleVersion.findGroupIdPrefixes(path.replace('/', '.')+".");
+            }else{
+                prefixes = new TreeSet<>();
+                for (ModuleVersion mv : versions) {
+                    prefixes.add(mv.getVirtualArtifactId());
+                }
+            }
+        }
+        render("Repo/listMavenFolder.html", prefixes, path, parentPath, isListOfFiles, moduleVersion, module);
+    }
 }

@@ -10,17 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.google.gson.Gson;
+
+import models.Upload;
 import play.Logger;
 import play.Play;
 import play.libs.IO;
-import play.mvc.Http.Request;
 import play.mvc.Http;
+import play.mvc.Http.Request;
 import play.mvc.Router;
-
-import com.google.gson.Gson;
-
-import models.Project;
-import models.Upload;
 
 public class Util {
 
@@ -147,6 +145,16 @@ public class Util {
         return makeUrl(prefix, pathPart);
     }
 
+    public static String viewMavenRepoUrl(String path, boolean fileExists){
+        String prefix = getMavenHostPrefix(fileExists);
+            
+        Map<String, Object> args = new HashMap<String,Object>();
+        args.put("path", path);
+        Logger.info("path: %s", path);
+        String pathPart = Router.reverse("MavenRepo.viewFile", args).toString().replace("%2F", "/");
+        return makeUrl(prefix, pathPart);
+    }
+
     private static String makeUrl(String prefix, String pathPart) {
         if(prefix.isEmpty())
             return pathPart;
@@ -173,7 +181,16 @@ public class Util {
         }
         return "";
     }
-    
+
+    private static String getMavenHostPrefix(boolean fileExists) {
+        boolean isSecure = Http.Request.current() == null ? false : Http.Request.current().secure;
+        String proto = isSecure ? "https://" : "http://";
+        if(fileExists){
+            return proto + getDataHost();
+        }
+        return proto + getUiHost();
+    }
+
     public static boolean isSplitHost(){
         String property = Play.configuration.getProperty("splitHost.enabled");
         return property != null 

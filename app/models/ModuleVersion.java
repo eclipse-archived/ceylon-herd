@@ -26,25 +26,36 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import models.Module.QueryParams;
-import models.Module.QueryParams.Suffix;
-
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
 
+import controllers.RepoAPI;
+import models.Module.QueryParams;
+import models.Module.QueryParams.Suffix;
 import play.db.jpa.JPA;
 import play.db.jpa.Model;
 import util.CeylonElementType;
 import util.MavenVersionComparator;
 import util.Util;
-import controllers.RepoAPI;
 
 @Entity
 @SuppressWarnings("serial")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"module_id", "version"}))
 public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
-	@Column(nullable = false)
+	private static final Comparator<ModuleVersion> ArtifactIdAndVersionComparator = new Comparator<ModuleVersion>(){
+
+        @Override
+        public int compare(ModuleVersion a, ModuleVersion b) {
+            int ret = a.getVirtualArtifactId().compareTo(b.getVirtualArtifactId());
+            if(ret != 0)
+                return ret;
+            return a.version.compareTo(b.version);
+        }
+	    
+	};
+
+    @Column(nullable = false)
 	public String version;
 	
 	@JoinColumn(nullable = false)
@@ -505,5 +516,105 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
             return groupId+":"+art;
         }
         return null;
+    }
+
+    @Transient
+    public String getVirtualGroupId() {
+        if(groupId != null){
+            return groupId;
+        }
+        int lastDot = module.name.lastIndexOf('.');
+        // just repeat the module name
+        if(lastDot == -1)
+            return module.name;
+        return module.name.substring(0, lastDot);
+    }
+
+    @Transient
+    public String getVirtualArtifactId() {
+        if(groupId != null){
+            if(artifactId != null)
+                return artifactId;
+            return module.name;
+        }
+        int lastDot = module.name.lastIndexOf('.');
+        // just repeat the module name
+        if(lastDot == -1)
+            return module.name;
+        return module.name.substring(lastDot+1);
+    }
+
+    //
+    // Util
+    
+    public static SortedSet<ModuleVersion> findByGroupId(String groupId) {
+        List<ModuleVersion> mavenModules = find("(isCarPresent = true OR isJarPresent = true) AND groupId = :groupId")
+                .bind("groupId", groupId)
+                .fetch();
+        List<ModuleVersion> ceylonModules = find("(isCarPresent = true OR isJarPresent = true) AND LOCATE(:start, module.name) = 1")
+                .bind("start", groupId+".")
+                .fetch();
+        SortedSet<ModuleVersion> ret = new TreeSet<>(ArtifactIdAndVersionComparator);
+        ret.addAll(mavenModules);
+        for (ModuleVersion mv : ceylonModules) {
+            if(mv.getVirtualGroupId().equals(groupId))
+                ret.add(mv);
+        }
+        return ret;
+    }
+
+    public static SortedSet<ModuleVersion> findByMavenCoordinates(String groupId, String artifactId) {
+        List<ModuleVersion> mavenModules = find("(isCarPresent = true OR isJarPresent = true)"
+                +" AND (groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
+                +" OR (groupId IS NULL AND module.name = :name)")
+                .bind("groupId", groupId)
+                .bind("artifactId", artifactId)
+                .bind("name", groupId+"."+artifactId)
+                .fetch();
+        SortedSet<ModuleVersion> ret = new TreeSet<>(ArtifactIdAndVersionComparator);
+        ret.addAll(mavenModules);
+        return ret;
+    }
+
+    public static ModuleVersion findByMavenCoordinates(String groupId, String artifactId, String version) {
+        return find("(isCarPresent = true OR isJarPresent = true)"
+                +" AND version = :version"
+                +" AND (groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
+                +" OR (groupId IS NULL AND module.name = :name)")
+                .bind("groupId", groupId)
+                .bind("artifactId", artifactId)
+                .bind("version", version)
+                .bind("name", groupId+"."+artifactId)
+                .first();
+    }
+
+    public static SortedSet<String> findGroupIdPrefixes(String start) {
+        List<String> mavenPrefixes = find("SELECT DISTINCT mv.groupId AS prefix"
+                +" FROM ModuleVersion mv"
+                +" WHERE (mv.isCarPresent = true OR mv.isJarPresent = true) AND mv.groupId IS NOT NULL AND LOCATE(:start, mv.groupId) = 1"
+                +" ORDER BY prefix").bind("start", start).fetch();
+        List<String> ceylonPrefixes = find("SELECT DISTINCT mv.module.name AS prefix"
+                +" FROM ModuleVersion mv"
+                +" WHERE (mv.isCarPresent = true OR mv.isJarPresent = true) AND mv.groupId IS NULL AND LOCATE(:start, mv.module.name) = 1"
+                +" ORDER BY prefix").bind("start", start).fetch();
+        SortedSet<String> ret = new TreeSet<>();
+        for (String prefix : mavenPrefixes) {
+            prefix = prefix.substring(start.length());
+            int firstDot = prefix.indexOf('.');
+            if(firstDot != -1){
+                ret.add(prefix.substring(0, firstDot));
+            }else{
+                ret.add(prefix);
+            }
+        }
+        for (String prefix : ceylonPrefixes) {
+            prefix = prefix.substring(start.length());
+            int firstDot = prefix.indexOf('.');
+            // only accept it if we have a dot, the last dot will separate our artifactId
+            if(firstDot != -1){
+                ret.add(prefix.substring(0, firstDot));
+            }
+        }
+        return ret;
     }
 }

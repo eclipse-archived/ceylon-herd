@@ -635,5 +635,4 @@ public class Module extends Model {
 
         return jpaQuery;
     }
-
 }
