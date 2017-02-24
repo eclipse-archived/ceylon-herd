@@ -74,6 +74,11 @@ public class Dependency extends Model {
 
     @Transient
     public String getGroupId(){
+        if(!resolvedFromHerd && !resolvedFromMaven){
+            ModuleVersion dep = ModuleVersion.findByVersion(name, version);
+            if(dep != null)
+                return dep.getVirtualGroupId();
+        }
         int lastDot = name.lastIndexOf(':');
         if(lastDot == -1)
             lastDot = name.lastIndexOf('.');
@@ -84,6 +89,11 @@ public class Dependency extends Model {
 
     @Transient
     public String getArtifactId(){
+        if(!resolvedFromHerd && !resolvedFromMaven){
+            ModuleVersion dep = ModuleVersion.findByVersion(name, version);
+            if(dep != null)
+                return dep.getVirtualArtifactId();
+        }
         int lastDot = name.lastIndexOf(':');
         if(lastDot == -1)
             lastDot = name.lastIndexOf('.');

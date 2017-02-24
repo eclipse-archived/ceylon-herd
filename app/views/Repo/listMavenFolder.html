@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set title:'Browse Maven repo' /}
+
+#{if empty}
+    <div class="alert alert-info">
+        No file yet.
+    </div>
+#{/if}
+#{else}
+    #{if moduleVersion}
+        <div class="alert alert-info">
+            <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}"><i class="icon-info-sign"></i> View module version page</a>.
+        </div>
+    #{/if}
+    #{if module}
+        <div class="alert alert-info">
+            <a href="@{Repo.versions(module.name)}"><i class="icon-info-sign"></i> View module page</a>.
+        </div>
+    #{/if}
+    <table class="table">
+        <caption>Browse ${path ?: 'root'}</caption>
+        #{if parentPath != null}
+        <tr>
+            <td colspan="3"><a href="${util.Util.viewMavenRepoUrl(parentPath, false)}" title="Browse parent folder"><i class="icon-folder-open"></i> Parent</a></td>
+        </tr>
+        #{/if}
+        #{list items:prefixes, as:'child'}
+        <tr>
+            <td><a href="${util.Util.viewMavenRepoUrl((path ? path+"/" : "")+child, false)}" title="${!isListOfFiles ? 'Browse folder' : 'View file'}"><i class="icon-${!isListOfFiles ? 'folder-open' : 'file'}"></i> ${child}</a></td>
+            <td>
+            </td>
+        </tr>
+        #{/list}
+    </table>
+#{/else}

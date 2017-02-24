@@ -46,12 +46,13 @@ public class MavenRepo extends MyController {
         String artifact = matcher.group(2);
         String moduleName = group + "." + artifact;
 
-        Module module = Module.findByName(moduleName);
-        if(module == null)
+        SortedSet<ModuleVersion> moduleVersions = ModuleVersion.findByMavenCoordinates(group, artifact);
+        if(moduleVersions.isEmpty())
             notFound("No such module: "+moduleName);
         request.format = "xml";
         // Play doesn't set the charset for us when rendering a template :(
         response.contentType = "application/"+request.format+"; charset="+response.encoding;
+        Module module = moduleVersions.first().module;
         render(group, artifact, module);
     }
 
@@ -163,6 +164,7 @@ public class MavenRepo extends MyController {
                         for (ModuleVersion mv : versions) {
                             prefixes.add(mv.version);
                         }
+                        prefixes.add("maven-metadata.xml");
                     }else{
                         // Perhaps it's a groupId/artifactId/version?
                         String groupAndArtifactId = path.substring(0, lastSlash);
@@ -199,6 +201,8 @@ public class MavenRepo extends MyController {
                 }
             }
         }
+        if(prefixes.isEmpty())
+            notFound("No such file or folder: "+path);
         render("Repo/listMavenFolder.html", prefixes, path, parentPath, isListOfFiles, moduleVersion, module);
     }
 }
