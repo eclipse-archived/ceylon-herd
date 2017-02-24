@@ -63,6 +63,14 @@
                 #{moduleBackends moduleVersion/}
             </td>
         </tr>
+        #{if moduleVersion.isCarPresent || moduleVersion.isJarPresent}
+        <tr>
+            <th>Maven coordinates</th>
+            <td>
+                ${moduleVersion.mavenCoordinates}
+            </td>
+        </tr>
+        #{/if}
         #{if moduleVersion.isCarPresent || moduleVersion.isJsPresent}
         <tr>
             <th>Compatible Ceylon release</th>

@@ -292,6 +292,9 @@ $ <span class="xml-tag">ceylon copy</span> <span class="xml-attr">--out</span> <
                         </button>
                     #{/form}
                     ${module.name}/${module.version}
+                    #{if module.mavenCoordinates}
+                        <span class="upload maven-coordinates">(${module.mavenCoordinates})</span>
+                    #{/if}
                     <ul id="diagnostics-${module.name.slugify()}-${module.version.slugify()}">
                         %{
                             diagnosticsHidden = false;

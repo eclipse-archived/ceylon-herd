@@ -357,6 +357,8 @@ public class Uploads extends LoggedInController {
 			    }
 			}
 			modVersion.isPackageJsonPresent = module.jsPackage;
+			modVersion.groupId = module.groupId;
+			modVersion.artifactId = module.artifactId;
 			modVersion.create();
 
 			for(Import imp : module.getAllDependencies())

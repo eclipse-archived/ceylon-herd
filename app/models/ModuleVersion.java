@@ -66,6 +66,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public boolean isNativeJvm;
     public boolean isNativeJs;
     public boolean isPackageJsonPresent;
+    public String groupId;
+    public String artifactId;
 	
 	public long downloads;
     public long jsdownloads;
@@ -494,5 +496,14 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
                 ret.add(dep);
         }
         return ret;
+    }
+    
+    @Transient
+    public String getMavenCoordinates(){
+        if(groupId != null){
+            String art = artifactId != null ? artifactId : module.name;
+            return groupId+":"+art;
+        }
+        return null;
     }
 }

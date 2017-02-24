@@ -696,6 +696,15 @@ public class ModuleChecker {
                         String fileName = entry.getName();
                         if (fileName.endsWith(".class")) {
                             loadClassName(zipFile, entry, m);
+                        }else if(m.jar.exists 
+                                && fileName.startsWith("META-INF/maven/")
+                                    && fileName.endsWith("/pom.xml")){
+                            String part = fileName.substring(15, fileName.length()-8);
+                            int sep = part.indexOf('/');
+                            if(sep != -1){
+                                m.groupId = part.substring(0, sep);
+                                m.artifactId = part.substring(sep+1);
+                            }
                         }
                     }
                 }
@@ -962,6 +971,35 @@ public class ModuleChecker {
                             Collections.<String>emptyList(), upload, m.carDependencies);
                 }
             }
+            NodeList propertiesNodes = root.getElementsByTagName("properties");
+            for(int i=0;i<propertiesNodes.getLength();i++){
+                Node node = propertiesNodes.item(i);
+                if(node instanceof Element == false){
+                    m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid properties node: "+node));
+                    continue;
+                }
+                Element properties = (Element) node;
+                NodeList propertyNodes = properties.getElementsByTagName("property");
+                for(int j=0;j < propertyNodes.getLength();j++){
+                    Node propertyNode = propertyNodes.item(j);
+                    if(propertyNode instanceof Element == false){
+                        m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid property node: "+propertyNode));
+                        continue;
+                    }
+                    String name = ((Element)propertyNode).getAttribute("name");
+                    String value = ((Element)propertyNode).getAttribute("value");
+                    if(name == null
+                            || value == null){
+                        m.diagnostics.add(new Diagnostic("error", "module.xml: Invalid property node: "+propertyNode));
+                        continue;
+                    }
+                    if(name.equals("groupId")){
+                        m.groupId = value;
+                    }else if(name.equals("artifactId")){
+                        m.artifactId = value;
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             m.diagnostics.add(new Diagnostic("error", "Invalid modules file: "+e.getMessage()));
@@ -1064,6 +1102,14 @@ public class ModuleChecker {
                     for(String nativeBackend : nativeBackends)
                         m.nativeBackends.add(nativeBackend);
                     m.diagnostics.add(new Diagnostic("success", "Has native backends (in JVM): "+m.nativeBackends));
+                }
+                m.groupId = getString(moduleAnnotation, "group", m, true);
+                if (m.groupId != null) {
+                    m.diagnostics.add(new Diagnostic("success", "Has groupId: "+m.groupId));
+                }
+                m.artifactId = getString(moduleAnnotation, "artifact", m, true);
+                if (m.artifactId != null) {
+                    m.diagnostics.add(new Diagnostic("success", "Has artifactId: "+m.artifactId));
                 }
                 
                 // dependencies
@@ -1730,6 +1776,8 @@ public class ModuleChecker {
     }
     
     public static class Module {
+        public String artifactId;
+        public String groupId;
         public String[] authors;
         public String doc;
         public String license;
@@ -1814,7 +1862,15 @@ public class ModuleChecker {
         public boolean isNativeJs() {
             return nativeBackends.contains("js");
         }
-}
+        
+        public String getMavenCoordinates(){
+            if(groupId != null){
+                String art = artifactId != null ? artifactId : name;
+                return groupId+":"+art;
+            }
+            return null;
+        }
+    }
 
     public static class UploadInfo {
 

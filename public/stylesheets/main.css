@@ -537,6 +537,10 @@ pre.rainbow {
     background: #A4FFA1;
 }
 
+.upload.maven-coordinates {
+    color: gray;
+}
+
 /* Fix for bootstrap bug */
 
 .table:not(.table-bordered) > tbody > tr > td,
