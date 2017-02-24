@@ -423,7 +423,20 @@ public class ModuleChecker {
                 }
             }
         }
-        
+
+        String jsPackageName = "package.json";
+        String jsPackagePath = m.path + jsPackageName;
+        boolean hasJsPackage = fileByPath.containsKey(jsPackagePath);
+        if(hasJsPackage){
+            fileByPath.remove(jsPackagePath);
+            if(!m.js.exists){
+                m.diagnostics.add(new Diagnostic("error", "package.json file only supported with js upload"));
+            }else{
+                m.diagnostics.add(new Diagnostic("success", "package.json present"));
+            }
+            m.jsPackage = true;
+        }
+
         // now we have module info loaded we can check for native existence
         addArtifactDiagnostics("car", carName, m, m.car, true, false, !m.shouldExistInJvm());
         addArtifactDiagnostics("js", jsName, m, m.js, true, false, !m.shouldExistInJs());
@@ -1742,6 +1755,7 @@ public class ModuleChecker {
         public SortedSet<Member> members = new TreeSet<Member>();
         public SortedSet<Script> scriptDescriptions = new TreeSet<Script>();
         public Set<String> nativeBackends = new TreeSet<String>();
+        public boolean jsPackage;
 
         Module(String name, String version, String path){
             this.name = name;

@@ -25,17 +25,16 @@ import play.Logger;
 import play.Play;
 import play.data.validation.Required;
 import play.data.validation.Validation;
-import play.libs.MimeTypes;
 import play.libs.WS;
 import play.libs.WS.HttpResponse;
 import play.mvc.Scope;
 import util.JavaExtensions;
 import util.ModuleChecker;
-import util.ModuleSpec;
 import util.ModuleChecker.Diagnostic;
 import util.ModuleChecker.Import;
 import util.ModuleChecker.Module;
 import util.ModuleChecker.UploadInfo;
+import util.ModuleSpec;
 import util.MyCache;
 import util.Util;
 
@@ -357,6 +356,7 @@ public class Uploads extends LoggedInController {
 			        modVersion.authors.add(Author.findOrCreate(author));
 			    }
 			}
+			modVersion.isPackageJsonPresent = module.jsPackage;
 			modVersion.create();
 
 			for(Import imp : module.getAllDependencies())

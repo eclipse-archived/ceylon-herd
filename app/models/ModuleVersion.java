@@ -65,6 +65,7 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public boolean isRunnable;
     public boolean isNativeJvm;
     public boolean isNativeJs;
+    public boolean isPackageJsonPresent;
 	
 	public long downloads;
     public long jsdownloads;
