@@ -218,6 +218,27 @@ $ <span class="xml-tag">ceylon copy</span> <span class="xml-attr">--out</span> <
             </td>
         </tr>
         #{/if}
+        #{if upload.herdDependencies.size() > 0}
+        <tr>
+            <th>Dependencies resolved from Ceylon Herd</th>
+            <td>
+                <ul>
+                #{list items:upload.herdDependencies, as:'md'}
+                    <li>${md.name}/${md.version}
+                        #{form @Uploads.removeHerdDependency(upload.id, md.name, md.version), class:"form-no-margin inline"}
+                             <button type="submit" class="btn btn-mini"
+                                     title="Do not resolve dependency from Ceylon Herd"><i class="icon-remove-sign"></i> Do not resolve from Ceylon Herd</button>
+                        #{/form}
+                    </li>
+                #{/list}
+                </ul>
+                #{form @Uploads.clearHerdDependencies(upload.id), class:"form-no-margin inline"}
+                     <button type="submit" class="btn btn-mini"
+                             title="Do not resolve anything from Ceylon Herd"><i class="icon-fire"></i> Do not resolve anything from Ceylon Herd</button>
+                #{/form}
+            </td>
+        </tr>
+        #{/if}
         <tr>
             <th></th>
             <td>

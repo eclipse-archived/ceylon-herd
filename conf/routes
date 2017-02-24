@@ -79,7 +79,7 @@ POST    /uploads/{id}/resolve-from-herd                    Uploads.resolveHerdDe
 POST    /uploads/{id}/remove-from-maven                    Uploads.removeMavenDependency
 POST    /uploads/{id}/remove-from-herd                     Uploads.removeHerdDependency
 POST    /uploads/{id}/clear-maven-dependencies             Uploads.clearMavenDependencies
-POST    /uploads/{id}/clear-herd-dependencies              Uploads.clearMavenDependencies
+POST    /uploads/{id}/clear-herd-dependencies              Uploads.clearHerdDependencies
 
 GET     /uploads/{id}/public/repo/{<.*>path}               UploadRESTReadOnly.viewFile
 GET     /uploads/{id}/repo/{<.*>path}                      UploadRESTReadWrite.viewFile
