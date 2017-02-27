@@ -29,9 +29,6 @@ public class MavenRepo extends MyController {
     // we set it if it's there, otherwise we don't require it
     @Before
     static void setConnectedUser() {
-        if(!Util.isOnDataHost()){
-            notFound();
-        }
         if(Security.isConnected()) {
             User user = User.findRegisteredByUserName(Security.connected());
             renderArgs.put("user", user);
@@ -39,6 +36,9 @@ public class MavenRepo extends MyController {
     }
 
     public static void viewVersions(String path) throws IOException{
+        if(!Util.isOnDataHost()){
+            notFound();
+        }
         Matcher matcher = MODULE_PATTERN.matcher(path);
         if(!matcher.matches())
             notFound("Invalid path");
@@ -59,8 +59,14 @@ public class MavenRepo extends MyController {
     public static void viewFile(String path) throws IOException{
         Matcher matcher = ARTIFACT_PATTERN.matcher(path);
         if(!matcher.matches()){
+            if(!Util.isOnUiHost()){
+                redirect(Util.viewMavenRepoUrl(path, false), true);
+            }
             // partial path
             handlePartialPath(path);
+        }
+        if(!Util.isOnDataHost()){
+            notFound();
         }
         String group = matcher.group(1).replace('/', '.');
         String artifact = matcher.group(2);
