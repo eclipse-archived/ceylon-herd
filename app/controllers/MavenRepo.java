@@ -2,9 +2,9 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,14 +140,14 @@ public class MavenRepo extends MyController {
     }
 
     private static void handlePartialPath(String path) {
-        Set<String> prefixes = null;
+        Map<String, Boolean> prefixes = null;
         Module module = null;
         ModuleVersion moduleVersion = null;
         String parentPath;
         boolean isListOfFiles = false;
         if(path.isEmpty()){
             parentPath = null;
-            prefixes = ModuleVersion.findGroupIdPrefixes("");
+            prefixes = falseMap(ModuleVersion.findGroupIdPrefixes(""));
         }else{
             int lastSlash = path.lastIndexOf('/');
             if(lastSlash != -1){
@@ -165,12 +165,12 @@ public class MavenRepo extends MyController {
                     String artifactId = path.substring(lastSlash+1);
                     versions = ModuleVersion.findByMavenCoordinates(groupId, artifactId);
                     if(!versions.isEmpty()){
-                        prefixes = new TreeSet<>();
+                        prefixes = new TreeMap<>();
                         module = versions.first().module;
                         for (ModuleVersion mv : versions) {
-                            prefixes.add(mv.version);
+                            prefixes.put(mv.version, false);
                         }
-                        prefixes.add("maven-metadata.xml");
+                        prefixes.put("maven-metadata.xml", true);
                     }else{
                         // Perhaps it's a groupId/artifactId/version?
                         String groupAndArtifactId = path.substring(0, lastSlash);
@@ -182,16 +182,16 @@ public class MavenRepo extends MyController {
                             moduleVersion = ModuleVersion.findByMavenCoordinates(groupId, artifactId, version);
                             if(moduleVersion != null){
                                 // fake the files
-                                prefixes = new TreeSet<>();
+                                prefixes = new TreeMap<>();
                                 isListOfFiles = true;
                                 String prefix = moduleVersion.getVirtualArtifactId()+"-"+moduleVersion.version;
-                                prefixes.add(prefix+".pom");
-                                prefixes.add(prefix+".pom.sha1");
-                                prefixes.add(prefix+".jar");
-                                prefixes.add(prefix+".jar.sha1");
+                                prefixes.put(prefix+".pom", true);
+                                prefixes.put(prefix+".pom.sha1", true);
+                                prefixes.put(prefix+".jar", true);
+                                prefixes.put(prefix+".jar.sha1", true);
                                 if(moduleVersion.isSourcePresent){
-                                    prefixes.add(prefix+"-sources.jar");
-                                    prefixes.add(prefix+"-sources.jar.sha1");
+                                    prefixes.put(prefix+"-sources.jar", true);
+                                    prefixes.put(prefix+"-sources.jar.sha1", true);
                                 }
                             }
                         }
@@ -199,16 +199,24 @@ public class MavenRepo extends MyController {
                 }
                 // did not find anything
                 if(prefixes == null)
-                    prefixes = ModuleVersion.findGroupIdPrefixes(path.replace('/', '.')+".");
+                    prefixes = falseMap(ModuleVersion.findGroupIdPrefixes(path.replace('/', '.')+"."));
             }else{
-                prefixes = new TreeSet<>();
+                prefixes = new TreeMap<>();
                 for (ModuleVersion mv : versions) {
-                    prefixes.add(mv.getVirtualArtifactId());
+                    prefixes.put(mv.getVirtualArtifactId(), false);
                 }
             }
         }
         if(prefixes.isEmpty())
             notFound("No such file or folder: "+path);
         render("Repo/listMavenFolder.html", prefixes, path, parentPath, isListOfFiles, moduleVersion, module);
+    }
+
+    private static Map<String, Boolean> falseMap(SortedSet<String> prefixes) {
+        Map<String,Boolean> ret = new TreeMap<>();
+        for (String prefix : prefixes) {
+            ret.put(prefix, false);
+        }
+        return ret;
     }
 }

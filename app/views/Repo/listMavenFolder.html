@@ -24,9 +24,9 @@
             <td colspan="3"><a href="${util.Util.viewMavenRepoUrl(parentPath, false)}" title="Browse parent folder"><i class="icon-folder-open"></i> Parent</a></td>
         </tr>
         #{/if}
-        #{list items:prefixes, as:'child'}
+        #{list items:prefixes.entrySet(), as:'entry'}
         <tr>
-            <td><a href="${util.Util.viewMavenRepoUrl((path ? path+"/" : "")+child, false)}" title="${!isListOfFiles ? 'Browse folder' : 'View file'}"><i class="icon-${!isListOfFiles ? 'folder-open' : 'file'}"></i> ${child}</a></td>
+            <td><a href="${util.Util.viewMavenRepoUrl((path ? path+"/" : "")+entry.key, entry.value)}" title="${!entry.value ? 'Browse folder' : 'View file'}"><i class="icon-${!entry.value ? 'folder-open' : 'file'}"></i> ${entry.key}</a></td>
             <td>
             </td>
         </tr>
