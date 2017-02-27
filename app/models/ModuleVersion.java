@@ -565,8 +565,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
 
     public static SortedSet<ModuleVersion> findByMavenCoordinates(String groupId, String artifactId) {
         List<ModuleVersion> mavenModules = find("(isCarPresent = true OR isJarPresent = true)"
-                +" AND (groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
-                +" OR (groupId IS NULL AND module.name = :name)")
+                +" AND ((groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
+                +" OR (groupId IS NULL AND module.name = :name))")
                 .bind("groupId", groupId)
                 .bind("artifactId", artifactId)
                 .bind("name", groupId+"."+artifactId)
@@ -579,8 +579,8 @@ public class ModuleVersion extends Model implements Comparable<ModuleVersion> {
     public static ModuleVersion findByMavenCoordinates(String groupId, String artifactId, String version) {
         return find("(isCarPresent = true OR isJarPresent = true)"
                 +" AND version = :version"
-                +" AND (groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
-                +" OR (groupId IS NULL AND module.name = :name)")
+                +" AND ((groupId = :groupId AND (artifactId = :artifactId OR (artifactId IS NULL AND module.name = :artifactId)))"
+                +" OR (groupId IS NULL AND module.name = :name))")
                 .bind("groupId", groupId)
                 .bind("artifactId", artifactId)
                 .bind("version", version)
