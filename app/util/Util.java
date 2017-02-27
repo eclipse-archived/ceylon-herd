@@ -150,7 +150,6 @@ public class Util {
             
         Map<String, Object> args = new HashMap<String,Object>();
         args.put("path", path);
-        Logger.info("path: %s", path);
         String pathPart = Router.reverse("MavenRepo.viewFile", args).toString().replace("%2F", "/");
         return makeUrl(prefix, pathPart);
     }

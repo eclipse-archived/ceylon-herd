@@ -159,14 +159,12 @@ public class MavenRepo extends MyController {
             // is it an existing group id?
             String groupId = path.replace('/', '.');
             SortedSet<ModuleVersion> versions = ModuleVersion.findByGroupId(groupId);
-            Logger.info("just group '%s': %s", groupId, versions);
             if(versions.isEmpty()){
                 // Perhaps it's a groupId/artifactId?
                 if(lastSlash != -1){
                     groupId = path.substring(0, lastSlash).replace('/', '.');
                     String artifactId = path.substring(lastSlash+1);
                     versions = ModuleVersion.findByMavenCoordinates(groupId, artifactId);
-                    Logger.info("just group/art '%s:%s': %s", groupId, artifactId, versions);
                     if(!versions.isEmpty()){
                         prefixes = new TreeMap<>();
                         module = versions.first().module;
@@ -183,7 +181,6 @@ public class MavenRepo extends MyController {
                             groupId = groupAndArtifactId.substring(0, lastSlash).replace('/', '.');
                             artifactId = groupAndArtifactId.substring(lastSlash+1);
                             moduleVersion = ModuleVersion.findByMavenCoordinates(groupId, artifactId, version);
-                            Logger.info("just group/art/v '%s:%s:%s': %s", groupId, artifactId, version, versions);
                             if(moduleVersion != null){
                                 // fake the files
                                 prefixes = new TreeMap<>();
@@ -203,7 +200,6 @@ public class MavenRepo extends MyController {
                 }
                 // did not find anything
                 if(prefixes == null){
-                    Logger.info("nothing %s", path);
                     prefixes = falseMap(ModuleVersion.findGroupIdPrefixes(path.replace('/', '.')+"."));
                 }
             }else{
