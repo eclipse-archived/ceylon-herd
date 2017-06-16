@@ -6,7 +6,7 @@ are going to move it to Play 1.3 as soon as possible to fix that.
 1. [Download Play Framework 1.2.7.2](https://downloads.typesafe.com/play/1.2.7.2/play-1.2.7.2.zip) and install it
 1. Clone the [Herd repository](https://github.com/ceylon/ceylon-herd)
 1. Open a shell and go to the `ceylon-herd` directory you just cloned
-1. Run `play dependencies` to download the required modules
+1. Run `play dependencies` to setup the required modules
     - Note: the `play` script requires Python 2, but runs on `/usr/bin/env python`,
       which may default to Python 3 depending on your system.
       If you get an error like this:
@@ -21,6 +21,11 @@ are going to move it to Play 1.3 as soon as possible to fix that.
       ```python
       #!/usr/bin/env python2
       ```
+    - Note 2: This will pretend to fail due to not being able to find `gravatar` and `db` but
+      in fact they are already there. This is due to Play apparently having removed their Maven
+      repo online. Those two modules have been added to our Git repo so we have them, but this
+      step is still necessary in order to set up the `secure` module which comes from the Play
+      distribution itself. Ignore the two errors and move on: it should work.
 1. Create your Postgres DB
     1. `sudo su - postgres`
     1. `createuser -PSRD ceylon-herd`
