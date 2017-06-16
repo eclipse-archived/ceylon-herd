@@ -11,7 +11,8 @@ debian/files
 *.iml
 conf/*.cert
 conf/*.key
-modules
+modules/secure
+*.pyc
 /eclipse
 /test-result
 /*.ids
