@@ -21,7 +21,7 @@ are going to move it to Play 1.3 as soon as possible to fix that.
       ```python
       #!/usr/bin/env python2
       ```
-    - Note 2: This will pretend to fail due to not being able to find `gravatar` and `db` but
+    - Note 2: This will pretend to fail due to not being able to find `db` but
       in fact they are already there. This is due to Play apparently having removed their Maven
       repo online. Those two modules have been added to our Git repo so we have them, but this
       step is still necessary in order to set up the `secure` module which comes from the Play

@@ -1,38 +1,28 @@
-package views.tags.gravatar;
+package views.tags;
 
-import play.templates.FastTags;
-import play.templates.GroovyTemplate;
-import play.libs.Codec;
-import play.cache.Cache;
-import play.exceptions.TemplateExecutionException;
-import play.exceptions.TagInternalException;
-
-import java.util.Map;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.io.PrintWriter;
+import java.util.Map;
 
 import groovy.lang.Closure;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.collections.ListUtils;
+import play.exceptions.TagInternalException;
+import play.exceptions.TemplateExecutionException;
+import play.libs.Codec;
+import play.templates.FastTags;
+import play.templates.GroovyTemplate;
 
-/**
- *
- * @author Matteo Barbieri <barbieri.matteo@gmail.com>
- *
- */
 @FastTags.Namespace("gravatar")
 public class Gravatar extends FastTags {
 
     private static final String GRAVATAR = "http://www.gravatar.com/";
     private static final String GRAVATAR_SSL = "https://secure.gravatar.com/";
 
-
     public static void _img (Map<?, ?> args, Closure body, PrintWriter out,
                              GroovyTemplate.ExecutableTemplate template, int fromLine) {
         out.print("<img src=\"");
-        _url(args,body,out,template,fromLine);
+        writeUrl(args, body, out, template, fromLine);
         out.print("\"");
         if (args.containsKey("size")) {
           out.print(" width=\""+args.get("size")+"\"");
@@ -45,11 +35,11 @@ public class Gravatar extends FastTags {
         out.print(" alt=\""+alt+"\" />");
     }
 
-    public static void _url (Map<?, ?> args, Closure body, PrintWriter out,
+    private static void writeUrl (Map<?, ?> args, Closure body, PrintWriter out,
                              GroovyTemplate.ExecutableTemplate template, int fromLine) {
 
         if (!args.containsKey("arg") || args.get("arg") == null) {
-            throw new TemplateExecutionException(template.template, fromLine, "Specify an e-mail address", new TagInternalException("Specify an e-mail address"));
+            throw new TemplateExecutionException(template.template, fromLine, "Email required", new TagInternalException("Email required"));
         }
 
         StringBuffer url = new StringBuffer();
@@ -83,16 +73,13 @@ public class Gravatar extends FastTags {
 
             url.append("?");
 
-            Iterator i = params.iterator();
+            Iterator<?> i = params.iterator();
             while(i.hasNext()) {
                 url.append(i.next());
                 if(i.hasNext())
                     url.append("&");
             }
         }
-
         out.print(url.toString());
-
     }
-
 }
