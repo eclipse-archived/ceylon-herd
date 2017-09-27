@@ -13,7 +13,7 @@ Release:	1%{?dist}
 Summary:	Ceylon Herd module repository
 
 Group:		Applications/Publishing
-License:	AGPL
+License:	ASL2
 URL:		http://ceylon-lang.org
 Source0:	ceylon-herd-%{version}.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
