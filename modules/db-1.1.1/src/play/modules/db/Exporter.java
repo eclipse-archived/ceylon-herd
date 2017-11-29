@@ -16,7 +16,7 @@
  *  limitations under the License.
  *
  * User: ${user}
- * Date: ${date}
+ * Date: $2011-2017
  *
  */
 package play.modules.db;
