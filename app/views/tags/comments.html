@@ -1,0 +1,20 @@
+#{list items: _comments, as: 'comment'}
+    #{comment comment: comment,
+              deleteAction: _deleteAction,
+              editAction: _editAction,
+              user: _user,
+              module: _module,
+              starRating: true
+    /}
+#{/list}
+
+#{if _user != null}
+    #{addComment addAction: _addAction,
+                 user: _user,
+                 title: _title,
+                 rating: _module.getRatingFor(_user)
+    /}
+#{/if}
+#{else}
+    You must be <a href="@{Secure.login()}" title="Log in">logged in</a> to comment.
+#{/else}

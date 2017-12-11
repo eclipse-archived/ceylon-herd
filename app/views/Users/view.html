@@ -1,0 +1,89 @@
+#{extends 'main.html' /}
+#{set title:viewedUser.userName+"'s home" /}
+
+<div class="user-info">
+    #{gravatar.img viewedUser.email, size:50, default:'mm', secure:request.secure/}
+    <span class="username">${viewedUser.userName}</span>
+    <span class="name">(${viewedUser.firstName} ${viewedUser.lastName})</span>
+    <a href="@{Feed.user(viewedUser.userName)}" title="Subscribe to this user´s feed"><img src="@{'/public/images/feed.png'}"/></a>
+    #{if user != null && (user.isAdmin || user == viewedUser)}
+        <a href="@{LoggedInUsers.editForm(viewedUser.userName)}" title="Edit profile" class="btn btn-mini pull-right"><i class="icon-edit"></i> Edit</a>
+    #{/if}
+</div>
+
+<hr/>
+
+<table class="user-details">
+    <tr>
+        <th>Name</th>
+        <td>${viewedUser.firstName} ${viewedUser.lastName}</td>
+    </tr>
+    #{if user?.isAdmin || user?.userName == viewedUser.userName}
+    <tr>
+        <th>Email</th>
+        <td>${viewedUser.email} #{if viewedUser?.isEmailConfirmationNeeded()}(${viewedUser.emailToConfirm} not confirmed)#{/if}
+        *{The new user email has not been validated.}*
+        #{if user?.userName == viewedUser.userName && viewedUser?.isEmailConfirmationNeeded()}
+        <p><em>Your email address has been modify and not confirmed. If you haven't received the confirmation email, Please modify it again.</em></p>
+        #{/if}
+        </td>
+    </tr>
+    #{/if}
+    <tr>
+        <th>Projects</th>
+        <td>${ownedProjects.size()}</td>
+    </tr>
+    <tr>
+        <th>Published modules</th>
+        <td>${viewedUser.publishedModules}</td>
+    </tr>
+</table>
+
+<hr/>
+
+<div class="row">
+    <div class="span6">
+		<h2>Projects (${ownedProjects.size()})</h2>
+
+        #{if user && user.isAdmin}
+            <a href="@{Projects.userClaims(viewedUser.userName)}"><i class="icon-list"></i> Project claims</a>
+        #{/if}
+		
+		#{list items:ownedProjects, as:'project'}
+		    <div class="user-project">
+		        %{
+		            module = project.module;
+		        }%
+		        <div class="header">
+		            #{if module}
+		                <a href="@{Repo.versions(module.name)}" title="View published versions">${project.moduleName}</a>
+    		            <a href="@{Feed.module(module.name)}" title="Subscribe to this module´s feed"><img src="@{'/public/images/feed.png'}"/></a>
+		            #{/if}
+		            #{else}
+		                ${project.moduleName}
+		            #{/else}
+		        </div>
+		        <div class="descr">
+		            #{if module}
+		                ${module.friendlyName}
+		            #{/if}
+                    #{if module && module.lastPublished}
+		                <div class="published">Last published ${module.lastPublished.sinceInUserTZ(true)}</div>
+		            #{/if}
+		            #{else}
+		                <div class="published">Not published yet.</div>
+		            #{/else}
+		        </div>
+		    </div>
+		#{/list}
+    </div>
+    <div class="span6">
+        <h2>Last published modules</h2>
+        
+        #{list items:viewedUser.lastPublishedModuleVersions, as:'moduleVersion'}
+            <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" title="View module version">${moduleVersion.module.name}/${moduleVersion.version}</a> 
+            was published ${moduleVersion.published.sinceInUserTZ(true)}
+            <hr/>
+        #{/list}
+    </div>
+</div>

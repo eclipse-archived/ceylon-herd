@@ -1,0 +1,37 @@
+#{list items:_arg, as:'version'}
+    <tr>
+        <td>
+            #{if _showName}<a href="@{Repo.versions(version.module.name)}" title="View module"
+             >${version.module.name}</a> / #{/if}
+             <a href="@{Repo.view(version.module.name, version.version)}" title="View module version"
+             >${version.version}</a>
+        </td>
+        <td>
+            #{moduleBackends version/}
+            #{if version.isCarPresent}
+                #{moduleCeylonCompatibility version/}
+            #{/if}
+            #{if version.isJsPresent}
+                #{moduleJsCompatibility version/}
+            #{/if}
+        </td>
+        <td>
+            Published ${version.published.sinceInUserTZ(true)}
+        </td>
+        <td>
+            <a href="${util.Util.viewRepoUrl(version.path)}" title="Browse module files"><i class="icon-folder-open"></i> Browse</a><br/>
+        </td>
+        <td>
+            #{if version.isAPIPresent}
+                <a href="@{Repo.viewDoc(version.module.name, version.version)}" title="Browse module API documentation"><i class="icon-book"></i> View docs</a><br/>
+            #{/if}
+        </td>
+        <td>
+            #{secure.check 'admin'}
+               <a href="@{LoggedInRepo.removeModuleVersion1(version.module.name, version.version)}" title="Remove this module"
+                  class="btn btn-danger btn-mini"
+                  ><i class="icon-trash icon-white"></i> Remove</a>
+            #{/secure.check}
+        </td>
+    </tr>
+#{/list}

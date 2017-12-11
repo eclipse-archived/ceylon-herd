@@ -1,0 +1,35 @@
+#{extends 'main.html' /}
+#{set title:'View module scripts' /}
+
+#{moduleEditBar 
+    module:module, 
+    moduleVersion:moduleVersion,
+    user:user /}
+
+<p>
+#{user module.owner, img:true /} / 
+ <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a> /
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version">${moduleVersion.version}</a> /
+ Scripts
+</p>
+
+<p>
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version"><i class="icon-home"></i> Back to module version</a>
+</p>
+
+<table class="table table-bordered">
+    <caption>Module Scripts and Plugins</caption>
+    <tbody>
+        #{list items:moduleVersion.scripts, as:'script'}
+            <tr>
+                <td><tt>ceylon ${script.name}</tt>: ${script.description} (
+                #{if script.plugin}
+                Native Plugin in <a href="/modules/${script.module}">${script.module}</a>
+                #{/if}
+                #{else}
+                ${script.unix ? "Unix Script" : "Windows Batch"}
+                #{/else})</td>
+            </tr>
+        #{/list}
+    </tbody>
+</table>

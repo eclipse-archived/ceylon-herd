@@ -1,0 +1,46 @@
+#{extends 'main.html' /}
+#{set title:'Edit module permissions' /}
+#{set hasForm: true /}
+
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/jquery-ui-1.8.18.autocomplete.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+#{/set}
+
+#{set 'moreStyles'}
+    <style>
+        /* Adapt the Bootstrap style to jQuery UI */
+        .dropdown-menu a.ui-state-hover {
+            color: white;
+            text-decoration: none;
+            background-color: #08C;
+        }
+    </style>
+#{/set}
+
+<h1>#{module module /} Administration</h1>
+
+<ul class="nav nav-tabs">
+    <li><a href="@{LoggedInRepo.editForm(module.name)}" title="General information">Information</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.name)}" title="Edit module permissions">Permissions</a></li>
+    <li class="active"><a href="#" onclick="return false;" title="Transfer module">Transfer</a></li>
+</ul>
+
+<h3>Transfer Ownership</h3>
+
+#{form action: @LoggedInRepo.transfer(module.name), class: "form-inline"}
+<div class="control-group #{errorClassBootstrap 'userName'/}">
+        <label class="control-label" for="userName">User name</label>
+        <input name="userName" id="new-user" placeholder="New owner" 
+                    value="${flash.userName ?: ''}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+        <span class="help-inline">​#{error 'userName'/}</span>
+        <button type="submit" class="btn btn-danger" title="Transfer ownership"><i class="icon-gift icon-white"></i> Transfer ownership</button>
+</div>
+#{/form}
+
+<script type="text/javascript">
+jQuery( "#new-user" ).autocomplete({
+    source: "@{LoggedInRepo.userList()}"
+})
+// adapt the jQuery UI style to Bootstrap CSS
+.data( "autocomplete" ).menu.element.addClass("typeahead dropdown-menu");
+</script>

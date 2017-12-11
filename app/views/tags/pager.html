@@ -1,0 +1,38 @@
+#{if _page != null}
+%{
+  int firstPage = Math.max(1, _page-2);
+  int lastPage = Math.min(_pages, _page+2);
+  String queryPart = _queryPart == null ? "?" : ("?"+_queryPart+"&");
+}%
+<div class="pagination">
+  <ul>
+    #{if _page > 1}
+      <li><a href="${queryPart}page=${_page-1}" title="Go to previous page">&laquo;</a></li>
+    #{/if}
+    #{else}
+      <li class="disabled"><a href="#" onclick="return false;">&laquo;</a></li>
+    #{/else}
+    #{if firstPage != 1}
+      <li><a href="${queryPart}page=1" title="Go to first page">1</a></li>
+      #{if firstPage != 2}
+        <li class="disabled"><a href="#" onclick="return false;">…</a></li>
+      #{/if}
+    #{/if}
+    #{list items:firstPage..lastPage, as:'p'}
+      <li #{if p == _page}class="active"#{/if}><a href="${queryPart}page=${p}" title="Go to page ${p}">${p}</a></li>
+    #{/list}
+    #{if lastPage != _pages}
+      #{if lastPage != _pages-1}
+        <li class="disabled"><a href="#" onclick="return false;">…</a></li>
+      #{/if}
+      <li><a href="${queryPart}page=${_pages}" title="Go to last page">${_pages}</a></li>
+    #{/if}
+    #{if _page < _pages}
+      <li><a href="${queryPart}page=${_page+1}" title="Go to next page">&raquo;</a></li>
+    #{/if}
+    #{else}
+      <li class="disabled"><a href="#" onclick="return false;">&raquo;</a></li>
+    #{/else}
+  </ul>
+</div>
+#{/if}

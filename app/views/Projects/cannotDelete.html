@@ -1,0 +1,8 @@
+#{extends 'main.html' /}
+#{set title:'You cannot delete this project claim' /}
+
+<div class="alert">
+    You cannot delete project claim for ${project.moduleName} because some module versions have already
+    been published to the repository, so you need to 
+    <a href="@{LoggedInRepo.transferForm(module.name)}"><i class="icon-gift"></i> transfer it</a> first.
+</div>

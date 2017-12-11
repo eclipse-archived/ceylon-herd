@@ -1,0 +1,169 @@
+#{extends 'main.html' /}
+#{set title:'View project claim' /}
+
+#{set 'help'}
+    <p>
+        This is the <em>project claim details</em> page, where you can review the state of your project claim.
+    </p>
+    <p>
+        Your claim will start as #{projectStatus models.ProjectStatus.CLAIMED/}, and once we review it, we will
+        either move it on to #{projectStatus models.ProjectStatus.CONFIRMED/} or 
+        #{projectStatus models.ProjectStatus.REJECTED/}. We may ask you questions during the review process,
+        in which case you will receive an email notification asking you to come here and reply by
+        <span class="action-tip"><i class="icon-comment"></i> adding a comment</span>. 
+    </p>
+    <p>
+        If your project claim is #{projectStatus models.ProjectStatus.REJECTED/}, don´t worry! You can always
+        <span class="action-tip"><i class="icon-plus"></i> reclaim it</span> if you feel we were wrong, but make
+        sure you provide a good case.
+    </p>
+    <p>
+        If you want to add some information to your claim, feel free to 
+        <span class="action-tip"><i class="icon-comment"></i> add a comment</span>
+        (keep in mind you can 
+        <span class="action-tip"><i class="icon-edit"></i> edit</span> or
+        <span class="action-tip"><i class="icon-trash"></i> delete</span> them too).
+    </p>
+    <p>
+        If you´d like to give up a claim, for whatever reason, feel free to 
+        <span class="action-tip"><i class="icon-trash"></i> delete</span>
+        it. If you´ve already published modules for this project, you will need to 
+        <span class="action-tip"><i class="icon-share"></i> transfer</span>
+        it first.
+    </p>
+#{/set}
+
+
+#{if !otherOwners.isEmpty()}
+    <div class="alert">
+        Project ${project.status == models.ProjectStatus.CONFIRMED ? 'also' : 'already'} owned by:
+        <ul>
+            #{list items:otherOwners, as:'o'}
+                <li>#{user o, img:true /}</li>
+            #{/list}
+        </ul>
+    </div>
+#{/if}
+
+#{projectsMenuBar user: user/}
+
+<table class="table table-bordered">
+    <caption>Project claim</caption>
+    <tbody>
+    <tr>
+        <th>Module name</th>
+        <td>
+            <div class="pull-right">
+                #{if project.canBeEdited() || user.isAdmin}
+    	            <a href="@{Projects.edit(project.id)}" title="Edit project claim" class="btn btn-mini"><i class="icon-edit"></i> Edit</a>
+    	        #{/if}
+    	        #{else}
+    	           <button title="Only claimed projects can be edited" class="btn btn-mini disabled disabled-action"><i class="icon-edit"></i> Edit</button>
+    	        #{/else}
+                #{form @Projects.delete(project.id), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-danger btn-mini action"
+                            title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>
+                #{/form}                    
+            </div>
+            %{
+                module = project.module;
+            }%
+            #{if module}
+                #{module module /}
+            #{/if}
+            #{else}
+                ${project.moduleName}
+            #{/else}
+        </td>
+    </tr>
+    <tr>
+        <th>Owner</th>
+        <td>#{user project.owner, img: true /}</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>
+            #{projectStatus project.status /}
+            #{secure.check 'admin'}
+                <span class="pull-right">
+                #{if project.canBeAccepted()}
+                    #{form @Projects.accept(project.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-success btn-mini"
+                                title="Accept project claim"><i class="icon-ok icon-white"></i> Accept</button>
+                    #{/form}
+                #{/if}
+                #{if project.canBeRejected()}
+                    #{form @Projects.reject(project.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-danger btn-mini"
+                                title="Reject project claim"><i class="icon-remove icon-white"></i> Reject</button>
+                    #{/form}
+                #{/if}
+                </span>
+            #{/secure.check}
+        </td>
+    </tr>
+    <tr>
+        <th>URL</th>
+        <td>${project.url}</td>
+    </tr>
+    <tr>
+        <th>License</th>
+        <td>${project.license}</td>
+    </tr>
+    <tr>
+        <th>Role</th>
+        <td>${project.role}</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>${project.description}</td>
+    </tr>
+    <tr>
+        <th>Motivation</th>
+        <td>${project.motivation}</td>
+    </tr>
+    </tbody>
+</table>
+
+#{list items: project.comments, as: 'comment'}
+    #{if comment.status != null}
+    <div class="comment-status">
+        #{projectStatus comment.status /}
+        #{user comment.owner, img: true, size:30 /}
+        ${comment.status.name().toLowerCase()} this project ${comment.date.sinceInUserTZ(true)}
+    </div>
+    #{/if}
+    #{else}
+        %{
+          def editAction = { id -> actionBridge.Projects.editComment(project.id, id) }
+          def deleteAction = { id -> actionBridge.Projects.deleteComment(project.id, id) }
+        }%
+        #{comment comment: comment,
+                  deleteAction: deleteAction,
+                  editAction: editAction,
+                  user: user 
+        /}
+    #{/else}
+#{/list}
+
+#{form @Projects.addComment(project.id)}
+    #{addCommentTextarea user: user, title: "project claim" /}
+    <div class="pull-right">
+        <button type="submit" class="btn btn-primary" 
+            title="Add comment to this project claim"><i class="icon-comment icon-white"></i> Add comment</button>
+        #{if project.status == models.ProjectStatus.REJECTED}
+            <button type="submit" class="btn btn-warning" name="projectAction" 
+                value="claim" title="Comment and reclaim this project"><i class="icon-plus icon-white"></i> Comment and reclaim</button> 
+        #{/if}
+        #{secure.check 'admin'}
+            #{if project.canBeAccepted()}
+                <button type="submit" class="btn btn-success" name="projectAction" 
+                    value="accept" title="Comment and accept this project claim"><i class="icon-ok icon-white"></i> Comment and accept</button> 
+            #{/if}
+            #{if project.canBeRejected()}
+                <button type="submit" class="btn btn-danger" name="projectAction" 
+                    value="reject" title="Comment and reject this project claim"><i class="icon-remove icon-white"></i> Comment and reject</button>
+            #{/if}
+        #{/secure.check}
+    </div>
+#{/form}

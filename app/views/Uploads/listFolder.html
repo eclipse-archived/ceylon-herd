@@ -1,0 +1,37 @@
+#{extends 'main.html' /}
+#{set title:'Browse upload repo' /}
+
+<p>
+    <a href="@{Uploads.view(upload.id)}" title="Go back to upload">Back to upload</a>
+</p>
+
+#{if file.isRoot(upload) && file.listFiles().length == 0}
+    <div class="alert alert-info">
+        No file uploaded yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table">
+        <caption>Browse ${file.relativeTo(upload) ?: 'root'}</caption>
+        #{if !file.isRoot(upload)}
+        <tr>
+            <td colspan="3"><a href="${util.Util.viewPublicUploadUrl(upload, file.parentFile.relativeTo(upload))}"><i class="icon-folder-open"></i> Parent</a></td>
+        </tr>
+        #{/if}
+        #{list items:file.listFilesSorted(), as:'child'}
+        <tr>
+            <td><a href="${util.Util.viewPublicUploadUrl(upload, child.relativeTo(upload))}"><i class="icon-${child.directory ? 'folder-open' : 'file'}"></i> ${child.name}</a></td>
+            <td>
+                #{if child.directory}${child.folderSize().formatSize()}#{/if}
+                #{else}${child.length().formatSize()}#{/else}
+            </td>
+            <td>
+                #{form @Uploads.deleteFile(upload.id, child.relativeTo(upload), true), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-danger btn-mini"
+                        title="Remove this file from upload"><i class="icon-trash icon-white"></i> Delete</button>
+                #{/form}
+            </td>
+        </tr>
+        #{/list}
+    </table>
+#{/else}

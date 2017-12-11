@@ -1,0 +1,9 @@
+{"results": [
+#{list versions, as: 'version'}
+ {
+  "module": "${version.module.name?.jsonEscape()}",
+  "version": "${version.version?.jsonEscape()}",
+#{apiModuleInfoJson version, apiVersion: apiVersion/}
+ }#{if !version_isLast}, #{/if} 
+#{/list}
+]}

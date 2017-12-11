@@ -1,0 +1,14 @@
+<td class="shrink">
+    #{if _project.canBeEdited() || _user.isAdmin}
+        <a href="@{Projects.edit(_project.id)}" title="Edit project claim" class="btn btn-mini"><i class="icon-edit"></i> Edit</a>
+    #{/if}
+    #{else}
+        <button title="Only claimed projects can be edited" class="btn btn-mini disabled disabled-action"><i class="icon-edit"></i> Edit</button>
+    #{/else}
+</td>
+<td class="shrink">
+    #{form @Projects.delete(_project.id), class:"form-no-margin"}
+        <button type="submit" class="btn btn-danger btn-mini action"
+                title="Delete project claim"><i class="icon-trash icon-white"></i> Delete</button>
+    #{/form}                    
+</td>

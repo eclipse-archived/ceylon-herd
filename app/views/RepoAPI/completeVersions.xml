@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<results>
+#{list versions, as: 'version'}
+ <module-version>
+  <module>${version.module.name?.xmlEscape()}</module>
+  <version>${version.version?.xmlEscape()}</version>
+#{apiModuleInfoXml version, apiVersion: apiVersion/}
+ </module-version>
+#{/list}
+</results>

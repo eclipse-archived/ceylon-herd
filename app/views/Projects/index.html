@@ -1,0 +1,60 @@
+#{extends 'main.html' /}
+#{set title:'My project claims' /}
+
+#{set 'help'}
+    <p>
+        This is the <em>project claims</em> page, where you claim new projects and we verify that you should be
+        allowed to publish this module to Ceylon Herd.
+    </p>
+    <p>
+        Verifications include license compliance (it must be open-source), non-duplication (it must not already
+        be published by someone else), ownership (you must be allowed by the module author to publish on his behalf),
+        and relevance (we will not allow harmful modules).
+    </p>
+    #{if projects.empty}
+        <p>
+            Your first step is to
+            <a class="btn btn-primary" href="@{Projects.claimForm()}"><i class="icon-plus icon-white"></i> claim new project</a>
+        </p>
+    #{/if}
+    #{else}
+        <p>
+            I see you already have projects claimed, that´s great! You can review them here, and see which ones
+            have already been validated (or refused if you´re out of luck), and 
+            <span class="action-tip"><i class="icon-comment"></i> comment</span>
+            on each claim if you feel you have something to add.
+        </p>
+        <p>
+            If you´d like to give up a claim, for whatever reason, feel free to 
+            <span class="action-tip"><i class="icon-trash"></i> delete</span>
+            it. If you´ve already published modules for this project, you will need to 
+            <span class="action-tip"><i class="icon-share"></i> transfer</span>
+            it first.
+        </p>
+    #{/else}
+#{/set}
+
+#{projectsMenuBar user: user, selected: 'mine'/}
+
+#{if projects.empty}
+    <div class="alert alert-info">
+        No project claims yet.
+    </div>
+#{/if}
+#{else}
+    #{pager page: page, pages: pages, total: total/}
+    <table class="table table-striped table-selectable">
+        <caption>My project claims</caption>
+        <tbody>
+            #{list items:projects, as:'project'}
+                <tr>
+                    <td><a href="@{Projects.view(project.id)}">${project.moduleName}</a></td>
+                    <td>
+                        #{projectStatus project.status /}
+                    </td>
+                    #{projectActions user: user, project: project/}
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

@@ -1,0 +1,8 @@
+#{extends 'email.html' /}
+
+<p>
+ ${user.userName} has just added the following comment on the ${module.name} module:
+</p>
+${comment.text.md()}
+<hr/>
+<a href="@@{Repo.versions(module.name)}#comment-${comment.id}">See comment online</a>.

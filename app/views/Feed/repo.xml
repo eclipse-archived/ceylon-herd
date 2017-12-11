@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+ 
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+        <title>Ceylon Herd repository</title>
+        <subtitle>Latest published modules.</subtitle>
+        <link href="@@{Feed.repo()}" rel="self" />
+        <link href="@@{Application.index()}" />
+        <id>@@{Application.index()}</id>
+        <updated>${lastPublished?.toISO8601()}</updated>
+        <author>
+            <name>Ceylon Herd repository</name>
+        </author>
+ 
+        #{list moduleVersions, as: 'moduleVersion'}
+            #{moduleVersionFeed moduleVersion /}
+        #{/list}
+ 
+</feed>

@@ -1,0 +1,90 @@
+#{extends 'main.html' /}
+#{set title:'List of uploads' /}
+
+#{set 'help'}
+    <p>
+        This is the <em>uploads</em> page, where you create private repositories in which you will upload your
+        modules, before we verify them together and you eventually publish them.
+    </p>
+    #{if uploadInfos.empty}
+        #{form @Uploads.newUpload()}
+            Your first step is to
+            <button type="submit" class="btn btn-primary" 
+                title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> Create a new Upload.</button>
+        #{/form}
+    #{/if}
+    #{else}
+        <p>
+            I see you already have uploads created, that´s good! We will keep them open until you´ve uploaded
+            your modules and they´re ready to be published.
+        </p>
+        <p>
+            If you´re not happy with the contents of an upload, feel free to 
+            <span class="action-tip"><i class="icon-trash"></i> delete</span>
+            it: no harm done and let´s try again.
+        </p>
+    #{/else}
+#{/set}
+
+#{if uploadInfos.empty}
+    <div class="alert alert-info">
+        No open uploads.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped table-selectable">
+        <caption>My current uploads</caption>
+        <tbody>
+            #{list items:uploadInfos, as:'uploadInfo'}
+                <tr>
+                    <td><a href="@{Uploads.view(uploadInfo.upload.id)}" title="View this upload">View upload</a></td>
+                    <td>Created on ${uploadInfo.upload.created.formatInUserTZ('HH:mm dd MMM yyyy')}</td>
+                    <td>${uploadInfo.upload.size.formatSize()}</td>
+                    <td>
+                        %{ count = uploadInfo.upload.fileCount}%
+                        ${count} ${count.pluralize('file', 'files')}
+                    </td>
+                    <td>Status: #{uploadStatus uploadInfo.status /}</td>
+                    <td>
+                        #{if uploadInfo.modules.empty}
+                            <span class="label label-important">No module</span>
+                        #{/if}
+                        #{else}
+                            Modules:
+                            <ul>
+                                #{list items:uploadInfo.modules, as:"module"}
+                                    <li>
+                                        %{
+                                            type = module.type;
+                                        }%
+                                        #{uploadStatus type, message: module.name+"/"+module.version /}
+                                    </li>
+                                #{/list}
+                            </ul>
+                            #{if !uploadInfo.diagnostics.empty}
+                                <span class="label label-important">Other errors</span>
+                            #{/if}
+                        #{/else}
+                    </td>
+                    <td>
+                        #{form @Uploads.delete(uploadInfo.upload.id), class:"form-no-margin inline"}
+                            <button type="submit" class="btn btn-danger"
+                                    title="Drop upload"><i class="icon-trash icon-white"></i> Delete</button>
+                        #{/form}
+                        #{if uploadInfo.publishable}
+                            #{form @Uploads.publish(uploadInfo.upload.id), class:"form-no-margin inline"}
+                                <button type="submit" class="btn btn-primary"
+                                        title="Publish this upload"><i class="icon-ok icon-white"></i> Publish</button>
+                            #{/form}
+                        #{/if}
+                    </td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}
+
+#{form @Uploads.newUpload()}
+    <button type="submit" class="btn btn-primary" 
+        title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> New Upload</button>
+#{/form}

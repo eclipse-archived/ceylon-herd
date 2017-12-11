@@ -1,0 +1,5 @@
+#{if _arg != null}
+    <div class="categoryDescription" #{if _arg.description?.length() > 150}data-behaviour="expandable"#{/if}>
+        ${_arg.description.md()}
+    </div>
+#{/if}

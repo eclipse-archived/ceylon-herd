@@ -1,0 +1,21 @@
+#{extends 'main.html' /}
+#{set title:'Are you sure you want to remove a module?' /}
+
+<div class="alert alert-error">
+    <h4 class="alert-heading">Are you really really sure?</h4>
+    <p>
+        If you do that, there's no going back. People probably depend on this module to be here and you will break the module repository
+        by doing so, so you'd better have a damn good reason.
+    </p>
+    <p>
+        Remember, there´s <b>no going back</b>: we will not be able to restore this module.
+    </p>
+</div>
+<p>
+    Are you <b>really really</b> sure?
+</p>
+
+#{form @LoggedInRepo.removeModuleVersion3(module.name, moduleVersion.version)}
+    <button type="submit" class="btn btn-danger" title="Remove this module, there´s no going back"><i class="icon-trash icon-white"></i> Yes I am <b>really really</b> sure, let's do this</button>
+    <a href="@{Repo.view(module.name, moduleVersion.version)}" title="Pfiew, you know? I´m not so sure anymore, let´s back off a bit…" class="btn">No, let's cancel</a>
+#{/form}

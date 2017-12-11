@@ -1,0 +1,23 @@
+#{extends 'main.html' /}
+#{set title:'Edit change log' /}
+#{set hasForm: true /}
+
+#{form action: @LoggedInRepo.editChangelog2(moduleVersion.module.name, moduleVersion.version), class: "form-horizontal"}
+<fieldset>
+    <legend>
+        Edit change log for module
+        <a href="@{Repo.versions(moduleVersion.module.name)}">${moduleVersion.module.name}</a>​ /
+        <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}">${moduleVersion.version}</a>​
+    </legend>
+    <div class="control-group #{errorClassBootstrap 'friendlyName'/}">
+        <div class="controls">
+            <textarea name="changelog" class="input-xxlarge" rows="10" maxlength="${util.Util.TEXT_SIZE}">${flash.changelog ?: moduleVersion.changelog}</textarea>
+            <span class="help-inline">​#{error 'changelog'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a href="@{Repo.view(moduleVersion.module.name, moduleVersion.version)}" class="btn" title="Go back to module">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save change log" title="Save change log"/>
+    </div>
+</fieldset>
+#{/form}

@@ -1,0 +1,56 @@
+#{pager page: _page, pages: _pages, total: _total, queryPart: _queryPart/}
+<table class="table table-striped table-selectable">
+    <caption>
+        #{if _caption}${_caption}#{/if} 
+        #{else}List of modules#{/else}
+        #{if _page != null}
+          (page ${_page}/${_pages} of ${_total} modules)
+        #{/if}
+    </caption>
+    <tbody>
+        #{list items:_modules, as:'module'}
+        <tr>
+            #{if _downloads}
+            <td>
+                <span class="label" title="Total downloads">${module.totalDownloads}</span>
+            </td>           
+            #{/if} 
+            <td>
+                <a href="@{Repo.versions(module.name)}"	title="View published versions">${module.name}</a>
+            </td>
+            <td>
+                ${module.friendlyName}
+            </td>
+            <td>
+                #{if module.getLastVersion()}
+                    <a href="@{Repo.view(module.name, module.getLastVersion().version)}" title="View last version">${module.getLastVersion().version}</a>
+                #{/if}
+            </td>
+            <td>
+                #{if module.getLastVersion()}
+                    #{moduleBackends module.getLastVersion()/}
+                #{/if}
+            </td>
+            <td>
+                #{starRating 
+                    rating: Math.round(module.getRatingAverage()),
+                    ratingAverage: module.getRatingAverage(),
+                    ratingCount: module.getRatingCount() /}
+            </td>            
+            <td class="shrink">
+                #{user module.owner, img:true /}
+            </td>
+            <td class="shrink">
+                #{if module.canEdit(_user)}
+                    <a href="@{LoggedInRepo.editForm(module.name)}" title="Edit this module" class="btn btn-mini"><i class="icon-edit"></i> Edit</a> 
+                #{/if}
+            </td>
+            <td class="shrink">
+                #{secure.check 'admin'}
+                    <a href="@{LoggedInRepo.removeModule1(module.name)}" title="Remove this module" class="btn btn-mini btn-danger"><i class="icon-trash icon-white"></i> Remove</a> 
+                #{/secure.check}
+            </td>
+        </tr>
+    #{/list}
+    </tbody>
+</table>

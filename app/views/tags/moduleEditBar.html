@@ -1,0 +1,22 @@
+#{if _module.canEdit(_user)}
+    <div class="alert alert-info">
+    
+        <div class="pull-right">
+            <a href="@{LoggedInRepo.editForm(_module.name)}" class="btn btn-mini"
+                title="Edit this module"><i class="icon-edit"></i> Edit</a>
+
+            #{secure.check 'admin'}
+               #{if _moduleVersion}
+                   <a href="@{LoggedInRepo.removeModuleVersion1(_module.name, _moduleVersion.version)}" class="btn btn-mini btn-danger"
+                       title="Remove this module"><i class="icon-trash icon-white"></i> Remove</a>
+               #{/if}
+               #{else}
+                   <a href="@{LoggedInRepo.removeModule1(_module.name)}" class="btn btn-mini btn-danger"
+                       title="Remove this module"><i class="icon-trash icon-white"></i> Remove</a>
+               #{/else}
+            #{/secure.check}
+        </div>
+
+        You ${_user == _module.owner ? 'own' : 'are admin on'} this module.
+    </div>
+#{/if}

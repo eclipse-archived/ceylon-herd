@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${moduleVersion.virtualGroupId}</groupId>
+  <artifactId>${moduleVersion.virtualArtifactId}</artifactId>
+  <version>${moduleVersion.version}</version>
+  <dependencies>
+    #{list moduleVersion.dependencies, as: 'dep'}
+    #{if !util.JDKUtil.isJdkModule(dep.name)}
+    <dependency>
+      <groupId>${dep.groupId}</groupId>
+      <artifactId>${dep.artifactId}</artifactId>
+      <version>${dep.version}</version>
+      #{if dep.optional}
+      <optional>true</optional>
+      #{/if}
+    </dependency>
+    #{/if}
+    #{/list}
+  </dependencies>
+  <name>${moduleVersion.module.friendlyName}</name>
+  <description>${moduleVersion.doc}</description>
+  <licenses>
+    <license>
+      <name>${moduleVersion.license}</name>
+    </license>
+  </licenses>
+  <url>${moduleVersion.module.homeURL}</url>
+  <issueManagement>
+    <url>${moduleVersion.module.issueTrackerURL}</url>
+  </issueManagement>
+  <scm>
+    <url>${moduleVersion.module.codeURL}</url>
+  </scm>
+  <developers>
+    #{list moduleVersion.authors, as: 'author'}
+    <developer>
+      <name>${author.name}</name>
+    </developer>
+    #{/list}
+  </developers>
+</project>

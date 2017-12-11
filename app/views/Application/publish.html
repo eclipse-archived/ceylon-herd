@@ -1,0 +1,47 @@
+#{extends 'main.html' /}
+#{set title:'Publish your first module' /}
+
+<h1>Sharing has never been easier</h1>
+<p>
+    You want to upload your project to Ceylon Herd? We´ve made it really easy for you, just follow these simple
+    steps:
+</p>
+<div class="row">
+    <div class="span2">
+        <h3>Register</h3>
+        <p>
+            <a href="@{Register.index}"><i class="icon-glass"></i> Register</a> to get an account.
+        </p>
+    </div>
+    <div class="span2">
+        <h3>Claim your project</h3>
+        <p>
+            <a href="@{Projects.claimForm}"><i class="icon-plus"></i> Claim</a> your project, to be allowed to publish it.
+        </p>
+        <p>
+            We have to review project claims, to ensure that the right person is allowed to publish the right
+            module. This is an interactive discussion between you and us.
+        </p>
+    </div>
+    <div class="span2">
+        <h3>Upload and validate</h3>
+        <p>
+            <a href="@{Uploads.index}"><i class="icon-upload"></i> Upload</a> your module, review and test it.
+        </p>
+        <p>
+            We help you with validation by checking the contents of your module for many common mistakes.
+        </p>
+    </div>
+    <div class="span2">
+        <h3>Publish</h3>
+        <p><i class="icon-share"></i> Publish your uploaded module.</p>
+        <p>
+            Once you've checked and tested your upload and all is good, you can publish it for the world
+            to use.
+        </p>
+    </div>
+    <div class="span2">
+        <h3>Share!</h3>
+        <p>Your module will then be available in the <a href="@{Repo.index}">Ceylon Herd repo</a>.</p>
+    </div>
+</div>

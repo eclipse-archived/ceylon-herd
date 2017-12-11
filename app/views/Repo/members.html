@@ -1,0 +1,42 @@
+#{extends 'main.html' /}
+#{set title:'View module members' /}
+
+#{moduleEditBar 
+    module:module, 
+    moduleVersion:moduleVersion,
+    user:user /}
+
+<p>
+#{user module.owner, img:true /} / 
+ <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a> /
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version">${moduleVersion.version}</a> /
+ Members
+</p>
+
+<p>
+ <a href="@{Repo.view(module.name,moduleVersion.version)}" title="View this version"><i class="icon-home"></i> Back to module version</a>
+</p>
+
+<table class="table table-bordered">
+    <caption>Module Members</caption>
+    <tbody>
+        #{list items:moduleVersion.members, as:'member'}
+            <tr>
+                <td>
+                    #{ceylondoc-member-icon member.type/}
+                    %{
+                        link = member.docUrl;
+                    }%
+                    #{if link}
+                        <a href="${util.Util.viewRepoUrl(link)}">
+                    #{/if}
+                    #{if member.shared}<span class="modifier">shared</span>#{/if}
+                    ${member.packageName}::${member.name}
+                    #{if link}
+                        </a>
+                    #{/if}
+                </td>
+            </tr>
+        #{/list}
+    </tbody>
+</table>

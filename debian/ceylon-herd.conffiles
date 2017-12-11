@@ -1,0 +1,3 @@
+etc/ceylon-herd/routes
+etc/ceylon-herd/log4j-prod.properties
+etc/ceylon-herd/application.conf

@@ -1,0 +1,24 @@
+#{extends 'main.html' /}
+#{set title:'List of categories' /}
+
+#{if categories.empty}
+    <div class="alert alert-info">
+        No category in repository yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped table-selectable">
+        <caption>
+            #{if caption}${caption}#{/if}
+            #{else}List of categories#{/else}
+        </caption>
+        <tbody>
+            #{list items:categories, as:'cat'}
+                <tr>
+                    <td><a href="@{Repo.category(cat.name)}" title="View modules">${cat.name}</a></td>
+                    <td>#{categoryDescription cat/}</td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

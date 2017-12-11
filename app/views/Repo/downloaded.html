@@ -1,0 +1,20 @@
+#{extends 'main.html' /}
+#{set title:'Most downloaded modules' /}
+
+#{if modules.empty}
+    <div class="alert alert-info">
+        No module in repository yet.
+    </div>
+#{/if}
+#{else}
+
+    #{moduleTable 
+        caption:"Most downloaded modules", 
+        modules:modules, 
+        user:user,
+        page:page,
+        pages:pages,
+        total:total,
+        downloads:true /}
+
+#{/else}

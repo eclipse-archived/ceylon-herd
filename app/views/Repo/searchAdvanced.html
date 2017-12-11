@@ -1,0 +1,100 @@
+#{extends 'main.html' /}
+#{set title:'Advanced Search' /}
+#{set hasForm: true /}
+
+#{set 'moreScripts'}
+<script src="@{'/public/javascripts/jquery-ui-1.8.18.autocomplete.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+	    $("#license")
+	      .autocomplete({ source: ${util.Util.LICENSES_JSON.raw()}, minLength: 0 })
+	      .data("autocomplete").menu.element.addClass("typeahead dropdown-menu");
+	    $("#license-btn").click(function() {
+	        $("#license").autocomplete("search", "");
+	        $("#license").focus();
+	    });
+	    
+	    $("#category")
+	      .autocomplete({ source: ${categoriesJson.raw()}, minLength: 0 })
+	      .data("autocomplete").menu.element.addClass("typeahead dropdown-menu");
+	    $("#category-btn").click(function() {
+	        $("#category").autocomplete("search", "");
+	        $("#category").focus();
+	    });	
+	});	
+</script>    
+#{/set}
+
+#{set 'moreStyles'}
+<style>
+    /* Adapt the Bootstrap style to jQuery UI */
+    .dropdown-menu a.ui-state-hover {
+        color: white;
+        text-decoration: none;
+        background-color: #08C;
+    }
+    /* Fix license button indention */
+    #license-btn, #category-btn {
+        margin-left: -5px;
+    }
+</style>
+#{/set}
+
+#{form action: @Repo.searchAdvanced2(), class: "form-horizontal"}
+<fieldset>
+    <legend>
+        Advanced Search
+    </legend>
+    
+    <div class="control-group #{errorClassBootstrap 'name'/}">
+        <label class="control-label" for="name">Module name</label>
+        <div class="controls">
+            <input type="text" name="name" value="${flash.name}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'name'/}</span>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'friendlyName'/}">
+        <label class="control-label" for="friendlyName">Friendly name</label>
+        <div class="controls">
+            <input type="text" name="friendlyName" value="${flash.friendlyName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'friendlyName'/}</span>
+        </div>
+    </div>
+
+    <div class="control-group #{errorClassBootstrap 'member'/}">
+        <label class="control-label" for="name">Member name</label>
+        <div class="controls">
+            <input type="text" name="member" value="${flash.member}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'member'/}</span>
+        </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'license'/}">
+	    <label class="control-label" for="license">License</label>
+	    <div class="controls">
+	        <div class="input-append">
+	            <input name="license" id="license" value="${flash.license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+	            <button id="license-btn" class="btn" type="button"><span class="caret"></span></button>
+	        </div>
+	        <span class="help-inline">​#{error 'license'/}</span>
+	    </div>
+    </div>
+    
+    <div class="control-group #{errorClassBootstrap 'category'/}">
+        <label class="control-label" for="category">Category</label>
+        <div class="controls">
+            <div class="input-append">
+                <input name="category" id="category" value="${flash.category}"/>
+                <button id="category-btn" class="btn" type="button"><span class="caret"></span></button>
+            </div>
+            <span class="help-inline">​#{error 'category'/}</span>
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="Search"/>
+    </div>
+    
+</fieldset>
+#{/form}

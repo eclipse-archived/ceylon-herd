@@ -1,0 +1,8 @@
+/var/log/ceylon-herd/*.log {
+        daily
+        missingok
+        compress
+        delaycompress
+        rotate 60
+        copytruncate
+}

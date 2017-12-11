@@ -1,0 +1,549 @@
+html, body {
+    height: 100%;
+}
+
+body > .pre-footer {
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -5em;
+}
+footer, .push {
+    height: 5em;
+}
+
+footer {
+    margin: 0 2em;
+}
+
+.navbar-static-top {
+    margin-bottom: 20px;
+}
+
+#menubar-container {
+    padding-left: 20px;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+#menubar-container .brand {
+    color: white;
+}
+
+table td.shrink {
+    width: 1px;
+    white-space:nowrap;
+}
+
+.table-selectable tbody tr.tr-selected td {
+    background-color: #d9edf7;
+}
+
+.nav .user {
+    margin: 10px 10px 0 10px;
+    font-weight: bold;
+    color: white;
+}
+
+.nav .user .user-link a {
+	display: inline;
+    padding: 0;
+    color: white;
+}
+
+#logo {
+	position: absolute;
+    top: 0px;
+    left: 20px;
+}
+
+.hero-unit img {
+	margin-right: 1em;
+}
+
+.comment,
+.comment-status {
+	margin: 1em 0;
+}
+
+.comment-status img {
+	vertical-align: middle;
+}
+
+.comment-status img,
+.comment-status span {
+    margin-right: 0.5em;
+}
+
+.comment .action {
+    display: none;
+    float: right;
+    margin-left: 0.5em;
+}
+
+.comment:hover .action {
+	display: inline;
+}
+
+.comment img {
+	float: left;
+}
+
+.comment .data {
+	border: 1px solid #DDD;
+    margin-left: 60px;
+    min-height: 50px;
+}
+
+.user-project .header,
+.comment .header {
+	text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+	
+background-image: linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -o-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -moz-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -webkit-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+background-image: -ms-linear-gradient(bottom, rgb(227,227,227) 44%, rgb(245,245,245) 100%);
+
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(227,227,227)),
+    color-stop(1, rgb(245,245,245))
+);
+}
+
+.comment .date {
+	float: right;
+}
+
+.comment .header,
+.comment .text {
+    padding: 0.5em 0.7em;
+}
+
+.comment .small,
+.comment .date a {
+	color: gray;
+}
+
+.comment textarea {
+	width: 850px;
+}
+
+.user-info {
+	font-size: 24pt;
+}
+
+.user-info img {
+	vertical-align: middle;
+}
+
+.user-info .username {
+    font-weight: bold;
+}
+
+.user-details th {
+	text-align: left;
+}
+
+.user-details th,
+.user-details td {
+	padding: 0.3em 0.5em;
+}
+
+.user-project {
+	margin: 1em 0;
+	border: 1px solid #DDD;
+}
+
+.user-project > * {
+	padding: 0.5em 1em;
+}
+
+.user-project .published {
+	color: gray;
+	font-size: smaller;
+}
+
+.user-link {
+	font-weight: bold;
+}
+
+.user-link img {
+    vertical-align: middle;
+    margin-right: 0.5em;
+}
+
+.user-link a {
+	color: inherit;
+}
+
+.admin {
+	margin: 1em 0;
+}
+
+h1 {
+	margin-bottom: 20px !important;
+}
+
+h3 {
+	margin-bottom: 12px !important;
+}
+
+form.form-no-margin {
+	margin: 0;
+}
+
+form.inline {
+	display: inline;
+}
+
+#help {
+    display: none;
+}
+
+.action-tip {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+#help-button {
+    position: absolute;
+    right: 0;
+    top: 100px;
+    border-left: 1px solid #DDD;
+    border-top: 1px solid #DDD;
+    border-bottom: 1px solid #DDD;
+    padding: 0.3em 0.5em;
+    cursor: pointer;
+    background: whiteSmoke;
+
+   -webkit-transition: background-color 0.2s ease-in;  
+   -moz-transition: background-color 0.2s ease-in;  
+   -o-transition: background-color 0.2s ease-in;  
+   transition: background-color 0.2s ease-in;  
+}
+
+#help-button:hover {
+    background: #BBB;
+}
+
+#help-button a {
+    text-decoration: none; 
+    color: black;
+}
+
+#help-button:hover a {
+    color: white;
+}
+
+/* Fix the alignment for bootstrap labels: it's better aligned without this */
+.label {
+    vertical-align: baseline;
+}
+
+/* xml syntax highlighting */
+.xml-tag {
+    color: purple;
+}
+
+.xml-attr {
+    color: red;
+}
+
+.xml-val {
+    color: blue;
+}
+
+.label-import-keyword {
+    background-color: #919191;
+}
+
+.label-jar {
+    background-color: #717171;
+}
+
+.label-jvm {
+    background-color: #5C2400;
+}
+
+.label-js {
+    background-color: #00995F;
+}
+
+.expandable {
+    cursor: pointer;
+    position: relative;
+}
+
+.expandable.collapsed {
+    height: 2em;
+    overflow: hidden;
+}
+
+.collapse-icons,
+.expand-icons {
+    position: absolute;
+    bottom: 0px;
+    color: gray;
+    text-align: center;
+    width: 100%;
+    height: 12px;
+    font-size: 7px;
+}
+
+.expandable > .collapse-icons{
+    display: block;
+}
+.expandable > .expand-icons{
+    display: none;
+}
+.expandable.collapsed > .collapse-icons{
+    display: none;
+}
+.expandable.collapsed > .expand-icons{
+    display: block;
+}
+
+.syntaxhighlighter {
+    background-color: #f5f5f5 !important;
+    border: 1px solid #ccc !important;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre;
+    white-space: pre-wrap;
+}
+
+.star-rating .star {
+    color: #555;
+    font-size: 18px;
+    cursor: default;
+    text-decoration: none;
+    line-height: 18px;
+}
+
+.star-rating .star:before {
+    content: "\2606";
+}
+
+.star-rating .star-full:before {
+    content: "\2605";
+}
+
+.star-rating-editable .star {
+    cursor: pointer;
+}
+
+.star-rating-editable .star:hover:before {
+    color: black;
+    content: "\2605";
+}
+
+.star-rating-editable .star-cancel {
+    font-size: 14px;
+    text-decoration: none;
+    line-height: 18px;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.star-rating-editable:hover .star-cancel {
+    color: #A0A0A0;
+    visibility: visible;
+}
+
+.star-rating-editable .star-cancel:hover {
+    color: black;
+}
+
+.comment .star-rating {
+    float: right;
+    padding-right: 12px;
+}
+
+.comment .star-rating-editable {
+    padding-right: 0px;
+}
+
+#keyboard-shortcuts-panel {
+    min-width: 300px;
+    padding: 16px;
+}
+
+#keyboard-shortcuts-panel .badge {
+    display: inline-block;
+    text-align: center;
+    margin-right: 10px;
+    min-width: 10px;
+    height: 14px;
+    line-height: 14px;
+}
+
+/* we have old version of bootstrap, which doesn't have these class yet */
+.muted {
+    color: #999999;
+}
+.text-info {
+    color: #3a87ad;
+}
+
+.alert-change-password {
+    margin-bottom: 0;
+}
+
+/* Stolen from ceylondoc.css */
+
+[class^='ceylondoc-icon-'] {
+    display: inline-block;
+    background-image: url("../images/ceylondoc-icons.png");
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    vertical-align: baseline;
+    margin-right: 4px;
+}
+
+td [class^='ceylondoc-icon-'] {
+    vertical-align: text-top;
+}
+
+.ceylondoc-icon-none {
+    background-image: none;
+}
+
+.ceylondoc-icon-local-member {
+    background-position: 0px 0px;
+}
+
+.ceylondoc-icon-shared-member {
+    background-position: -16px 0px;
+}
+
+.ceylondoc-icon-Interface {
+    background-position: -32px 0px;
+}
+
+.ceylondoc-icon-Class {
+    background-position: -48px 0px;
+}
+
+.ceylondoc-icon-Object {
+    background-position: -64px 0px;
+}
+
+.ceylondoc-icon-package {
+    background-position: -80px 0px;
+}
+
+.ceylondoc-icon-decoration-local {
+    background-position: 4px 4px;
+}
+
+.ceylondoc-icon-decoration-abstract {
+    background-position: -96px 0px;
+}
+
+.ceylondoc-icon-decoration-formal {
+    background-position: -112px 0px;
+}
+
+.ceylondoc-icon-decoration-impl {
+    background-position: -128px 0px;
+}
+
+.ceylondoc-icon-decoration-over {
+    background-position: -144px 0px;
+}
+
+.ceylondoc-icon-decoration-deprecated {
+    background-position: -160px 0px;
+}
+
+.ceylondoc-icon-link {
+    background-position: -336px 0px;
+}
+
+.ceylondoc-icon-type-alias {
+    background-position: -512px 0px;
+}
+
+.ceylondoc-icon-module {
+    background-position: -528px 0px;
+}
+
+.ceylondoc-icon-module-exported-decoration {
+    background-position: -544px -4px;
+}
+
+.ceylondoc-icon-module-optional-decoration {
+    background-position: -560px -1px;
+}
+
+.ceylondoc-icon-decoration-annotation {
+    background-position: -576px 0px;
+}
+
+.ceylondoc-icon-decoration-variable {
+    background-position: -592px 0px;
+}
+
+.disabled-action,
+.disabled-action:hover {
+    text-decoration: line-through;
+}
+
+#img-holder img {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+/* Markdown module description in sync with ceylondoc and IDE */
+
+.moduleDescription code {
+    border: none;
+    color: #333;
+    background: inherit;
+    padding: 0;
+    font-size: inherit;
+}
+
+.moduleDescription code .type-identifier {
+    color: rgb(153,0,102);
+}
+
+.moduleDescription code .identifier {
+    color: rgb(0,51,153);
+}
+
+.moduleDescription code .packageOrModule {
+    color: #005580;
+}
+
+.modifier {
+    color: rgb(51,153,204);
+}
+
+pre.rainbow {
+    margin: 0 0 10px;
+}
+
+.diff-added {
+    background: #A4FFA1;
+}
+
+.upload.maven-coordinates {
+    color: gray;
+}
+
+/* Fix for bootstrap bug */
+
+.table:not(.table-bordered) > tbody > tr > td,
+.table:not(.table-bordered) > tbody > tr > th {
+    border-left: none;
+}

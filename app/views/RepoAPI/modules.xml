@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<results start="${start}" total="${total}">
+#{list modules, as: 'module'}
+ <module>
+  <name>${module.name?.xmlEscape()}</name>
+#{list module.getVersions(type), as: 'version'}
+  <versions>${version.version?.xmlEscape()}</versions>
+#{/list}
+#{if module.getLastVersion(jvmBinaryMajor,jvmBinaryMinor,jsBinaryMajor,jsBinaryMinor)}
+#{apiModuleInfoXml module.getLastVersion(jvmBinaryMajor,jvmBinaryMinor,jsBinaryMajor,jsBinaryMinor), apiVersion: apiVersion/}
+#{/if}
+ </module>
+#{/list}
+</results>

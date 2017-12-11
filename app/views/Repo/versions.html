@@ -1,0 +1,137 @@
+#{extends 'main.html' /}
+#{set title:'Versions for '+module.name /}
+
+#{moduleEditBar module:module, user:user /}
+
+#{if module.github}
+#{set 'moreScripts'}
+    <script src="@{'/public/javascripts/github.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+    <script type="text/javascript">
+loadModuleInfoFromGitHub("${module.githubOwner}","${module.githubProject}");
+    </script>
+#{/set}
+#{/if}
+
+#{if module.canEdit(user)}
+#{set 'help'}
+    <p>
+        If you want to change the module´s <b>friendly name</b>, its <b>home page</b>, <b>code</b> or 
+        <b>issue tracker</b> URLs, as
+        well as <b>grant administration permissions</b> on this module for your colleagues,
+        or even <b>transfer it</b> to an other user,
+        go to the <a href="@{LoggedInRepo.editForm(module.name)}" class="btn btn-mini"
+        title="Edit this module"><i class="icon-edit"></i> edit</a> page.
+    </p>
+    <p>
+        The <b>module name</b> and <b>version</b> are taken from the module descriptor. 
+    </p>
+    <p>
+        If your <b>code URL</b> points to a <a href="http://github.com">Github</a> project, we will extract
+        its <b>icon</b>, <b>description</b> and <b>open issues</b> from it. 
+    </p>
+#{/set}
+#{/if}
+
+<table class="table table-bordered">
+    <caption>Module info</caption>
+    <tbody>
+        <tr>
+            <th>Name</th>
+            <td>
+                <div id="img-holder" class="pull-right"></div>
+                #{user module.owner, img:true /} / <a href="@{Repo.versions(module.name)}" title="View published versions">${module.name}</a>
+                #{if module.friendlyName}
+                    <br/>${module.friendlyName}
+                #{/if}
+            </td>
+        </tr>
+        #{if module.github || (module.lastVersion != null && module.lastVersion.doc != null && !module.lastVersion.doc.isEmpty())}
+            <tr>
+                <th>Description</th>
+                <td>
+                    #{if module.lastVersion != null && module.lastVersion.doc != null && !module.lastVersion.doc.isEmpty()}
+                        #{moduleDescription moduleVersion:module.lastVersion/}
+                    #{/if}
+                    <div id="description"></div>
+                </td>
+            </tr>
+        #{/if}
+      	#{if module.category}
+        <tr>
+        	<th>Category</th>
+        	<td>
+        		<a href="@{Repo.category(module.category.name)}" title="Category module list"><i class="icon-book"></i> ${module.category.name}</a>
+				#{categoryDescription module.category /}   
+        	</td>
+        </tr>
+       	#{/if}
+        #{if module.getRatingCount() > 0}
+       	<tr>
+       		<th>Rating</th>
+       		<td>
+                #{starRating rating: Math.round(module.getRatingAverage()) /}
+       			<b>${module.getRatingAverage().format('#.00')}</b>
+                (rated by ${module.getRatingCount()} ${module.getRatingCount() > 1 ? "users" : "user"})
+       		</td>
+        </tr>
+        #{/if}
+        <tr>
+            <th>Last Published</th>
+            <td>${module.lastPublished?.sinceInUserTZ(true)}</td>
+        </tr>
+        <tr>
+            <th>Stats</th>
+            <td>
+                <b>Downloads (JVM):</b> ${module.downloads}<br/>
+                <b>Downloads (JS):</b> ${module.jsDownloads}<br/>
+                <b>Source downloads:</b> ${module.sourceDownloads}<br/>
+            </td>
+        </tr>
+        <tr>
+            <th>Module links</th>
+            <td>
+                #{if module.homeURL}
+                    <a href="${module.homeURL}" title="Module web site"><i class="icon-home"></i> Home</a><br/>
+                #{/if}
+                #{if module.codeURL}
+                    <a href="${module.codeURL}" title="Module code repository"><i class="icon-heart"></i> Code repository</a><br/>
+                #{/if}
+                #{if module.issueTrackerURL}
+                    <a href="${module.issueTrackerURL}" title="Module issue tracker" id="issues"><i class="icon-exclamation-sign"></i> Issue tracker</a><br/>
+                #{/if}
+                <a href="@{Repo.importers(module.name,null)}" title="View modules importing this module"><i class="icon-eye-open"></i> Imported By</a><br/>
+                <a href="${util.Util.viewRepoUrl(module.path)}" title="Browse module repository"><i class="icon-folder-open"></i> Browse</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+#{if versions.empty}
+    <div class="alert alert-info">
+        No versions for ${module.name} in repository yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-striped">
+        <caption>List of published versions <a href="@{Feed.module(module.name)}" title="Subscribe to this module´s feed"><img src="@{'/public/images/feed.png'}"/></a></caption>
+        <tbody>
+            #{moduleVersions versions/}
+        </tbody>
+    </table>
+#{/else}
+
+*{ Module Comments and rating }*
+%{
+  def addAction = { actionBridge.LoggedInRepo.addModuleComment(module.name) }
+  def editAction = { id -> actionBridge.LoggedInRepo.editModuleComment(module.name, id) }
+  def deleteAction = { id -> actionBridge.LoggedInRepo.deleteModuleComment(module.name, id) }
+}%
+
+#{comments addAction: addAction,
+           editAction: editAction,
+           deleteAction: deleteAction,
+           module: module,
+           comments: module.comments,
+           user: user,
+           title: "module"
+ /}

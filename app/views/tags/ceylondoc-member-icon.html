@@ -1,0 +1,12 @@
+#{if _arg == util.CeylonElementType.Annotation}
+<i class="ceylondoc-icon-Interface"><i class="ceylondoc-icon-decoration-annotation"></i></i>
+#{/if}
+#{elseif _arg == util.CeylonElementType.AnnotationConstructor}
+<i class="ceylondoc-icon-shared-member"><i class="ceylondoc-icon-decoration-annotation"></i></i>
+#{/elseif}
+#{elseif _arg == util.CeylonElementType.Value || _arg == util.CeylonElementType.Function}
+<i class="ceylondoc-icon-shared-member"></i>
+#{/elseif}
+#{else}
+<i class="ceylondoc-icon-${_arg}"></i>
+#{/else}

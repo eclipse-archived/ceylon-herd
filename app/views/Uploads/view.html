@@ -1,0 +1,528 @@
+#{extends 'main.html' /}
+#{set title:'View upload' /}
+
+%{
+    String uploadRepoUrl = util.Util.viewUploadUrl(upload, '', true, true);
+    String publicUploadRepoUrl = util.Util.viewPublicUploadUrl(upload, '', true, true);
+}%
+
+#{set 'moreScripts'}
+<script type="text/javascript">
+var isPrivate = true;
+var privateRepo = "${uploadRepoUrl}";
+var publicRepo = "${publicUploadRepoUrl}";
+function toggleRepoUrl(){
+    isPrivate = !isPrivate;
+    jQuery("#repoButtonText").text(isPrivate ? "Private (read-write)" : "Public (read-only)")
+    jQuery("#repoMenu").text(!isPrivate ? "Private (read-write)" : "Public (read-only)")
+    jQuery("#repoInput").val(isPrivate ? privateRepo : publicRepo);
+}
+function deleteFileAsync(source) {
+    var btn = $(source);
+    var form = btn.parent();
+    var tr = form.parent().parent();
+    var label = $("<strong>Deleting...</strong>");
+    
+    btn.hide().before(label);
+    tr.css('background-color', 'whitesmoke');
+    
+    $.post(form.attr("action"), form.serialize())
+        .done(function(data) {
+             label.text(data.message);
+             tr.delay(3000).fadeOut("slow");
+        })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            label.text("Deletion failed! ").addClass("text-error");
+            btn.show();
+        });
+}
+</script>
+#{/set}
+
+#{set 'help'}
+    <p>
+        This is the <em>upload detail</em> page, where you can review your current upload, and fix any eventual
+        issue that gets in the way of you publishing it.
+    </p>
+    <p>
+        From here, you can check the status of every module you´ve uploaded, <i class="icon-trash"></i> <b>delete</b>
+        problematic files or modules, get information on how to upload your module using the Ceylon tools, or even
+        <a class="btn" href="@{Uploads.uploadRepoForm(upload.id)}" 
+                title="Upload a repository as a zip file"><i class="icon-upload"></i> upload a repo archive</a>
+        from the comfort of this page. 
+    </p>
+    <p>
+        If you´re not happy with the contents of this upload, feel free to 
+        <span class="action-tip"><i class="icon-trash"></i> delete</span>
+        it: no harm done and let´s try again.
+    </p>
+#{/set}
+
+<div class="alert alert-${uploadInfo.status}">
+    #{if uploadInfo.status == "success"}
+        <h4 class="alert-heading">Congratulations</h4>
+        This upload is ready to be published, but remember: once a module is published, it can´t be unpublished.
+        You´ve been warned :)
+    #{/if}
+    #{if uploadInfo.status == "empty"}
+        <h4 class="alert-heading">Empty upload</h4>
+        You can now upload files
+    #{/if}
+    #{if uploadInfo.status == "warning"}
+        <h4 class="alert-heading">Beware</h4>
+        This upload contains warnings, that we encourage you to fix, but you can still
+        publish it.
+    #{/if}
+    #{if uploadInfo.status == "error"}
+        <h4 class="alert-heading">Ouch</h4>
+        This upload contains errors. You must resolve them before you can publish it.
+    #{/if}
+</div>
+
+<table class="table table-bordered">
+    <caption>Upload</caption>
+    <tbody>
+        <tr>
+            <th>Status</th>
+            <td>
+                #{uploadStatus uploadInfo.status /}
+            </td>
+        </tr>
+        <tr>
+            <th>Uploaded modules</th>
+            <td>
+                <ul>
+                    #{list items:uploadInfo.modules, as:'module'}
+                        <li>
+                            <a href="#module-${module.name}-${module.version}">${module.name}/${module.version}</a>: #{uploadStatus module.type /}
+                        </li>
+                    #{/list}
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <th>Repo URL</th>
+            <td>
+                <p>
+                    <a href="${util.Util.viewPublicUploadUrl(upload, '')}" title="Browse uploaded files">${util.Util.viewPublicUploadUrl(upload, "")}</a>
+                </p>
+                <form class="form-horizontal">
+                    <fieldset>
+                        <div class="input-prepend input-append">
+                            <div class="btn-group">
+                              <button class="btn dropdown-toggle" data-toggle="dropdown" style="width: 12em;">
+                                <span id="repoButtonText">Private (read-write)</span>
+                                <span class="caret"></span>
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li><a href="#" id="repoMenu" onclick="toggleRepoUrl(); return false;">Public (read-only)</a></li>
+                              </ul>
+                            </div>
+                            <input value="${uploadRepoUrl}" class="input-xxlarge"
+                                onfocus="this.select();" onclick="this.select();" onmouseup="return false;"
+                                title="Copy this URL to use it as an output repo"
+                                id="repoInput"
+                                type="text" readonly/>
+                            <span class="add-on"
+                                title="Copy this URL to use it as an output repo"
+                                ><i class="icon-bookmark"></i></span
+                            >
+                        </div>
+                    </fieldset>
+                </form>
+                <p>
+                    Upload your modules directly from your Ceylon tools:
+                </p>
+                <div class="tabbable">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Java backend</a></li>
+                        <li><a href="#tab2" data-toggle="tab">JavaScript backend</a></li>
+                        <li><a href="#tab3" data-toggle="tab">Ant script</a></li>
+                    </ul>
+                    %{
+                        def moduleNames = uploadInfo.modules*.name;
+                        if(moduleNames.size() == 0)
+                            moduleNames = ["com.example.module"];
+                    }%
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre>$ <span class="xml-tag">ceylon compile</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--source-code</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon import-jar</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> moduleName/version file.jar
+$ <span class="xml-tag">ceylon copy</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> <span class="xml-attr">--all</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list}</pre> 
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre>$ <span class="xml-tag">ceylon compile-js</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon doc</span> <span class="xml-attr">--source-code</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon plugin pack</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list} 
+$ <span class="xml-tag">ceylon copy</span> <span class="xml-attr">--out</span> <span class="xml-val">${uploadRepoUrl}</span> <span class="xml-attr">--user</span> <span class="xml-val">${user.userName}</span> <span class="xml-attr">--pass</span> <span class="xml-val">XXX</span> <span class="xml-attr">--all</span> #{list moduleNames}<span class="xml-tag">${_} </span>#{/list}</pre> 
+                        </div>
+                        <div class="tab-pane" id="tab3">
+                            <!-- It's hand compiled so it's a pain, but that's a lot more efficient -->
+                            <pre><span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.home"</span> <span class="xml-attr">value</span>=<span class="xml-val">"…"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;property</span> <span class="xml-attr">name</span>=<span class="xml-val">"ceylon.ant.lib"</span> 
+  <span class="xml-attr">value</span>=<span class="xml-val">"&#36;{ceylon.home}/lib/ceylon-ant.jar"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;path</span> <span class="xml-attr">id</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;pathelement</span> <span class="xml-attr">path</span>=<span class="xml-val">"&#36;{ceylon.ant.lib}"</span><span class="xml-tag">/&gt;</span>
+<span class="xml-tag">&lt;/path&gt;</span>
+<span class="xml-tag">&lt;typedef</span> <span class="xml-attr">resource</span>=<span class="xml-val">"com/redhat/ceylon/ant/antlib.xml"</span> <span class="xml-attr">classpathref</span>=<span class="xml-val">"ant-tasks"</span><span class="xml-tag">/&gt;</span>
+
+<span class="xml-tag">&lt;target</span> <span class="xml-attr">name</span>=<span class="xml-val">"publish"</span><span class="xml-tag">&gt;</span>
+  <span class="xml-tag">&lt;ceylon-compile</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+#{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
+#{/list}  <span class="xml-tag">&lt;/ceylon-compile&gt;</span>
+  <span class="xml-tag">&lt;ceylon-compile-js</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+#{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
+#{/list}  <span class="xml-tag">&lt;/ceylon-compile-js&gt;</span>
+  <span class="xml-tag">&lt;ceylon-doc</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+#{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
+#{/list}  <span class="xml-tag">&lt;/ceylon-doc&gt;</span>
+  <span class="xml-tag">&lt;ceylon-plugin</span> <span class="xml-attr">mode</span>=<span class="xml-val">pack</span> <span class="xml-attr">out</span>=<span class="xml-val">"${uploadRepoUrl}"</span> <span class="xml-attr">user</span>=<span class="xml-val">"${user.userName}"</span> <span class="xml-attr">pass</span>=<span class="xml-val">"XXX"</span><span class="xml-tag">&gt;</span>
+#{list moduleNames}    <span class="xml-tag">&lt;module</span> <span class="xml-attr">name</span>=<span class="xml-val">"${_}"</span><span class="xml-tag">/&gt;</span>
+#{/list}  <span class="xml-tag">&lt;/ceylon-plugin&gt;</span>
+<span class="xml-tag">&lt;/target&gt;</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>Size</th>
+            <td>${upload.size.formatSize()}</td>
+        </tr>
+        <tr>
+            <th>Created on</th>
+            <td>${upload.created.formatInUserTZ("HH:mm dd MMM yyyy")}</td>
+        </tr>
+        #{if upload.mavenDependencies.size() > 0}
+        <tr>
+            <th>Dependencies resolved from Maven Central</th>
+            <td>
+                <ul>
+                #{list items:upload.mavenDependencies, as:'md'}
+                    <li>${md.name}/${md.version}
+                        #{form @Uploads.removeMavenDependency(upload.id, md.name, md.version), class:"form-no-margin inline"}
+                             <button type="submit" class="btn btn-mini"
+                                     title="Do not resolve dependency from Maven Central"><i class="icon-remove-sign"></i> Do not resolve from Maven Central</button>
+                        #{/form}
+                    </li>
+                #{/list}
+                </ul>
+                #{form @Uploads.clearMavenDependencies(upload.id), class:"form-no-margin inline"}
+                     <button type="submit" class="btn btn-mini"
+                             title="Do not resolve anything from Maven Central"><i class="icon-fire"></i> Do not resolve anything from Maven Central</button>
+                #{/form}
+            </td>
+        </tr>
+        #{/if}
+        #{if upload.herdDependencies.size() > 0}
+        <tr>
+            <th>Dependencies resolved from Ceylon Herd</th>
+            <td>
+                <ul>
+                #{list items:upload.herdDependencies, as:'md'}
+                    <li>${md.name}/${md.version}
+                        #{form @Uploads.removeHerdDependency(upload.id, md.name, md.version), class:"form-no-margin inline"}
+                             <button type="submit" class="btn btn-mini"
+                                     title="Do not resolve dependency from Ceylon Herd"><i class="icon-remove-sign"></i> Do not resolve from Ceylon Herd</button>
+                        #{/form}
+                    </li>
+                #{/list}
+                </ul>
+                #{form @Uploads.clearHerdDependencies(upload.id), class:"form-no-margin inline"}
+                     <button type="submit" class="btn btn-mini"
+                             title="Do not resolve anything from Ceylon Herd"><i class="icon-fire"></i> Do not resolve anything from Ceylon Herd</button>
+                #{/form}
+            </td>
+        </tr>
+        #{/if}
+        <tr>
+            <th></th>
+            <td>
+                <a class="btn" href="@{Uploads.uploadRepoForm(upload.id)}" 
+                    title="Upload a repository as a zip file"><i class="icon-upload"></i> Upload repo archive</a>
+                #{form @Uploads.delete(upload.id), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-danger"
+                            title="Drop upload"><i class="icon-trash icon-white"></i> Delete</button>
+                #{/form}
+                #{form @Uploads.deleteFile(upload.id, '/'), class:"form-no-margin inline"}
+                    <button type="submit" class="btn btn-warning"
+                            title="Reset upload: remove every uploaded file"><i class="icon-off icon-white"></i> Reset</button>
+                #{/form}
+                #{if uploadInfo.publishable}
+                    #{form @Uploads.publish(upload.id), class:"form-no-margin inline"}
+                        <button type="submit" class="btn btn-primary"
+                                title="Publish this upload"><i class="icon-ok icon-white"></i> Publish</button>
+                    #{/form}
+                #{/if}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#status" data-toggle="tab" title="View upload diagnostics information">Status</a></li>
+  <li><a href="#files" data-toggle="tab" title="View uploaded files">Files</a></li>
+  <li><a href="#members" data-toggle="tab" title="View module members">Module members</a></li>
+  <li><a href="#scripts" data-toggle="tab" title="View module scripts">Module scripts</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane active" id="status">
+
+<table class="table table-bordered">
+    <caption>Diagnostics</caption>
+    <tbody>
+        #{list items:uploadInfo.diagnostics, as:'diagnostic'}
+            <tr>
+                <td>
+                    #{uploadStatus diagnostic.type /}
+                </td>
+                <td>
+                    #{if diagnostic.unknownPath}
+                        #{form @Uploads.deleteFileAsync(upload.id, diagnostic.unknownPath), class:"form-no-margin inline pull-right"}
+                            <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
+                                <i class="icon-trash icon-white"></i> Delete
+                            </button>
+                        #{/form}
+                        Unknown file:
+                        <a href="${util.Util.viewPublicUploadUrl(upload, diagnostic.unknownPath)}">/${diagnostic.unknownPath}</a>
+                    #{/if}
+                    #{else}
+                        ${diagnostic.message}
+                    #{/else}
+                </td>
+            </tr>
+        #{/list}
+        #{list items:uploadInfo.modules, as:'module'}
+            <tr>
+                <td>
+                    <a name="module-${module.name}-${module.version}"></a>
+                    %{
+                        type = module.type;
+                    }%
+                    #{uploadStatus type /}
+                </td>
+                <td>
+                    #{form @Uploads.deleteFileAsync(upload.id, module.path.substring(1)), class:"form-no-margin inline pull-right"}
+                        <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this module from upload"><i class="icon-trash icon-white">
+                            </i> Delete
+                        </button>
+                    #{/form}
+                    ${module.name}/${module.version}
+                    #{if module.mavenCoordinates}
+                        <span class="upload maven-coordinates">(${module.mavenCoordinates})</span>
+                    #{/if}
+                    <ul id="diagnostics-${module.name.slugify()}-${module.version.slugify()}">
+                        %{
+                            diagnosticsHidden = false;
+                        }%
+                        #{list items:module.diagnostics, as:'diagnostic'}
+                            <li #{if diagnostic.type == "success"}style="display:none"#{/if}>
+                                %{
+                                    if(diagnostic.type == "success")
+                                        diagnosticsHidden = true;
+                                }%
+                                #{uploadStatus diagnostic.type, message: diagnostic.message /}
+                                #{if diagnostic.projectClaim}
+                                    &nbsp;
+                                    #{if diagnostic.project == null}
+                                        <a href="@{Projects.claimForm(module.name)}" class="btn btn-mini"
+                                            title="Claim this project to be allowed to publish it"><i class="icon-plus"></i> Claim this project</a>
+                                        #{if user.isAdmin}
+                                            <a href="@{Projects.adminClaimForm(module.name)}" class="btn btn-mini btn-danger"
+                                                title="Pre-filled claim"><i class="icon-plus"></i> Pre-filled claim</a>
+                                        #{/if}
+                                    #{/if}
+                                    #{else}
+                                        <a href="@{Projects.view(diagnostic.project.id)}">#{projectStatus diagnostic.project.status /}</a>
+                                    #{/else}
+                                #{/if}
+                                #{elseif diagnostic.missingChecksum}
+                                    &nbsp;
+                                    #{form @Uploads.addChecksum(upload.id, diagnostic.fileToChecksum), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Generate a new checksum for this file"><i class="icon-plus"></i> Generate Checksum</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyNotFoundFromHerdAndMaven}
+                                    &nbsp;
+                                    #{form @Uploads.resolveHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Herd</button>
+                                    #{/form}
+                                    &nbsp;
+                                    #{form @Uploads.resolveMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Maven Central</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyNotFoundFromHerdOnly}
+                                    &nbsp;
+                                    #{form @Uploads.resolveHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Resolve dependency in Herd"><i class="icon-eye-open"></i> Resolve from Herd</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyResolvedFromHerd}
+                                    &nbsp;
+                                    #{form @Uploads.removeHerdDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Do not resolve dependency from Herd"><i class="icon-remove-sign"></i> Do not resolve from Herd</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.dependencyResolvedFromMaven}
+                                    &nbsp;
+                                    #{form @Uploads.removeMavenDependency(upload.id, diagnostic.dependencyName, diagnostic.dependencyVersion), class:"form-no-margin inline"}
+                                        <button type="submit" class="btn btn-mini"
+                                            title="Do not resolve dependency from Maven Central"><i class="icon-remove-sign"></i> Do not resolve from Maven Central</button>
+                                    #{/form}
+                                #{/elseif}
+                                #{elseif diagnostic.noModuleDescriptor}
+                                   &nbsp;<a href='http://ceylon-lang.org/documentation/1.0/reference/structure/module/#legacy_modules'
+                                            title='View documentation about this on ceylon-lang.org'>Learn how to describe these dependencies</a>
+                                #{/elseif}
+                                #{elseif diagnostic.dependenciesMismatch}
+                                   <table>
+                                       <tr>
+                                           <th>JS dependencies</th>
+                                           <th>JVM dependencies</th>
+                                       </tr>
+                                       <tr>
+                                           <td>
+                                               #{list items: diagnostic.jsDependencies, as: 'dep'}
+                                                   %{
+                                                       boolean depAdded = !diagnostic.jvmDependencies.contains(dep) && (!dep.nativeJs || dep.shouldExistInJvm());
+                                                   }%
+                                                   <div #{if depAdded}class="diff-added"#{/if}>
+                                                       ${dep.name}/${dep.version}#{if dep.nativeBackends} (for backends: ${dep.nativeBackends.join(", ")})#{/if}
+                                                   </div>
+                                               #{/list}
+                                           </td>
+                                           <td>
+                                               #{list items: diagnostic.jvmDependencies, as: 'dep'}
+                                                   %{
+                                                       boolean depAdded = !diagnostic.jsDependencies.contains(dep) && (!dep.nativeJvm || dep.shouldExistInJs());
+                                                   }%
+                                                   <div #{if depAdded}class="diff-added"#{/if}>
+                                                       ${dep.name}/${dep.version}#{if dep.nativeBackends} (for backends: ${dep.nativeBackends.join(", ")})#{/if}
+                                                   </div>
+                                               #{/list}
+                                           </td>
+                                       </tr>
+                                   </table>
+                                #{/elseif}
+                            </li>
+                        #{/list}
+                        #{if diagnosticsHidden}
+                            <li><a href='#' onclick="jQuery('#diagnostics-${module.name.slugify()}-${module.version.slugify()}').children().show(); jQuery(this).parent().hide(); return false;">Show all diagnostics</a></li>
+                        #{/if}
+                    </ul>
+                    <a href="${util.Util.viewPublicUploadUrl(upload, module.path.substring(1))}"
+                        title="Browse this module´s files"><i class="icon-folder-open"></i> Browse</a><br/>
+                    #{if module.docs.exists}
+                        <a href="@{Uploads.viewDoc(upload.id, module.name, module.version)}"
+                            title="View this module´s API documentation"><i class="icon-book"></i> View docs</a>
+                    #{/if}
+                </td>
+            </tr>
+        #{/list}
+    </tbody>
+</table>
+
+</div>
+<div class="tab-pane" id="files">
+
+#{if uploadedFiles.empty}
+    <div class="alert alert-info">
+        No file uploaded yet.
+    </div>
+#{/if}
+#{else}
+    <table class="table table-bordered">
+        <caption>Files</caption>
+        <tbody>
+            #{list items:uploadedFiles, as:'file'}
+                <tr>
+                    %{
+                        path = file.relativeTo(upload); 
+                    }%
+                    <td><a href="${util.Util.viewPublicUploadUrl(upload, path)}" title="View file">/${path}</a></td>
+                    <td>${file.length().formatSize()}</td>
+                    <td>
+                        #{form @Uploads.deleteFileAsync(upload.id, path), class:"form-no-margin inline"}
+                            <button type="button" class="btn btn-danger btn-mini" onclick="deleteFileAsync(this);" title="Remove this file from upload">
+                                <i class="icon-trash icon-white"></i> Delete
+                            </button>
+                        #{/form}
+                    </td>
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}
+
+</div>
+<div class="tab-pane" id="members">
+
+#{if uploadInfo.modules.empty}
+    <div class="alert alert-info">
+        No module uploaded yet.
+    </div>
+#{/if}
+#{else}
+    #{list items:uploadInfo.modules, as:'module'}
+        <table class="table table-bordered">
+            <caption>Members for ${module.name}/${module.version}</caption>
+            <tbody>
+                #{list items:module.members, as:'member'}
+                    <tr>
+                        <td>
+                            #{ceylondoc-member-icon member.type/}
+                            #{if member.shared}<span class="modifier">shared</span>#{/if}
+                            ${member.packageName}::${member.name}
+                        </td>
+                    </tr>
+                #{/list}
+            </tbody>
+        </table>
+    #{/list}
+#{/else}
+
+</div>
+<div class="tab-pane" id="scripts">
+
+#{if uploadInfo.modules.empty}
+    <div class="alert alert-info">
+        No module uploaded yet.
+    </div>
+#{/if}
+#{else}
+    #{list items:uploadInfo.modules, as:'module'}
+        #{if module.scriptDescriptions.size() > 0}
+            <table class="table table-bordered">
+                <caption>Scripts and Plugins for ${module.name}/${module.version}</caption>
+                <tbody>
+                    #{list items:module.scriptDescriptions, as:'script'}
+                        <tr>
+                            <td><tt>ceylon ${script.name}</tt>: ${script.description} (
+                            #{if script.plugin}
+                            Native Plugin in <a href="/modules/${script.module}">${script.module}</a>
+                            #{/if}
+                            #{else}
+                            ${script.unix ? "Unix Script" : "Windows Batch"}
+                            #{/else})</td>
+                        </tr>
+                    #{/list}
+                </tbody>
+            </table>
+        #{/if}
+    #{/list}
+#{/else}
+
+</div>
+
+</div>

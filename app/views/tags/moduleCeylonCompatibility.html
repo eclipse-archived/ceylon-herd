@@ -1,0 +1,10 @@
+#{if _arg.jvmBinMajor == 0 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M2 (outdated)</span>#{/if}
+#{elseif _arg.jvmBinMajor == 1 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M3 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 2 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M3.1 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 3 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M4 (oudated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 4 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M5 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 5 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: M6 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 6 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: 1.0.0 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 7 && _arg.jvmBinMinor == 0}<span class="label label-warning">JVM: 1.1.0 (outdated)</span>#{/elseif}
+#{elseif _arg.jvmBinMajor == 8 && (_arg.jvmBinMinor == 0 || _arg.jvmBinMinor == 1)}<span class="label label-success">JVM: 1.2.x, 1.3.x (latest)</span>#{/elseif}
+#{else}<span class="label label-important">JVM: Unknown (${_arg.jvmBinMajor}/${_arg.jvmBinMinor})</span>#{/else}

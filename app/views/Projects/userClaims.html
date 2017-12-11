@@ -1,0 +1,31 @@
+#{extends 'main.html' /}
+#{set title:'Project claims for '+viewedUser.userName /}
+
+#{projectsMenuBar user: user/}
+
+<p>
+    List of project claims for #{user viewedUser /}:
+</p>
+
+#{if projects.empty}
+    <div class="alert alert-info">
+        No project claims yet.
+    </div>
+#{/if}
+#{else}
+    #{pager page: page, pages: pages, total: total/}
+    <table class="table table-striped table-selectable">
+        <caption>Project claims</caption>
+        <tbody>
+            #{list items:projects, as:'project'}
+                <tr>
+                    <td><a href="@{Projects.view(project.id)}">${project.moduleName}</a></td>
+                    <td>
+                        #{projectStatus project.status /}
+                    </td>
+                    #{projectActions user: user, project: project/}
+                </tr>
+            #{/list}
+        </tbody>
+    </table>
+#{/else}

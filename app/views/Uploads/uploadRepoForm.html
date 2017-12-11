@@ -1,0 +1,108 @@
+#{extends 'main.html' /}
+#{set title:'Upload a repo archive or artifact' /}
+#{set hasForm: true /}
+#{set 'moreStyles'}
+<style type="text/css">
+.jar {
+    display: none;
+}
+</style>
+#{/set}
+#{set 'moreScripts'}
+<script type="text/javascript">
+    function checkUpload(input){
+    	var path = jQuery(input).val();
+    	if(!path){
+    		hideJarForm();
+    		return;
+    	}
+    	var sep = path.lastIndexOf("\\");
+    	if(sep == -1)
+    		sep = path.lastIndexOf("/");
+    	var name;
+    	if(sep != -1)
+    		name = path.substring(sep+1);
+    	else
+    		name = path;
+    	if(!name){
+            hideJarForm();
+    		return;
+    	}
+    	if(name.toLowerCase().match(/\.jar$/)){
+    		// get rid of extension
+    		name = name.substring(0, name.length - 4);
+    		// split at version separator if any
+    		sep = name.indexOf("-");
+    		if(sep != -1){
+    			jQuery("#module").val(name.substring(0, sep));
+                jQuery("#version").val(name.substring(sep+1));
+    		}else{
+                jQuery("#module").val(name);
+    		}
+            showJarForm();
+    	}else{
+            hideJarForm();
+		}
+	}
+    function hideJarForm(){
+    	jQuery(".jar").hide();
+    }
+    function showJarForm(){
+        jQuery(".jar").show();
+    }
+</script>
+#{/set}
+
+<p>
+    <a href="@{Uploads.view(upload.id)}" title="Cancel and go back to upload">Back to upload</a>
+</p>
+
+<!-- Those are not visible by default so we push them up -->
+#{ifError 'module'}
+    <div class="alert alert-error">
+        Module name required if you specify a version 
+    </div>
+#{/ifError}
+#{ifError 'version'}
+    <div class="alert alert-error">
+        Module version required if you specify a name 
+    </div>
+#{/ifError}
+
+#{form @Uploads.uploadRepo(upload.id), enctype:'multipart/form-data'}
+
+<fieldset>
+    <legend>Upload a repo archive</legend>
+    <div class="control-group #{errorClassBootstrap 'repo'/}">
+        <label class="control-label" for="repo">Repo archive file (.zip) or module artifact (.car, .jar, .js or .src)</label>
+        <div class="controls">
+            <input name="repo" type="file" value="${flash.repo}" onchange="checkUpload(this);" title="Choose file to upload"/>
+            <span class="help-inline">​#{error 'repo'/}</span>
+        </div>
+    </div>
+    <div class="alert alert-info jar">
+        It appears that you are uploading a Jar file. We tried to guess the module name and version
+        but you can change them if you disagree.
+    </div>
+    <div class="control-group #{errorClassBootstrap 'module'/} jar">
+        <label class="control-label" for="module">Module name for the given Jar file</label>
+        <div class="controls">
+            <input name="module" id="module" value="${flash.module}" title="Choose module name"/>
+            <span class="help-inline">​#{error 'module'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'version'/} jar">
+        <label class="control-label" for="version">Module version for the given Jar file</label>
+        <div class="controls">
+            <input name="version" id="version" value="${flash.version}" title="Choose module version"/>
+            <span class="help-inline">​#{error 'version'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a class="btn" href="@{Uploads.view(upload.id)}" title="Cancel and go back to upload">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Upload file"
+            title="Upload this repo archive"/>
+    </div>
+</fieldset>
+
+#{/form}

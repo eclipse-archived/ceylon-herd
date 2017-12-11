@@ -1,0 +1,33 @@
+#{extends 'main.html' /}
+#{set title:'Project is already claimed by someone else' /}
+#{set hasForm: true /}
+
+<div class="alert alert-warning">
+    <p>
+        This project is already claimed by #{user existingOwner/}.
+    </p>
+    <p>
+        At this point, you have a choice between the following options:
+    </p>
+    <ul>
+        <li><a href="@{Application.index()}">Give up and go home</a></li>
+        <li>
+            #{form action: @Projects.askForParticipation(module), class: "form-horizontal"}
+                <input type="submit" class="btn btn-info btn-mini" value="Send an email"/> to #{user existingOwner/} on your behalf, 
+                asking him to add you to the list of this project's administrators
+            #{/form}
+        </li>
+        <li>
+            #{form action: @Projects.claim(force: true), class: "form-horizontal"}
+                <input type="hidden" name="module" value="${module}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <input type="hidden" name="license" id="license" value="${license}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <input type="hidden" name="url" value="${url}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <input type="hidden" name="role" value="${role}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+                <input type="hidden" name="description" value="${description}" maxlength="${util.Util.TEXT_SIZE}"/>
+                <input type="hidden" name="motivation" value="${motivation}" maxlength="${util.Util.TEXT_SIZE}"/>
+                Or <input type="submit" class="btn btn-warning btn-mini" value="Claim project anyway"/>
+            #{/form}
+        </li>
+    </ul>
+</div>
+

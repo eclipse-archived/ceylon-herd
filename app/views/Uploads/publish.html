@@ -1,0 +1,14 @@
+#{extends 'main.html' /}
+#{set title:'Your modules have been published' /}
+
+<table class="table table-striped">
+    <caption>You just published the following modules</caption>
+    <tbody>
+        #{moduleVersions versions, showName:true/}
+    </tbody>
+</table>
+
+#{form @Uploads.newUpload()}
+    <button type="submit" class="btn btn-primary" 
+        title="Create a new upload, to start uploading new modules"><i class="icon-plus icon-white"></i> New Upload</button>
+#{/form}

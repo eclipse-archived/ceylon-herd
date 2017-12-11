@@ -1,0 +1,71 @@
+#{extends 'main.html' /}
+#{set title:'Edit module' /}
+#{set hasForm: true /}
+
+<h1>#{module module /} Administration</h1>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#" onclick="return false;" title="General information">Information</a></li>
+    <li><a href="@{LoggedInRepo.permissionsForm(module.name)}" title="Edit module permissions">Permissions</a></li>
+    #{if module.isOwnedBy(user)}
+        <li><a href="@{LoggedInRepo.transferForm(module.name)}" title="Transfer module">Transfer</a></li>
+    #{/if}
+</ul>
+
+#{form action: @LoggedInRepo.edit(module.name), class: "form-horizontal"}
+
+<fieldset>
+    <legend>Edit module</legend>
+    <div class="control-group #{errorClassBootstrap 'friendlyName'/}">
+        <label class="control-label" for="friendlyName">Friendly name</label>
+        <div class="controls">
+            <input name="friendlyName" value="${flash.friendlyName ?: module.friendlyName}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'friendlyName'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'categoryId'/}">
+        <label class="control-label" for="categoryId">Category</label>
+        <div class="controls">
+            <select name="categoryId" #{if !user?.isAdmin}disabled="true"#{/if}>
+            	<option value="">No category</option>
+            	#{list categories, as: 'c'}
+            	<option value="${c.id}" #{if module.category?.id == c.id}selected="selected"#{/if}>${c.name}</option>
+            	#{/list}
+            </select>
+            <span class="help-inline">​#{error 'categoryId'/}</span>
+            #{if user != null && user.isAdmin}
+                <span class="help-block"><a href="@{AdminCategories.index()}">Edit categories</a></span>
+            #{/if}
+            #{else}
+                <span class="muted">Only administrator can edit category</span>
+            #{/else}
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'url'/}">
+        <label class="control-label" for="url">Home page</label>
+        <div class="controls">
+            <input name="url" value="${flash.url ?: module.homeURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'url'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'code'/}">
+        <label class="control-label" for="code">Code URL</label>
+        <div class="controls">
+            <input name="code" value="${flash.code ?: module.codeURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'code'/}</span>
+        </div>
+    </div>
+    <div class="control-group #{errorClassBootstrap 'issues'/}">
+        <label class="control-label" for="issues">Issue tracker URL</label>
+        <div class="controls">
+            <input name="issues" value="${flash.issues ?: module.issueTrackerURL}" maxlength="${util.Util.VARCHAR_SIZE}"/>
+            <span class="help-inline">​#{error 'issues'/}</span>
+        </div>
+    </div>
+    <div class="form-actions">
+        <a href="@{Repo.versions(module.name)}" class="btn" title="Go back to module">Cancel</a>​
+        <input type="submit" class="btn btn-primary" value="Save module" title="Save module"/>
+    </div>
+</fieldset>
+
+#{/form}

@@ -1,0 +1,30 @@
+#{extends 'main.html' /}
+#{set title:'Are you sure you want to remove a category?' /}
+
+<div class="alert">
+    <h4 class="alert-heading">Are you sure?</h4>
+    <p>
+        Do you really want to delete the category '${category.name}' ?
+    </p>
+    #{if category.modules.size() > 0}
+        <p>
+            The following modules are registered for this category and will be updated:
+        </p>
+        <ul>
+            #{list items: category.modules, as: 'module'}
+                <li>#{module module/}</li>
+            #{/list}
+        </ul>
+    #{/if}
+    #{else}
+        <p>
+            This category is not used by any module.
+        </p>
+    #{/else}
+</div>
+
+#{form @AdminCategories.delete(category.id), class:"form-inline form-no-margin"}
+    <a href="@{AdminCategories.index()}" title="Let´s go back to safety" class="btn">No, let´s cancel</a>
+    <button type="submit" class="btn btn-danger action"
+            title="I know what I´m doing"><i class="icon-trash icon-white"></i> Yes I am sure</button>
+#{/form}

@@ -1,0 +1,48 @@
+#{if _arg.authors}
+  "authors": [
+#{list  _arg.authors, as: 'author'}
+   "${author.name?.jsonEscape()}"#{if !author_isLast}, #{/if} 
+#{/list}
+  ],
+#{/if}
+  "doc": "${ _arg.doc?.jsonEscape()}",
+  "license": "${ _arg.license?.jsonEscape()}"#{if _apiVersion != util.ApiVersion.API1},#{/if} 
+#{if _apiVersion != util.ApiVersion.API1}
+  "dependencies": [
+#{list  _arg.dependencies, as: 'dependency'}
+   {
+    "module": "${dependency.name?.jsonEscape()}",
+    "version": "${dependency.version?.jsonEscape()}",
+    "shared": ${dependency.export},
+    "optional": ${dependency.optional},
+    "maven": ${dependency.resolvedFromMaven}
+   }#{if !dependency_isLast}, #{/if} 
+#{/list}
+  ],
+  "artifacts": [
+#{if _arg.isCarPresent}
+   {
+    "suffix": ".car",
+    "binaryMajorVersion": ${_arg.jvmBinMajor},
+    "binaryMinorVersion": ${_arg.jvmBinMinor}
+   }#{if _arg.isJarPresent || _arg.isJsPresent || _arg.isSourcePresent},#{/if} 
+#{/if}
+#{if _arg.isJarPresent}
+   {
+    "suffix": ".jar"
+   }#{if _arg.isJsPresent || _arg.isSourcePresent},#{/if} 
+#{/if}
+#{if _arg.isJsPresent}
+   {
+    "suffix": ".js",
+    "binaryMajorVersion": ${_arg.jsBinMajor},
+    "binaryMinorVersion": ${_arg.jsBinMinor}
+   }#{if _arg.isSourcePresent},#{/if} 
+#{/if}
+#{if _arg.isSourcePresent}
+   {
+    "suffix": ".src"
+   }
+#{/if}
+  ]
+#{/if}

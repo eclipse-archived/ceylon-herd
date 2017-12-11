@@ -1,0 +1,21 @@
+#{extends 'main.html' /}
+#{set title:'List of modules in '+category.name /}
+
+<h2>${category.name}</h2>
+<p>
+    ${category.description?.md()}
+</p>
+
+#{if modules.empty}
+    <div class="alert alert-info">
+        No module in this category yet.
+    </div>
+#{/if}
+#{else}
+
+    #{moduleTable 
+        caption:caption, 
+        modules:modules, 
+        user:user /}
+
+#{/else}

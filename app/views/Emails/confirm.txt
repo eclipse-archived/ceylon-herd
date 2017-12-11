@@ -1,0 +1,11 @@
+#{extends 'email.txt' /}
+
+Welcome to Ceylon Repo.
+
+You received this email because someone (hopefully you) wants to register on Ceylon Repo.
+
+If you don't want to register, you can safely ignore this email.
+
+If you want to register, complete your registration by going to the following address:
+
+@@{Register.confirm(user.confirmationCode)}

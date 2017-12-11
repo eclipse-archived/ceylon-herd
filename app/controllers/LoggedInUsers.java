@@ -1,0 +1,190 @@
+/********************************************************************************
+ * Copyright (c) 2011-2017 Red Hat Inc. and/or its affiliates and others
+ *
+ * This program and the accompanying materials are made available under the 
+ * terms of the Apache License, Version 2.0 which is available at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * SPDX-License-Identifier: Apache-2.0 
+ ********************************************************************************/
+package controllers;
+
+import java.util.UUID;
+
+import org.apache.commons.lang.StringUtils;
+
+import models.User;
+import notifiers.Emails;
+import play.Play;
+import play.data.validation.Email;
+import play.data.validation.MaxSize;
+import play.data.validation.Required;
+import play.data.validation.Validation;
+import util.Util;
+
+public class LoggedInUsers extends LoggedInController {
+
+    public static final String EMAIL_SEPARATOR = "|";
+
+    private static User getUser(String username) {
+        if(username == null || username.isEmpty()) {
+            Validation.addError("", "Unknown user");
+            prepareForErrorRedirect();
+            Application.index();
+        }
+
+        models.User user = models.User.findRegisteredByUserName(username);
+        notFoundIfNull(user);
+        if(!isAuthorised(user)){
+            Validation.addError("", "Unauthorised");
+            prepareForErrorRedirect();
+            Users.view(username);
+        }
+        return user;
+    }
+
+    public static void editForm(String username){
+        User editedUser = getUser(username);
+        
+        render(editedUser);
+    }
+
+    public static void edit(@Required String username,
+            @MaxSize(Util.VARCHAR_SIZE) String firstName,
+            @MaxSize(Util.VARCHAR_SIZE) String lastName,
+            @Required @MaxSize(Util.VARCHAR_SIZE) @Email String email,
+            boolean isAdmin){
+        User currentUser = getUser();
+        
+        if(validationFailed()){
+            editForm(username);
+        }
+        User editedUser = getUser(username);
+
+        editedUser.firstName = firstName;
+        editedUser.lastName = lastName;
+
+        // Email update
+        boolean hasToConfirmEmail = false;
+        boolean skipEmail = "true".equals(Play.configuration.get("register.skip.email"));
+        if (!StringUtils.equals(editedUser.email, email)) {
+            // Only admin can modify mail without confirmation
+            hasToConfirmEmail = !currentUser.isAdmin && !skipEmail;
+            if (hasToConfirmEmail) {
+                editedUser.confirmationCode = UUID.randomUUID().toString() + EMAIL_SEPARATOR + email;
+            }
+            else {
+                editedUser.email = email;
+            }
+        }
+        // In case the user has previously modify its email and not confirmed it,
+        // we delete the confirmation code
+        else if(editedUser.isEmailConfirmationNeeded()) {
+            editedUser.confirmationCode = null;
+        }
+
+        // only support setting admin from admins
+        if(currentUser.isAdmin){
+            editedUser.isAdmin = isAdmin;
+        }
+
+        editedUser.save();
+
+        if (hasToConfirmEmail) {
+            flash("message", "User profile modified. An email has been sent to "
+                    + email
+                    + ". Please follow the instructions in this email in order to validate your new email address.");
+            Emails.confirmEmailModification(editedUser, email);
+        }
+        else {
+            flash("message", "User profile modified.");
+        }
+        Users.view(username);
+    }
+
+    public static void passwordForm(String username) {
+        User editedUser = getUser(username);
+
+        render(editedUser);
+    }
+
+    public static void passwordEdit(@Required String username,
+            @MaxSize(Util.VARCHAR_SIZE) String oldPassword,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String password,
+            @Required @MaxSize(Util.VARCHAR_SIZE) String password2) {
+        User currentUser = getUser();
+        
+        // admin doesn't need old password but regular users do
+        if(!currentUser.isAdmin){
+            Validation.required("oldPassword", oldPassword);
+        }
+        
+        User.validatePasswordComplexity(password);
+        if(validationFailed()){
+            passwordForm(username);
+        }
+        User editedUser = getUser(username);
+
+        // old password check for non-admins
+        if(!currentUser.isAdmin){
+            if(!editedUser.checkPassword(oldPassword)){
+                Validation.addError("oldPassword", "Wrong Password");
+                prepareForErrorRedirect();
+                passwordForm(username);
+            }
+        }
+
+        if(!password.equals(password2)) {
+            Validation.addError("password2","Confirmation password doesn't match the new password");
+            prepareForErrorRedirect();
+            passwordForm(username);
+        }
+
+        if(password.equals(oldPassword)){
+            Validation.addError("password", "Old and new password are the same!");
+            prepareForErrorRedirect();
+            passwordForm(username);
+        }
+
+        editedUser.changePassword(password);
+        editedUser.save();
+
+        flash("message", "Password modified.");
+        Users.view(username);
+    }
+
+
+    public static void confirmEmail(String username, String confirmationCode){
+        if(StringUtils.isEmpty(confirmationCode)) {
+            Validation.addError("confirmationCode", "Missing confirmation code");
+            prepareForErrorRedirect();
+            Application.index();
+        }
+        User user = User.findByUserNameAndConfirmationCode(username, confirmationCode);
+        if(user == null){
+            Validation.addError("confirmationCode", "Invalid confirmation code");
+            prepareForErrorRedirect();
+            Application.index();
+        }
+
+        int separatorIndex = confirmationCode.indexOf(EMAIL_SEPARATOR);
+        if (separatorIndex < 0) {
+            Validation.addError("confirmationCode", "Invalid confirmation code");
+            prepareForErrorRedirect();
+            Application.index();
+        }
+        String email = confirmationCode.substring(separatorIndex + 1);
+
+        if (!StringUtils.isEmpty(email)) {
+            user.email = email;
+            user.confirmationCode = null;
+            user.save();
+        }
+
+        render(user);
+    }
+
+    private static boolean isAuthorised(User user){
+        return getUser() == user || getUser().isAdmin;
+    }
+}

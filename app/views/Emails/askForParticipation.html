@@ -1,0 +1,10 @@
+#{extends 'email.html' /}
+
+<p>
+ ${requestingUser.userName} would like to participate on your module 
+ <a href="@@{Repo.versions(ownedProject.moduleName)}">${ownedProject.moduleName}</a>.
+</p>
+<p>
+ You can add him by <a href="@@{LoggedInRepo.permissionsForm(ownedProject.moduleName)}">granting him administration</a>
+ permission, if you want to. 
+</p>

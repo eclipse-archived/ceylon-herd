@@ -1,0 +1,64 @@
+#{extends 'main.html' /}
+#{set title:'Login' /}
+#{set hasForm: true /}
+
+#{set 'moreStyles'}
+<style>
+    .reset-password {
+        position: relative;
+        top: 2px;
+        left: 10px;
+    }
+</style>
+#{/set}
+
+<div id="login">
+<div class="row">
+<div class="span6 offset3">
+
+#{if flash.error}
+<p class="error alert alert-error">
+    &{flash.error}
+</p>
+#{/if}
+#{if flash.success}
+<p class="success alert alert-success">
+    &{flash.success}
+</p>
+#{/if}
+
+#{form action: @authenticate(), class: "form-horizontal"}
+<fieldset>
+    <legend>
+        Login
+    </legend>
+    <div id="username-field" class="control-group">
+        <label class="control-label" for="username">Username</label>
+        <div class="controls">
+            <input type="text" name="username" id="username" value="${flash.username}" autofocus />
+        </div>
+    </div>
+    <div id="password-field" class="control-group">
+        <label class="control-label" for="password">Password</label>
+        <div class="controls">
+            <input type="password" name="password" id="password" value="" />
+        </div>
+    </div>
+    <div id="remember-field" class="control-group">
+        <div class="controls">
+            <label class="checkbox" for="remember">
+                <input type="checkbox" name="remember" id="remember" value="true" ${flash.remember ? 'checked="true"' : ''} />
+                Remember me
+            </label>
+        </div>
+    </div>
+    <div id="signin-field" class="form-actions">
+        <input type="submit" id="signin" class="btn btn-primary" value="&{'secure.signin'}" />
+        <a class="reset-password" href='@{Security.resetPasswordRequest()}'>Did you forget your password?</a>
+    </div>
+</fieldset>
+#{/form}
+
+</div>
+</div>
+</div>

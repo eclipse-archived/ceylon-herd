@@ -1,0 +1,40 @@
+  <doc>${_arg.doc?.xmlEscape()}</doc>
+  <license>${_arg.license?.xmlEscape()}</license>
+#{list _arg.authors, as: 'author'}
+  <authors>${author.name?.xmlEscape()}</authors>
+#{/list}
+#{if _apiVersion != util.ApiVersion.API1}
+#{list _arg.dependencies, as: 'dependency'}
+  <dependency>
+   <module>${dependency.name?.xmlEscape()}</module>
+   <version>${dependency.version?.xmlEscape()}</version>
+   <shared>${dependency.export}</shared>
+   <optional>${dependency.optional}</optional>
+   <maven>${dependency.resolvedFromMaven}</maven>
+  </dependency>
+#{/list}
+#{if _arg.isCarPresent}
+  <artifact>
+   <suffix>.car</suffix>
+   <binaryMajorVersion>${_arg.jvmBinMajor}</binaryMajorVersion>
+   <binaryMinorVersion>${_arg.jvmBinMinor}</binaryMinorVersion>
+  </artifact>
+#{/if}
+#{if _arg.isJarPresent}
+  <artifact>
+   <suffix>.jar</suffix>
+  </artifact>
+#{/if}
+#{if _arg.isJsPresent}
+  <artifact>
+   <suffix>.js</suffix>
+   <binaryMajorVersion>${_arg.jsBinMajor}</binaryMajorVersion>
+   <binaryMinorVersion>${_arg.jsBinMinor}</binaryMinorVersion>
+  </artifact>
+#{/if}
+#{if _arg.isSourcePresent}
+  <artifact>
+   <suffix>.src</suffix>
+  </artifact>
+#{/if}
+#{/if}
